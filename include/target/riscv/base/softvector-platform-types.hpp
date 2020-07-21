@@ -39,6 +39,7 @@ public:
 	uint16_t d_;
 	bool is_frac(void) const {return((n_>d_)?0:1);}
 	SVMul(uint16_t n, uint16_t d) : n_(n), d_(d){}
+	SVMul(const SVMul& other) : n_(other.n_), d_(other.d_) {}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -88,7 +89,7 @@ protected:
 	const size_t vector_length_;						///!< VL, Vector length in elements
 	const size_t single_element_width_bits_;			///!< SEW, single element width in bits
 	uint8_t* mem_;										///!< Main memory.
-	const SVMul& multiplicity_;							///!< LMUL, Vector register multiplicity, i.e. how many vector register make up one vector
+	const SVMul multiplicity_;							///!< LMUL, Vector register multiplicity, i.e. how many vector register make up one vector
 public:	
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
