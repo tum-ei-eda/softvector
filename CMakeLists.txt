@@ -8,18 +8,6 @@ SET(TARGET_NAME soft CACHE STRING "No Target specified. Assuming softvector for 
 STRING(TOLOWER ${TARGET_NAME} TARGET_NAME )
 SET(TARGET_PLATFORM_NAME riscv CACHE STRING "No Target Architecture specified. Assuming softvector for riscv (RVV).")
 
-########### VPU lib ############
-
-ADD_LIBRARY(vpu SHARED
-	src/vpu/softvector-element.cpp
-	src/vpu/softvector-vector.cpp
-	src/vpu/softvector-register.cpp
-)
-
-TARGET_INCLUDE_DIRECTORIES(vpu PUBLIC
-	include/
-)
-
 ########### softvector lib ############
 
 IF(${TARGET_NAME} STREQUAL "etiss")
@@ -58,17 +46,20 @@ ELSE()
 ENDIF()
 
 ADD_LIBRARY(${PROJECT_NAME} 
+	src/vpu/softvector-element.cpp
+	src/vpu/softvector-vector.cpp
+	src/vpu/softvector-register.cpp
 	src/target/${TARGET_PLATFORM_NAME}/base/base.cpp
 	src/target/${TARGET_PLATFORM_NAME}/lsu/lsu.cpp
 	src/target/${TARGET_PLATFORM_NAME}/arithmetic/integer.cpp
 	${TARGET_SRCS}
 )
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PRIVATE
-   include/target/${TARGET_PLATFORM_NAME}
-   include/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}
-   ${TARGET_INCLUDES}
+	include/target/${TARGET_PLATFORM_NAME}
+	include/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}
+	${TARGET_INCLUDES}
+	include/
 )
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC vpu)
 
 ########### INSTALLATION ############
 
