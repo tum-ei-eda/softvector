@@ -111,7 +111,7 @@ public:
 	void init(void){		
 		size_t group_size_regs = (multiplicity_.is_frac() ? 1 : multiplicity_.n_ / multiplicity_.d_); ///!< How many vector register make up one vector
 		size_t n_vector_register_groups = (regs_.size() / (multiplicity_.is_frac() ? 1 : multiplicity_.n_ / multiplicity_.d_)); ///!< How many vector register groups
-		size_t n_elements_per_reg = ((! multiplicity_.is_frac()) ? (vector_register_length_bits_/single_element_width_bits_) : ((vector_register_length_bits_)*multiplicity_.n_/single_element_width_bits_/multiplicity_.d_)); ///!< Number of elements per vector register
+		//size_t n_elements_per_reg = ((! multiplicity_.is_frac()) ? (vector_register_length_bits_/single_element_width_bits_) : ((vector_register_length_bits_)*multiplicity_.n_/single_element_width_bits_/multiplicity_.d_)); ///!< Number of elements per vector register
 		
 		uint8_t* tmem = mem_;
 		for(auto &it: regs_){

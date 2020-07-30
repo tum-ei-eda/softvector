@@ -71,8 +71,9 @@ install(TARGETS ${PROJECT_NAME} DESTINATION ${TARGET_PLATFORM_NAME}_${TARGET_NAM
 option(SOFTVECTOR_BUILD_DOC "Build doc target for SoftVector project" ON)
 set(ETISS_DOX_LOCATIONS ${ETISS_DOX_LOCATIONS} ${PROJECT_SOURCE_DIR}/include)
 set(ETISS_DOX_LOCATIONS ${ETISS_DOX_LOCATIONS} ${PROJECT_SOURCE_DIR}/src)
+if(SOFTVECTOR_BUILD_DOC)
 FIND_PACKAGE(Doxygen)
-if(DOXYGEN_FOUND AND SOFTVECTOR_BUILD_DOC)
+if(DOXYGEN_FOUND)
 	string(REPLACE ";" " " P_ETISS_DOX_LOCATIONS "${ETISS_DOX_LOCATIONS}")
 	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/doxyfile @ONLY)
 	add_custom_target(doc
@@ -83,7 +84,7 @@ if(DOXYGEN_FOUND AND SOFTVECTOR_BUILD_DOC)
 else()
     message(WARNING "Doxygen could not be found. Build target 'doc' (e.g. make doc) will not be available")
 endif()
-
+endif()
 ########### TESTING #################
 
 ENABLE_TESTING()
