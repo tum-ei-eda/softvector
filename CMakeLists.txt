@@ -4,7 +4,10 @@ PROJECT(softvector)
 SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-SET(TARGET_NAME soft CACHE STRING "No Target specified. Assuming softvector for general use.")
+IF(NOT TARGET_NAME)
+	SET(TARGET_NAME soft)
+ENDIF()
+
 STRING(TOLOWER ${TARGET_NAME} TARGET_NAME )
 SET(TARGET_PLATFORM_NAME riscv CACHE STRING "No Target Architecture specified. Assuming softvector for riscv (RVV).")
 
