@@ -81,7 +81,7 @@ VILL::vpu_return_t VARITH::add_vi(
 	} else {
 		V.init();
 
-		int64_t imm = (s_imm <= 31 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
+		int64_t imm = (s_imm < 16 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
@@ -248,7 +248,7 @@ VILL::vpu_return_t VARITH::rsub_vi(
 	} else {
 		V.init();
 
-		int64_t imm = (s_imm <= 31 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
+		int64_t imm = (s_imm < 16 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
 		RVVector& vs2 = V.get_vec(src_vec_reg_rhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
@@ -536,7 +536,7 @@ VILL::vpu_return_t VARITH::and_vi(
 	} else {
 		V.init();
 		
-		int64_t imm = (s_imm <= 31 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
+		int64_t imm = (s_imm < 16 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
@@ -637,7 +637,7 @@ VILL::vpu_return_t VARITH::or_vi(
 	} else {
 		V.init();
 		
-		int64_t imm = (s_imm <= 31 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
+		int64_t imm = (s_imm < 16 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 		
@@ -738,7 +738,7 @@ VILL::vpu_return_t VARITH::xor_vi(
 	} else {
 		V.init();
 		
-		int64_t imm = (s_imm <= 31 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
+		int64_t imm = (s_imm < 16 ) ? s_imm : static_cast<int8_t>(s_imm | uint8_t(~0x1F));
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
