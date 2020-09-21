@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -26,16 +26,16 @@
 #include "base/base.hpp"
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \brief This space concludes arithmetic helpers
-namespace VARITH {
+/// \brief This space concludes integer arithmetic helpers
+namespace VARITH_INT {
 
-/* rvv spec. 12.1 - Vector Single-Width Add and Substract */	
+/* rvv spec. 12.1 - Vector Single-Width Add and Substract */
 /* ADD */
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Add vector-vector
 	/// \details For all i: D[i] = L[i] + R[i]
 	VILL::vpu_return_t add_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -51,7 +51,7 @@ namespace VARITH {
 	/// \brief Add vector-immediate
 	/// \details For all i: D[i] = L[i] + sign_extend(_vimm)
 	VILL::vpu_return_t add_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -63,12 +63,12 @@ namespace VARITH {
 		uint16_t vec_elem_start,		//!< Starting element [index]
 		bool mask_f						//!< Vector mask flag. 1: masking 0: no masking
 	);
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Add vector-scalar
-	/// \details For all i: D[i] = L[i] + sign_extend(*X)  
+	/// \details For all i: D[i] = L[i] + sign_extend(*X)
 	VILL::vpu_return_t add_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -134,7 +134,7 @@ namespace VARITH {
 		uint16_t vec_elem_start,		//!< Starting element [index]
 		bool mask_f,					//!< Vector mask flag. 1: masking 0: no masking
 		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
-	);	
+	);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Sub vector-scalar
 	/// \details For all i: D[i] = sign_extend(imm) - R[i].
@@ -150,14 +150,14 @@ namespace VARITH {
 		uint8_t s_imm,					//!< Sign or zero extending 5-bit immediate
 		uint16_t vec_elem_start,		//!< Starting element [index]
 		bool mask_f						//!< Vector mask flag. 1: masking 0: no masking
-	);	
-	
-/* rvv spec. 12.2 - Vector Widening Add/Substract */	
+	);
+
+/* rvv spec. 12.2 - Vector Widening Add/Substract */
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Widening unsigned <OP> Add vector-vector
 	/// \details For all i: D[i] = L[i] + R[i]. w/ D:2*SEW, L:SEW,  R:SEW
 	VILL::vpu_return_t wop_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -175,7 +175,7 @@ namespace VARITH {
 	/// \brief Widening unsigned <OP> Add vector-scalar
 	/// \details For all i: D[i] = L[i] + sign_extend(*X). w/ D:2*SEW, L:SEW
 	VILL::vpu_return_t wop_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -194,7 +194,7 @@ namespace VARITH {
 	/// \brief Widening integer <OP> vector-vector
 	/// \details For all i: D[i] = L[i] + R[i]. w/ D:2*SEW, L:SEW,  R:SEW
 	VILL::vpu_return_t wop_wv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -212,7 +212,7 @@ namespace VARITH {
 	/// \brief Widening unsigned <OP> Add vector-scalar
 	/// \details For all i: D[i] = L[i] + sign_extend(*X). w/ D:2*SEW, L:SEW
 	VILL::vpu_return_t wop_wx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -227,7 +227,7 @@ namespace VARITH {
 		bool signed_f,					//!< Signed or unsigned operation type: vaL = true: signed
 		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
 	);
-	
+
 /* rvv spec. 12.3 - Vector Integer Extension */
 ///TODO: vzext.vf{2,4,8}
 ///TODO: vsext.vf{2,4,8}
@@ -241,7 +241,7 @@ namespace VARITH {
 	/// \brief AND vector-vector
 	/// \details For all i: D[i] = L[i] & R[i]
 	VILL::vpu_return_t and_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -257,7 +257,7 @@ namespace VARITH {
 	/// \brief AND vector-immediate
 	/// \details For all i: D[i] = L[i] & sign_extend(_vimm)
 	VILL::vpu_return_t and_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -271,9 +271,9 @@ namespace VARITH {
 	);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief AND vector-scalar
-	/// \details For all i: D[i] = L[i] & sign_extend(*X)  
+	/// \details For all i: D[i] = L[i] & sign_extend(*X)
 	VILL::vpu_return_t and_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -292,7 +292,7 @@ namespace VARITH {
 	/// \brief OR vector-vector
 	/// \details For all i: D[i] = L[i] | R[i]
 	VILL::vpu_return_t or_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -308,7 +308,7 @@ namespace VARITH {
 	/// \brief OR vector-immediate
 	/// \details For all i: D[i] = L[i] | sign_extend(_vimm)
 	VILL::vpu_return_t or_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -322,9 +322,9 @@ namespace VARITH {
 	);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief OR vector-scalar
-	/// \details For all i: D[i] = L[i] | sign_extend(*X)  
+	/// \details For all i: D[i] = L[i] | sign_extend(*X)
 	VILL::vpu_return_t or_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -343,7 +343,7 @@ namespace VARITH {
 	/// \brief XOR vector-vector
 	/// \details For all i: D[i] = L[i] ^ R[i]
 	VILL::vpu_return_t xor_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -359,7 +359,7 @@ namespace VARITH {
 	/// \brief XOR vector-immediate
 	/// \details For all i: D[i] = L[i] ^ sign_extend(_vimm)
 	VILL::vpu_return_t xor_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -375,7 +375,7 @@ namespace VARITH {
 	/// \brief XOR vector-scalar
 	/// \details For all i: D[i] = L[i] ^ X.
 	VILL::vpu_return_t xor_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -395,7 +395,7 @@ namespace VARITH {
 	/// \brief SLL vector-vector
 	/// \details For all i: D[i] = R[i] << (L[i] & possible SEW bits)
 	VILL::vpu_return_t sll_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -411,7 +411,7 @@ namespace VARITH {
 	/// \brief SLL vector-immediate
 	/// \details For all i: D[i] = L[i] << (uimm)
 	VILL::vpu_return_t sll_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -427,7 +427,7 @@ namespace VARITH {
 	/// \brief SLL vector-scalar
 	/// \details For all i: D[i] = L[i] << (X & possible SEW bits)
 	VILL::vpu_return_t sll_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -440,13 +440,13 @@ namespace VARITH {
 		bool mask_f,					//!< Vector mask flag. 1: masking 0: no masking
 		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
 	);
-	
+
 /* SRL */
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief SRL vector-vector
 	/// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits)
 	VILL::vpu_return_t srl_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -462,7 +462,7 @@ namespace VARITH {
 	/// \brief SRL vector-immediate
 	/// \details For all i: D[i] = L[i] >> (uimm)
 	VILL::vpu_return_t srl_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -478,7 +478,7 @@ namespace VARITH {
 	/// \brief SRL vector-scalar
 	/// \details For all i: D[i] = L[i] >> (X & possible SEW bits)
 	VILL::vpu_return_t srl_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -490,14 +490,14 @@ namespace VARITH {
 		uint16_t vec_elem_start,		//!< Starting element [index]
 		bool mask_f,					//!< Vector mask flag. 1: masking 0: no masking
 		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
-	);	
-	
+	);
+
 /* SRA */
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief SRA vector-vector
 	/// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits)
 	VILL::vpu_return_t sra_vv(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -513,7 +513,7 @@ namespace VARITH {
 	/// \brief SRA vector-immediate
 	/// \details For all i: D[i] = L[i] >> (uimm)
 	VILL::vpu_return_t sra_vi(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -529,7 +529,7 @@ namespace VARITH {
 	/// \brief SRA vector-scalar
 	/// \details For all i: D[i] = L[i] >> (X & possible SEW bits)
 	VILL::vpu_return_t sra_vx(
-		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional 
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
 		uint64_t emul_num,				//!< Register multiplicity numerator
 		uint64_t emul_denom,			//!< Register multiplicity denominator
 		uint16_t sew_bytes,				//!< Element width [bytes]
@@ -882,7 +882,6 @@ namespace VARITH {
 		bool mask_f,					//!< Vector mask flag. 1: masking 0: no masking
 		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
 	);
-}
 
 /* 12.9. Vector Integer Min/Max Instructions*/
 //TODO: ...
@@ -901,5 +900,49 @@ namespace VARITH {
 /*12.16. Vector Integer Merge Instructions */
 //TODO: ...
 /*12.17. Vector Integer Move Instructions */
-//TODO: ...
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Move vector vd[i] = vs1[i]
+	VILL::vpu_return_t mv_vv(
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
+		uint64_t emul_num,				//!< Register multiplicity numerator
+		uint64_t emul_denom,			//!< Register multiplicity denominator
+		uint16_t sew_bytes,				//!< Element width [bytes]
+		uint16_t vec_len,				//!< Vector length [elements]
+		uint16_t vec_reg_len_bytes,		//!< Vector register length [bytes]
+		uint16_t dst_vec_reg,			//!< Destination vector A [index]
+		uint16_t src_vec_reg,			//!< Source vector A [index]
+		uint16_t vec_elem_start		//!< Starting element [index]
+	);
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Move vector vd[i] = X[rs1]
+	VILL::vpu_return_t mv_vx(
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
+		uint64_t emul_num,				//!< Register multiplicity numerator
+		uint64_t emul_denom,			//!< Register multiplicity denominator
+		uint16_t sew_bytes,				//!< Element width [bytes]
+		uint16_t vec_len,				//!< Vector length [elements]
+		uint16_t vec_reg_len_bytes,		//!< Vector register length [bytes]
+		uint16_t dst_vec_reg,			//!< Destination vector A [index]
+		uint8_t* scalar_reg_mem,		//!< Memory space holding scalar data (min. _xlenb bytes)
+		uint16_t vec_elem_start,		//!< Starting element [index]
+		uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
+	);
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Move signed immediate to vector vd[i] = simm
+	VILL::vpu_return_t mv_vi(
+		uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
+		uint64_t emul_num,				//!< Register multiplicity numerator
+		uint64_t emul_denom,			//!< Register multiplicity denominator
+		uint16_t sew_bytes,				//!< Element width [bytes]
+		uint16_t vec_len,				//!< Vector length [elements]
+		uint16_t vec_reg_len_bytes,		//!< Vector register length [bytes]
+		uint16_t dst_vec_reg,			//!< Destination vector D [index]
+		uint8_t s_imm,					//!< Sign extending 5-bit immediate
+		uint16_t vec_elem_start		//!< Starting element [index]
+	);
+
+}
+
 #endif /* __RVVHL_ARITH_INTEGER_H__ */
