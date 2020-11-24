@@ -17,41 +17,6 @@ IF(WIN32)
 	SET(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 ENDIF()
 
-#IF(${TARGET_NAME} STREQUAL "etiss")
-#	IF(NOT ETISS_PREFIX)
-#		INCLUDE(FetchContent)
-#		SET(FETCHCONTENT_QUIET FALSE)
-#		FetchContent_Declare(etiss_srcs
-#			GIT_REPOSITORY https://github.com/JoGei/etiss.git
-#			GIT_TAG vpu
-#			GIT_PROGRESS TRUE
-#		)
-#		IF(NOT etiss_srcs_POPULATED)
-#			FetchContent_Populate(etiss_srcs)
-#			FetchContent_GetProperties(etiss_srcs)
-#			SET(ETISS_LOCATION ${etiss_srcs_SOURCE_DIR})
-#		ENDIF()
-#	ELSE()
-#		SET(ETISS_LOCATION ${ETISS_PREFIX})
-#	ENDIF()
-
-#	SET(TARGET_ARCH "RV64GCV" CACHE STRING "No Target specified. Assuming softvector for etiss ArchImpl RV64GCV.")
-#	SET(PLACE_HOLD_VCPUARCH ${TARGET_ARCH})
-#	CONFIGURE_FILE(src/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}/softvector.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/src/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}/softvector.cpp @ONLY)
-#	SET(TARGET_SRCS
-#		${CMAKE_CURRENT_BINARY_DIR}/src/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}/softvector.cpp
-#	)
-#	SET(TARGET_INCLUDES
-#		${ETISS_LOCATION}/include
-#		${ETISS_LOCATION}/include_c
-#		${ETISS_LOCATION}/ArchImpl/${TARGET_ARCH}
-#	)
-#ELSE()
-#	SET(TARGET_SRCS
-#		src/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}/softvector.cpp
-#	)
-#ENDIF()
-
 ADD_LIBRARY(${PROJECT_NAME} SHARED
 	src/target/${TARGET_PLATFORM_NAME}/softvector.cpp
 	src/vpu/softvector-element.cpp
@@ -67,7 +32,8 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 	#src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
 	${TARGET_SRCS}
 )
-TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PRIVATE
+
+TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	include/target/${TARGET_PLATFORM_NAME}
 	include/target/${TARGET_PLATFORM_NAME}/${TARGET_NAME}
 	${TARGET_INCLUDES}
