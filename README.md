@@ -3,9 +3,12 @@
 This project targets functional simulation of Vector Processing Units (VPUs).
 It wraps highly abstraced vector arithmetic functions around a target specific interface.
 
-SoftVector mainly focuses the RISC-V Vector (RVV) Instruction Set and currently supports the following RISC-V targets:
+SoftVector mainly focuses the RISC-V Vector (RVV) Instruction Set and was built as a support library for ETISS.
 
 - The [Extendable Translating Instruction Set Simulator (ETISS)](https://github.com/tum-ei-eda/etiss)
+
+The CMake project builds a shared library containing generic RISC-V helper/soft functions for RVV, i.e. ..
+
 - Soft: A high level implementation including unit test support for SoftVector verification
 
 # Getting Started

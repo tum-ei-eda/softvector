@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -293,9 +293,17 @@ SVRegister SVector::op_u_gte(const uint64_t rhs) const{
 }
 
 // masked ops
-void SVector::m_assign(const SVector& vin, const SVRegister& vm, size_t start_index){
+void SVector::m_assign(const SVector& vin, const SVRegister& vm, bool mask, size_t start_index){
 	for(size_t i_element = start_index; i_element < length_; ++i_element){
-		if(vm.get_bit(i_element))(*this)[i_element] = vin[i_element];
+		if(!mask or vm.get_bit(i_element))
+			(*this)[i_element] = vin[i_element];
+	}
+}
+
+void SVector::m_assign(const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index){
+	for(size_t i_element = start_index; i_element < length_; ++i_element){
+		if(!mask or vm.get_bit(i_element))
+			(*this)[i_element] = rhs;
 	}
 }
 
@@ -497,6 +505,33 @@ SVector& SVector::m_srl(const SVector& opL, const uint64_t rhs, const SVRegister
 	for(size_t i_element = start_index; i_element < length_; ++i_element){
 		if(!mask or vm.get_bit(i_element))
 			(*this)[i_element].s_srl(opL[i_element], rhs);
+	}
+	return(*this);
+}
+
+SVector& SVector::m_slideup(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
+	size_t max = rhs > start_index ? rhs : start_index;
+	for(size_t i_element = max; i_element < length_; ++i_element){
+		if(!mask or vm.get_bit(i_element))
+			(*this)[i_element] = opL[i_element];
+	}
+	return(*this);
+}
+
+SVector& SVector::m_slidedown(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t vlmax, size_t start_index ) {
+	for(size_t i_element = start_index; i_element < length_; ++i_element){
+		if(!mask or vm.get_bit(i_element)) {
+			size_t i_src_element = i_element + rhs;
+			if(i_src_element < length_) {
+				(*this)[i_element] = opL[i_element + rhs];
+			} else {
+				if (i_src_element < vlmax) {
+					(*this)[i_element] = SVElement(opL[0].width_in_bits_ , opL[0].mem_ + i_src_element*opL[0].width_in_bits_/8);
+				} else {
+					(*this)[i_element] = 0;
+				}
+			}
+		}
 	}
 	return(*this);
 }

@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -37,7 +37,7 @@ class SVRegister{
 public:
 	size_t length_bits_; 		///!< Memory length in bits
 	uint8_t* mem_;				///!< Main memory
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Get the value of a single bit
 	bool get_bit(
@@ -67,13 +67,13 @@ public:
 	) {
 		mem_[bit_index/8] ^= (1 << (bit_index % 8));
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked assignment. Updates bits in main memory with input register only where mask register is true
 	void m_assign(
 		const SVRegister& in, 	///!< Input
 		const SVRegister& vm, 	///!< Mask register
-		size_t start_index = 0	///!< Start (bit) index 
+		size_t start_index = 0	///!< Start (bit) index
 	);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked EQUAL for right-hand-side SVector.
@@ -154,7 +154,7 @@ public:
 	/// \brief Masked unsigned GREATER THAN OR EQUAL for right-hand-side signed 64 bit value. rhs is zero extended to element size
 	/// \return A SVRegister, which each bit holds the on-element logic comparison's result. I.e. LSB for element index 0
 	SVRegister& m_u_gte(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Overloaded array subscript to return the indexed byte of memory as reference
 	uint8_t& operator[](const size_t index) const{
@@ -206,7 +206,7 @@ public:
 /// \brief Softvector (SV) Element. Element size in multiples of 8-bit. Implements arithmetic on top.
 class SVElement{
 	bool reference_mem_{true};	///!< If true the memory is allocated somewhere at a different context. Else SVElement allocates itself.
-public: 
+public:
 	const size_t width_in_bits_;	///!< Element size (width) in bits
 	uint8_t* mem_;					///!< Main memory
 
@@ -222,16 +222,16 @@ public:
 	/// \brief Overloaded assignment for right-hand-side signed 64 bit value. Value is sign extended to element size
 	SVElement& operator=(const int64_t rhs);
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Overloaded prefix increment 
+	/// \brief Overloaded prefix increment
 	SVElement& operator++();
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Overloaded prefix decrement 
+	/// \brief Overloaded prefix decrement
 	SVElement& operator--();
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Overloaded postfix increment. Returns copy of element. 
+	/// \brief Overloaded postfix increment. Returns copy of element.
 	SVElement operator++(int);
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Overloaded postfix decrement. Returns copy of element. 
+	/// \brief Overloaded postfix decrement. Returns copy of element.
 	SVElement operator--(int);
 	/* ALU */
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -247,7 +247,7 @@ public:
 	/// \brief Overloaded SUB for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVElement operator-(const int64_t rhs) const;
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Overloaded bit-wise AND for right-hand-side SVElement	
+	/// \brief Overloaded bit-wise AND for right-hand-side SVElement
 	SVElement operator&(const SVElement& rhs) const;
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Overloaded bit-wise AND for right-hand-side signed 64 bit value. rhs is sign extended to element size
@@ -330,7 +330,7 @@ public:
 	/// \brief Operation unsigned LESS THAN OR EQUAL for right-hand-side SVElement.
 	bool op_u_lte(const SVElement& rhs) const;
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Operation unsigned LESS THAN OR EQUAL for right-hand-side 64 bit value. rhs is zero extended to element size	
+	/// \brief Operation unsigned LESS THAN OR EQUAL for right-hand-side 64 bit value. rhs is zero extended to element size
 	bool op_u_lte(const uint64_t rhs) const;
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Operation unsigned GREATER THAN for right-hand-side SVElement.
@@ -346,7 +346,7 @@ public:
 	bool op_u_gte(const uint64_t rhs) const;
 
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Makes two's complement of element, i.e. self*(-1) 
+	/// \brief Makes two's complement of element, i.e. self*(-1)
 	void twos_complement(void);
 
 	// (self assign) operations
@@ -425,7 +425,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief SRL and assign for right-hand-side signed 64 bit value. rhs is zero extended to element size
 	SVElement& s_srl(const SVElement& opL, const uint64_t rhs);
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
 	SVElement(const size_t width_in_bits, uint8_t* mem_): reference_mem_(true), width_in_bits_(width_in_bits), mem_(mem_){}
@@ -443,10 +443,10 @@ public:
 		for (size_t i_byte = 0; i_byte < width_in_bits_/8; ++i_byte){
 			(*this)[i_byte] = other[i_byte];
 		}
-	}	
-	
+	}
+
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Destructor. Deallocates internal memory if generated.	
+	/// \brief Destructor. Deallocates internal memory if generated.
 	virtual ~SVElement(void){
 		if (!reference_mem_ && mem_){
 			delete[] mem_;
@@ -459,7 +459,7 @@ public:
 /// \brief Softvector (SV) Vector. Vector length in multiples SVElement. Implements arithmetic on top
 class SVector{
 	bool reference_mem_{true};	///!< If true the memory is allocated somewhere at a different context. Else SVector allocates itself.
-public:	
+public:
 	std::vector<SVElement*> elements_; 	///!< Elements (main memory)
 	const size_t length_;				///!< Vector length in elements
 	const size_t start_reg_index_;		///!< If build upon a SVRegister, this holds the register number
@@ -604,16 +604,21 @@ public:
 	/// \brief Overloaded unsigned GREATER THAN OR EQUAL for right-hand-side signed 64 bit value. rhs is zero extended to element size
 	/// \return A SVRegister, which each bit holds the on-element logic comparison's result. I.e. LSB for element index 0
 	SVRegister op_u_gte(const uint64_t rhs) const;
-	
-	
+
+
 	// masked (self assign) operations
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked assignment. Updates elements only where mask register's respective bit is true. All elements before start_index are not updated
 	void m_assign(
 		const SVector& vin, 	///!< Input Vector
 		const SVRegister& vm, 	///!< Mask register
-		size_t start_index = 0	///!< Start (bit) index 
+		bool mask,	///!< Mask flag
+		size_t start_index = 0	///!< Start (bit) index
 	);
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Masked assign/copy/move for right-hand-side signed 64 bit value. rhs is sign extended to element size
+	void m_assign(const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked ADD for right-hand-side SVector
 	SVector& m_add(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
@@ -652,7 +657,7 @@ public:
 	SVector& m_wsub(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Widening signed Masked SUB for right-hand-side signed 64 bit value. rhs is sign extended to element size
-	SVector& m_wsub(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);	
+	SVector& m_wsub(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked bit-wise AND for right-hand-side SVector
 	SVector& m_and(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
@@ -689,7 +694,16 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Masked SRL for right-hand-side signed 64 bit value. rhs is zero extended to element size
 	SVector& m_srl(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
-	
+
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Slide the Vector elements up by right-hand-side unsigned 64 bit value. rhs is zero extended to element size
+	SVector& m_slideup(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \brief Slide the Vector elements down by right-hand-side unsigned 64 bit value. rhs is zero extended to element size
+	SVector& m_slidedown(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t vlmax ,size_t start_index = 0);
+
+
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced elements, i.e. externally allocated elements
 	SVector(const size_t length_elements, const size_t start_reg_index) : reference_mem_(true), elements_(), length_(length_elements), start_reg_index_(start_reg_index){}
@@ -701,9 +715,9 @@ public:
 	SVector(
 		const size_t length_elements,					///!< VL
 		const size_t single_element_width_bits,			///!< SEW
-		const size_t start_reg_index,					///!< Index of first register associated with this vector 
+		const size_t start_reg_index,					///!< Index of first register associated with this vector
 		uint8_t* mem									///!< Start adress of vector
-	) : 
+	) :
 		reference_mem_(false),
 		elements_(),
 		length_(length_elements),
@@ -719,8 +733,8 @@ public:
 	SVector(
 		const size_t length_elements,					///!< VL
 		const size_t single_element_width_bits,			///!< SEW
-		const size_t start_reg_index					///!< Index of first register associated with this vector 
-	) : 
+		const size_t start_reg_index					///!< Index of first register associated with this vector
+	) :
 		reference_mem_(false),
 		elements_(),
 		length_(length_elements),
@@ -741,9 +755,9 @@ public:
 			elements_.push_back(new SVElement(other.elements_[0]->width_in_bits_));
 			(*this)[i] = other[i];
 		}
-	}	
+	}
 	//////////////////////////////////////////////////////////////////////////////////////
-	/// \brief Destructor. Deallocates internal elements if generated.		
+	/// \brief Destructor. Deallocates internal elements if generated.
 	virtual ~SVector(void){
 		if (!reference_mem_){
 			for(auto &it: elements_){
