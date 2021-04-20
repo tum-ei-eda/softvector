@@ -428,9 +428,15 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//12.10 MUL
-	//// brief signed*Signed Multiplikation for right-hand-side SVElement
+	//// \brief signed*Signed Multiplikation for right-hand-side SVElement low bit of product
 	SVElement& s_ssmul(const SVElement& opL, const SVElement &rhs);
-
+	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value low bit of product
+	SVElement& s_ssmul(const SVElement& opL, const int64_t rhs);
+	//12.10 MUL
+	//// \brief signed*Signed Multiplikation for right-hand-side SVElement highbit of product
+	SVElement& s_ssmulh(const SVElement& opL, const SVElement &rhs);
+	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value high bit of product
+	SVElement& s_ssmulh(const SVElement& opL, const int64_t rhs);
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
@@ -710,11 +716,17 @@ public:
 	
 	/////////////////////////////////////////////////////////////////////////////////
 	//12.10
-	// \brief  masked signed*signed MUL for right-hand-side SVector 
-	SVector& m_ssmul(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t vlmax ,size_t start_index = 0);
+	/// \brief  masked signed*signed MUL for right-hand-side SVector 
+	SVector& m_ssmul(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_ssmul(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// \brief  masked signed*signed MUL for right-hand-side SVector 
+	SVector& m_ssmulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
+	SVector& m_ssmulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced elements, i.e. externally allocated elements
