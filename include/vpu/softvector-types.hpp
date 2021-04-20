@@ -426,6 +426,12 @@ public:
 	/// \brief SRL and assign for right-hand-side signed 64 bit value. rhs is zero extended to element size
 	SVElement& s_srl(const SVElement& opL, const uint64_t rhs);
 
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//12.10 MUL
+	//// brief signed*Signed Multiplikation for right-hand-side SVElement
+	SVElement& s_ssmul(const SVElement& opL, const SVElement &rhs);
+
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
 	SVElement(const size_t width_in_bits, uint8_t* mem_): reference_mem_(true), width_in_bits_(width_in_bits), mem_(mem_){}
@@ -701,8 +707,14 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Slide the Vector elements down by right-hand-side unsigned 64 bit value. rhs is zero extended to element size
 	SVector& m_slidedown(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t vlmax ,size_t start_index = 0);
-
-
+	
+	/////////////////////////////////////////////////////////////////////////////////
+	//12.10
+	// \brief  masked signed*signed MUL for right-hand-side SVector 
+	SVector& m_ssmul(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t vlmax ,size_t start_index = 0);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
+	SVector& m_ssmul(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced elements, i.e. externally allocated elements
