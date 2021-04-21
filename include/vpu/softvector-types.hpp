@@ -445,6 +445,12 @@ public:
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//// \brief Unsigned*Unsigned Multiplikation for right-hand-side 64 bit value high bit of product
 	SVElement& s_uumulh(const SVElement& opL, const int64_t rhs);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//// \brief Signed*Unsigned Multiplikation for right-hand-side SVElement highbit of product
+	SVElement& s_sumulh(const SVElement& opL, const SVElement &rhs);
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//// \brief Signed*Unsigned Multiplikation for right-hand-side 64 bit value high bit of product
+	SVElement& s_sumulh(const SVElement& opL, const int64_t rhs);
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
@@ -735,12 +741,18 @@ public:
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_ssmulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
-//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector 
 	SVector& m_uumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked unsigned*unsigned MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_uumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector 
+	SVector& m_sumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
+	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	/// \brief masked unsigned*unsigned MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
+	SVector& m_sumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced elements, i.e. externally allocated elements

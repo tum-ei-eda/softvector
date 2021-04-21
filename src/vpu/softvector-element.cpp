@@ -1178,3 +1178,139 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 	return (*this);
 
 }
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint16_t *temp1 = new uint16_t;
+	uint8_t *temp2 = new uint8_t;
+
+	// negativ opL
+	if (opL[size - 1 ] & 0x80)
+	{
+		for (int i = 0; i < size; i++)
+		{
+			opL[i] = ~opL[i];
+		}
+		opL[0] = opL[0] + 1; //two complement
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < width_in_bits_ / 8; i++)
+		{
+			for (int j = 0; j < width_in_bits_ / 8; j++)
+			{
+				*temp1 = opL[i] * rhs[j];
+				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+				out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+		
+			}
+		}
+		// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			out[0]  = out[0] + 1;
+
+	}
+	
+	else
+	{	for (int i = 0; i < width_in_bits_ / 8; i++)
+		{
+			for (int j = 0; j < width_in_bits_ / 8; j++)
+			{
+				*temp1 = opL[i] * rhs[j];
+				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+				out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+			
+			}
+		}
+	}
+		
+	// returning higher half of Signed * Unsigned MUL
+	for (size_t i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	};
+
+	delete temp1;
+	delete temp2;
+	delete[] out;
+
+	return (*this);
+} 
+SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
+
+	int size = width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint16_t *temp1 = new uint16_t;
+	uint8_t *temp2 = new uint8_t;
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 0; i < 8; i++)
+	{
+		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+	}
+
+	// negativ opL
+	if (opL[size - 1 ] & 0x80)
+	{
+		for (int i = 0; i < size; i++)
+		{
+			opL[i] = ~opL[i];
+		}
+		opL[0] = opL[0] + 1; //two complement
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < width_in_bits_ / 8; i++)
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				*temp1 = opL[i] * rhs[j];
+				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+				out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+		
+			}
+		}
+		// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			out[0]  = out[0] + 1;
+
+	}
+	else //positive opL
+	{	for (int i = 0; i < width_in_bits_ / 8; i++)
+		{
+			for (int j = 0; j < 7; j++)
+			{
+				*temp1 = opL[i] * rhs[j];
+				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+				out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+			
+			}
+		}
+	}
+	// returning higher half of Signed * Unsigned MUL
+	for (int i = size; i <  2 * size; i++)
+	{
+		(*this)[size - i] = out[i];
+	}
+
+	delete temp1;
+	delete temp2;
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
+}
