@@ -863,7 +863,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 ///////////////////////////////////////////////////////////////////////////////////////////
 SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 
-	int size = (int)width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * width_in_bits_];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
@@ -969,7 +969,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 				}
 			}
 		}
-	// returning lower half of SIgned*Signed MUL
+	// returning higher half of SIgned*Signed MUL
 	for (size_t i = size; i <  2 * size; i++)
 	{
 		(*this)[i - size] = out[i];
@@ -1095,7 +1095,77 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 				}
 			}
 		}
-	// returning lower half of SIgned*Signed MUL
+	// returning higher half of SIgned*Signed MUL
+	for (int i = size; i <  2 * size; i++)
+	{
+		(*this)[size - i] = out[i];
+	}
+
+	delete temp1;
+	delete temp2;
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint16_t *temp1 = new uint16_t;
+	uint8_t *temp2 = new uint8_t;
+
+		for (int i = 0; i < width_in_bits_ / 8; i++)
+		{
+			for (int j = 0; j < width_in_bits_ / 8; j++)
+			{
+				*temp1 = opL[i] * rhs[j];
+				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+				out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+		
+			}
+		}
+	// returning higher half of Unsigned*Unsigned MUL
+	for (size_t i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	};
+
+	delete temp1;
+	delete temp2;
+	delete[] out;
+
+	return (*this);
+} 
+SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
+
+	int size = width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint16_t *temp1 = new uint16_t;
+	uint8_t *temp2 = new uint8_t;
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 0; i < 8; i++)
+	{
+		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+	}
+	for (int i = 0; i < width_in_bits_ / 8; i++)
+	{
+		for (int j = 0; j < 7; j++)
+		{
+			*temp1 = opL[i] * rhsarray[j];
+			out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
+
+			*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
+			out[i + j + 1] = out[i + j + 1] + (uint8_t)(*temp2);
+
+		}
+	}
+	
+	// returning higher half of Unsigned * Unsigned MUL
 	for (int i = size; i <  2 * size; i++)
 	{
 		(*this)[size - i] = out[i];

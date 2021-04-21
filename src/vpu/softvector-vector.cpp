@@ -429,14 +429,28 @@ SVector& SVector::m_ssmul(const SVector& opL, const int64_t rhs, const SVRegiste
 SVector& SVector::m_ssmulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ){
 	for(size_t i_element = start_index; i_element < length_; ++i_element){
 		if(!mask or vm.get_bit(i_element))
-			(*this)[i_element].s_ssmul(opL[i_element], rhs[i_element]);
+			(*this)[i_element].s_ssmulh(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
 }
 SVector& SVector::m_ssmulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index){
 	for(size_t i_element = start_index; i_element < length_; ++i_element){
 		if(!mask or vm.get_bit(i_element))
-			(*this)[i_element].s_ssmul(opL[i_element], rhs);
+			(*this)[i_element].s_ssmulh(opL[i_element], rhs);
+	}
+	return(*this);
+}
+SVector& SVector::m_uumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ){
+	for(size_t i_element = start_index; i_element < length_; ++i_element){
+		if(!mask or vm.get_bit(i_element))
+			(*this)[i_element].s_uumulh(opL[i_element], rhs[i_element]);
+	}
+	return(*this);
+}
+SVector& SVector::m_uumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index){
+	for(size_t i_element = start_index; i_element < length_; ++i_element){
+		if(!mask or vm.get_bit(i_element))
+			(*this)[i_element].s_uumulh(opL[i_element], rhs);
 	}
 	return(*this);
 }
