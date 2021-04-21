@@ -1271,7 +1271,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 7; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				*temp1 = opL[i] * rhsarray[j];
 				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
 
 				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
@@ -1292,7 +1292,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 7; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				*temp1 = opL[i] * rhsarray[j];
 				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
 
 				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
