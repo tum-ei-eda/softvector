@@ -743,7 +743,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
 	{
-		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
 
 	// negativ * negativ
@@ -991,7 +991,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
 	{
-		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
 
 	// negativ * negativ
@@ -1150,7 +1150,7 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
 	{
-		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
 	for (int i = 0; i < width_in_bits_ / 8; i++)
 	{
@@ -1254,7 +1254,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
 	{
-		rhsarray[i] = (u_int8_t)(rhs >> i*8);
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
 
 	// negativ opL
