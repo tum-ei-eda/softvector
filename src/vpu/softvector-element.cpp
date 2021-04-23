@@ -615,10 +615,11 @@ SVElement& SVElement::s_srl(const SVElement& opL, const uint64_t rhs) {
 ///////////////////////////////////////////////////////////////////////////////////////////
 SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 
-	int size = (int)width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * width_in_bits_];
-	uint16_t *temp1 = new uint16_t;
+	uint16_t *temp1 = new uint16_t; 
 	uint8_t *temp2 = new uint8_t;
+	uint16_t *temp3 = new uint16_t; 	 
 
 	// negativ * negativ
 	if ((opL[size - 1 ] & 0x80) && (rhs[size - 1] & 0x80))
@@ -637,6 +638,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 			for (int j = 0; j < width_in_bits_ / 8; j++)
 			{
 				*temp1 = opL[i] * rhs[j];
+
+				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)(*temp3);
+
+				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
+				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
+				out[i + j + 1] = (uint8_t)(*temp3);
+				
+				*temp1 = ((*temp3) >> 8);
+				
+				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					*temp3 = out[k] + *temp1;
+					out[k] = (uint8_t)(*temp3);
+					*temp1 = ((*temp3) >> 8) 
+				}
+				
 				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
 
 				*temp2 = (*temp1 >> 8); //upper half going into out[i+j+1]
@@ -730,7 +748,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 	delete temp1;
 	delete temp2;
 	delete[] out;
-
+	delete temp3;
 	return (*this);
 } 
 SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
