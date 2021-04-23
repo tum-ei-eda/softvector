@@ -652,7 +652,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8) 
+					*temp1 = ((*temp3) >> 8); 
 				}
 				
 				out[i + j] = out[i + j] + (uint8_t)(*temp1); // same as & 0x00FF
