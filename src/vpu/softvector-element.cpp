@@ -616,7 +616,7 @@ SVElement& SVElement::s_srl(const SVElement& opL, const uint64_t rhs) {
 SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t; 
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t; 	 
@@ -633,9 +633,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		opL[0] = opL[0] + 1; //two complement
 		
 		//same as 2 unsigned positive numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < width_in_bits_ / 8; j++)
+			for (int j = 0; j < size; j++)
 			{
 				*temp1 = opL[i] * rhs[j];
 
@@ -648,7 +648,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				
 				*temp1 = ((*temp3) >> 8);
 				
-				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
@@ -671,9 +671,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		opL[0] = opL[0] + 1; //two complement
 
 		//same as 2 unsigned positive numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < width_in_bits_ / 8; j++)
+			for (int j = 0; j < size; j++)
 			{
 				*temp1 = opL[i] * rhs[j];
 
@@ -686,7 +686,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				
 				*temp1 = ((*temp3) >> 8);
 				
-				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
@@ -716,9 +716,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		rhs[0] = rhs[0] + 1; //two complement
 		
 		//same as 2 unsigned numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < width_in_bits_ / 8; j++)
+			for (int j = 0; j < size; j++)
 			{
 				*temp1 = opL[i] * rhs[j];
 
@@ -731,7 +731,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				
 				*temp1 = ((*temp3) >> 8);
 				
-				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
@@ -753,9 +753,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 	else
 	{
 		// positiv * positiv
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < width_in_bits_ / 8; j++)
+			for (int j = 0; j < size; j++)
 			{
 				*temp1 = opL[i] * rhs[j];
 
@@ -768,7 +768,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				
 				*temp1 = ((*temp3) >> 8);
 				
-				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
@@ -795,8 +795,8 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 } 
 SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 
-	int size = width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -819,9 +819,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 		opL[0] = opL[0] + 1; //two complement
 		
 		//same as 2 unsigned positive numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 8; j++)
 			{
 				*temp1 = opL[i] * rhsarray[j];
 
@@ -834,7 +834,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 				
 				*temp1 = ((*temp3) >> 8);
 				
-				for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
 					*temp3 = out[k] + *temp1;
 					out[k] = (uint8_t)(*temp3);
@@ -857,9 +857,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 				opL[0] = opL[0] + 1; //two complement
 
 			//same as 2 unsigned positive numbers
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
-				for (int j = 0; j < 7; j++)
+				for (int j = 0; j < 8; j++)
 				{
 					*temp1 = opL[i] * rhsarray[j];
 
@@ -872,7 +872,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 					
 					*temp1 = ((*temp3) >> 8);
 					
-					for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
 						*temp3 = out[k] + *temp1;
 						out[k] = (uint8_t)(*temp3);
@@ -902,9 +902,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			rhsarray[0] = rhsarray[0] + 1; //two complement
 			
 			//same as 2 unsigned numbers
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
-				for (int j = 0; j < 7; j++)
+				for (int j = 0; j < 8; j++)
 				{
 					*temp1 = opL[i] * rhsarray[j];
 
@@ -917,7 +917,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 						
 					*temp1 = ((*temp3) >> 8);
 						
-					for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
 						*temp3 = out[k] + *temp1;
 						out[k] = (uint8_t)(*temp3);
@@ -939,9 +939,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 		else
 		{
 			// positiv * positiv
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
-				for (int j = 0; j < 7; j++)
+				for (int j = 0; j < 8; j++)
 				{
 					*temp1 = opL[i] * rhsarray[j];
 
@@ -954,7 +954,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 					
 					*temp1 = ((*temp3) >> 8);
 					
-					for (int k = i + j + 2 ; k < (width_in_bits_ / 8) ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
 						*temp3 = out[k] + *temp1;
 						out[k] = (uint8_t)(*temp3);
@@ -986,7 +986,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1164,8 +1164,8 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 } 
 SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 
-	int size = width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	int size = width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1188,9 +1188,9 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 		opL[0] = opL[0] + 1; //two complement
 		
 		//same as 2 unsigned positive numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 8; j++)
 			{
 				*temp1 = opL[i] * rhsarray[j];
 
@@ -1226,9 +1226,9 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			opL[0] = opL[0] + 1; //two complement
 
 			//same as 2 unsigned positive numbers
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
-				for (int j = 0; j < 7; j++)
+				for (int j = 0; j < 8; j++)
 				{
 					*temp1 = opL[i] * rhsarray[j];
 
@@ -1264,14 +1264,14 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 		else
 		if (!(opL[size - 1] & 0x80) && (rhsarray[7] & 0x80))
 		{
-			for (int i = 0; i < 7; i++)
+			for (int i = 0; i < 8; i++)
 			{
 				rhsarray[i] = ~rhsarray[i];
 			}
 			rhsarray[0] = rhsarray[0] + 1; //two complement
 			
 			//same as 2 unsigned numbers
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
 				for (int j = 0; j < 7; j++)
 				{
@@ -1308,7 +1308,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 		else
 		{
 			// positiv * positiv
-			for (int i = 0; i < width_in_bits_ / 8; i++)
+			for (int i = 0; i < size; i++)
 			{
 				for (int j = 0; j < 7; j++)
 				{
@@ -1354,7 +1354,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1401,8 +1401,8 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
 } 
 SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 
-	int size = width_in_bits_/8;  // vll fehlt *LMUL !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	int size = width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1412,9 +1412,9 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 	{
 		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
-	for (int i = 0; i < width_in_bits_ / 8; i++)
+	for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 8; j++)
 			{
 				*temp1 = opL[i] * rhsarray[j];
 
@@ -1458,7 +1458,7 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1556,7 +1556,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 
 	int size = width_in_bits_/8;  
-	uint8_t* out = new uint8_t [2 * width_in_bits_];
+	uint8_t* out = new uint8_t [2 * size];
 	uint16_t *temp1 = new uint16_t;
 	uint8_t *temp2 = new uint8_t;
 	uint16_t *temp3 = new uint16_t;
@@ -1577,9 +1577,9 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		opL[0] = opL[0] + 1; //two complement
 		
 		//same as 2 unsigned positive numbers
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 8; j++)
 			{
 				*temp1 = opL[i] * rhsarray[j];
 
@@ -1614,9 +1614,9 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 	}
 	else //positive opL
 	{	
-		for (int i = 0; i < width_in_bits_ / 8; i++)
+		for (int i = 0; i < size; i++)
 		{
-			for (int j = 0; j < 7; j++)
+			for (int j = 0; j < 8; j++)
 			{
 				*temp1 = opL[i] * rhsarray[j];
 
