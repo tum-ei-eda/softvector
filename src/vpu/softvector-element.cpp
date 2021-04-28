@@ -617,9 +617,14 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t; 
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t; 	 
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	
 
 	// negativ * negativ
 	if ((opL[size - 1 ] & 0x80) && (rhs[size - 1] & 0x80))
@@ -637,23 +642,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -675,23 +680,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -720,23 +725,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -757,27 +762,30 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j]; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				temp3 = temp3 + temp1;
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8)& 0xFF; //upper half going into out[i+j+1]
+				temp3 = (uint16_t)(out[i + j + 1]);
+				temp3 = temp3 + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+			/*	temp1 = (temp3 >> 8);	
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
 				}
+			*/
 			}
 		}
 	}
@@ -787,19 +795,16 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		(*this)[i] = out[i];
 	};
 
-	delete temp1;
-	delete temp2;
 	delete[] out;
-	delete temp3;
 	return (*this);
 } 
 SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 
 	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2;
+	uint16_t temp3;
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
@@ -823,23 +828,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				*temp1 = opL[i] * rhsarray[j];
+				temp1 = opL[i] * rhsarray[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -861,23 +866,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -906,23 +911,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 						
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 						
 					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -943,23 +948,23 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -974,9 +979,6 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 		(*this)[i] = out[i];
 	}
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 	delete[] rhsarray;
 	return (*this);
@@ -987,9 +989,9 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2;
+	uint16_t temp3;
 	// negativ * negativ
 	if ((opL[size - 1 ] & 0x80) && (rhs[size - 1] & 0x80))
 	{
@@ -1006,23 +1008,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1044,23 +1046,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1088,23 +1090,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 			{
 				for (int j = 0; j < size; j++)
 				{
-					*temp1 = opL[i] * rhs[j];
+					temp1 = opL[i] * rhs[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -1125,23 +1127,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1154,10 +1156,6 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 	{
 		(*this)[i - size] = out[i];
 	};
-
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 
 	return (*this);
@@ -1166,9 +1164,9 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 
 	int size = width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2;
+	uint16_t temp3;
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
@@ -1192,23 +1190,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				*temp1 = opL[i] * rhsarray[j];
+				temp1 = opL[i] * rhsarray[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1230,23 +1228,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 8; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -1275,23 +1273,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 7; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -1312,23 +1310,23 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			{
 				for (int j = 0; j < 7; j++)
 				{
-					*temp1 = opL[i] * rhsarray[j];
+					temp1 = opL[i] * rhsarray[j];
 
-					*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-					out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-					*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-					*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-					out[i + j + 1] = (uint8_t)(*temp3); 
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
 					
-					*temp1 = ((*temp3) >> 8);
+					temp1 = (temp3 >> 8);
 					
 					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 					{
-						*temp3 = out[k] + *temp1;
-						out[k] = (uint8_t)(*temp3);
-						*temp1 = ((*temp3) >> 8); 
-						if(*temp1 == 0)
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
 						{ 
 							break;		// No overflow
 						}
@@ -1342,9 +1340,6 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 		(*this)[size - i] = out[i];
 	}
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 	delete[] rhsarray;
 	return (*this);
@@ -1355,31 +1350,31 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1 ;
+	uint8_t temp2;
+	uint16_t temp3;
 
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1392,20 +1387,16 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
 		(*this)[i - size] = out[i];
 	};
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
-
 	return (*this);
 } 
 SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 
 	int size = width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2;
+	uint16_t temp3;
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
@@ -1416,23 +1407,23 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				*temp1 = opL[i] * rhsarray[j];
+				temp1 = opL[i] * rhsarray[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1446,9 +1437,6 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 		(*this)[size - i] = out[i];
 	}
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 	delete[] rhsarray;
 	return (*this);
@@ -1459,9 +1447,9 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 
 	int size = (int)width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2;
+	uint16_t temp3;
 
 	// negativ opL
 	if (opL[size - 1 ] & 0x80)
@@ -1477,23 +1465,23 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1515,23 +1503,23 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 		{
 			for (int j = 0; j < size; j++)
 			{
-				*temp1 = opL[i] * rhs[j];
+				temp1 = opL[i] * rhs[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1546,9 +1534,6 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 		(*this)[i - size] = out[i];
 	};
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 
 	return (*this);
@@ -1557,9 +1542,9 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 
 	int size = width_in_bits_/8;  
 	uint8_t* out = new uint8_t [2 * size];
-	uint16_t *temp1 = new uint16_t;
-	uint8_t *temp2 = new uint8_t;
-	uint16_t *temp3 = new uint16_t;
+	uint16_t temp1;
+	uint8_t temp2 ;
+	uint16_t temp3;
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
 	for (int i = 0; i < 8; i++)
@@ -1581,23 +1566,23 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				*temp1 = opL[i] * rhsarray[j];
+				temp1 = opL[i] * rhsarray[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + (temp2);
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1618,23 +1603,23 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		{
 			for (int j = 0; j < 8; j++)
 			{
-				*temp1 = opL[i] * rhsarray[j];
+				temp1 = opL[i] * rhsarray[j];
 
-				*temp3 = (uint16_t)out[i + j] + (*temp1); //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
-				out[i + j] = (uint8_t)(*temp3); // same as & 0x00FF
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
 
-				*temp2 = (*temp3 >> 8); //upper half going into out[i+j+1]
-				*temp3 = (uint16_t)out[i + j + 1] + (*temp2);
-				out[i + j + 1] = (uint8_t)(*temp3); 
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
 				
-				*temp1 = ((*temp3) >> 8);
+				temp1 = (temp3 >> 8);
 				
 				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
-					*temp3 = out[k] + *temp1;
-					out[k] = (uint8_t)(*temp3);
-					*temp1 = ((*temp3) >> 8); 
-					if(*temp1 == 0)
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
 					{ 
 						break;		// No overflow
 					}
@@ -1648,9 +1633,6 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 		(*this)[size - i] = out[i];
 	}
 
-	delete temp1;
-	delete temp2;
-	delete temp3;
 	delete[] out;
 	delete[] rhsarray;
 	return (*this);
