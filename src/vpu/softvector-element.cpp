@@ -773,7 +773,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 				temp3 = temp3 + temp2;
 				out[i + j + 1] = (uint8_t)temp3; 
 				
-			/*	temp1 = (temp3 >> 8);	
+				temp1 = (temp3 >> 8);	
 				
 				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
 				{
@@ -785,7 +785,6 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 						break;		// No overflow
 					}
 				}
-			*/
 			}
 		}
 	}
