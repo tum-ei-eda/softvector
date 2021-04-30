@@ -1,5 +1,5 @@
 ##########################################################################################################
-#File: vmul_vvCase-0.txt
+#File: vmul_vvCase-1.txt
 #Brief: Test Configuration VLEN=SEW,LMUL=8,VL=8 : spills of V[vd=0]
 #Details: MUL v1:=[8:15] and v2[16:23] and stores result in vd:=[0:7], no inter-element carries
 ##########################################################################################################
