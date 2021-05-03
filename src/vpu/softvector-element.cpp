@@ -778,10 +778,10 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		}
 	}
 	// returning lower half of SIgned*Signed MUL
-	for (size_t i = 0; i <  size; i++)
+	for (size_t i = 0; i < size; i++)
 	{
 		(*this)[i] = out[i];
-	};
+	}
 
 	delete[] out;
 	return (*this);
@@ -793,6 +793,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 	uint16_t temp1 = 0;  
 	uint8_t temp2 = 0;
 	uint16_t temp3 = 0; 
+	int64_t rhsvar = rhs;
 	for (int i = 0; i < 2 * size; i++)
 	{
 		out[i] = 0;
@@ -800,9 +801,9 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 	SVElement twopL(opL);
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
-	for (int i = 0; i < 8; i++)
+	for (int i = 7; i >= 0; i--)
 	{
-		rhsarray[i] = (uint8_t)(rhs >> i*8);
+		rhsarray[i] = (uint8_t)((rhsvar >> i*8) & 0xFF); 
 	}
 
 	// negativ * negativ
