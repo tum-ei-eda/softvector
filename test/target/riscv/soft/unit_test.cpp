@@ -799,7 +799,50 @@ public:
 	    }
 	}
 };
+class Cvmulh_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmulh_vv*> cases;
+    Cvmulh_vvTest(void){
 
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulh_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulh_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulh_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulh_vxTest : public ::testing::Test {
+public:
+    std::vector<Cvmulh_vx*> cases;
+    Cvmulh_vxTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulh_vx") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulh_vx(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulh_vxTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
 TEST(vtype_decode, HandleBitfieldEncodingZLMULgtNLMUL) {
     uint16_t x;
     uint32_t sew;
@@ -1106,6 +1149,18 @@ TEST_F(Cvmul_vvTest, VariousTestCases){
     }
 }
 TEST_F(Cvmul_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulh_vvTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulh_vxTest, VariousTestCases){
 
     for(auto & _case: cases){
         EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;

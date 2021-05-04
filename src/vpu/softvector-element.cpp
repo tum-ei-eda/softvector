@@ -1158,7 +1158,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 	SVElement twopL(opL);
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
-	for (int i = 0; i < 8; i++)
+	for (int i = 7; i >= 0; i--)
 	{
 		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
@@ -1395,7 +1395,7 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 	}
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
-	for (int i = 0; i < 8; i++)
+	for (int i = 7; i >= 0; i--)
 	{
 		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}
@@ -1549,7 +1549,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 	}
 	// Changing 64bit signed into 8bit Array
 	uint8_t* rhsarray = new uint8_t [8];
-	for (int i = 0; i < 8; i++)
+	for (int i = 7; i >= 0; i--)
 	{
 		rhsarray[i] = (uint8_t)(rhs >> i*8);
 	}

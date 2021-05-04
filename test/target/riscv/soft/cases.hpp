@@ -1759,5 +1759,88 @@ public:
         return (ret);
     }
 };
+class Cvmulh_vv final : public VCase{
+public:
+    uint8_t     _vs1{};
+    uint8_t     _vs2{};
 
+	Cvmulh_vv(std::string& path_to_golden_file):
+		VCase(path_to_golden_file){
+		mPars.push_back(new IntegerParameter<uint8_t>("VS2", _vs2, CaseParameter::DATT::UINT8));
+		mPars.push_back(new IntegerParameter<uint8_t>("VS1", _vs1, CaseParameter::DATT::UINT8));
+    	init();
+		if(initdone > 0){
+			run_return = run();
+			compare_return = compare_outputs(run_return);
+		}
+	}
+
+    virtual ~Cvmulh_vv(void) {
+    }
+
+    bool run(void){
+
+        uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
+        rep_ISET();
+
+        auto ret = vmulh_vv(
+            _V,
+            vtype,
+            _vm,
+            _vd,
+            _vs1,
+            _vs2,
+            _vstart,
+            _vlen,
+            _vl);
+
+        return (ret);
+    }
+};
+class Cvmulh_vx final : public VCase{
+public:
+    uint8_t     _vs2{};
+    int64_t    _x{};
+
+    Cvmulh_vx(std::string& path_to_golden_file):
+		VCase(path_to_golden_file){
+		mPars.push_back(new IntegerParameter<uint8_t>("VS2", _vs2, CaseParameter::DATT::UINT8));
+		mPars.push_back(new IntegerParameter<int64_t>("X", _x, CaseParameter::DATT::INT64));
+    	init();
+		if(initdone > 0){
+			run_return = run();
+			compare_return = compare_outputs(run_return);
+		}
+	}
+
+    virtual ~Cvmulh_vx(void) {
+    }
+
+    bool run(void){
+
+		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
+		rep_ISET();
+		
+		uint8_t* r = new uint8_t[_xlen/8];
+		memset(r, 0, _xlen/8);
+		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
+
+        auto ret = vmulh_vx(
+            _V,
+			r,
+            vtype,
+            _vm,
+            _vd,
+            _vs2,
+            0,
+            _vstart,
+            _vlen,
+            _vl,
+			_xlen/8);
+
+		delete[] r;
+		
+        return (ret);
+    }
+};
 #endif /* __RVV_HL_TESTCASES_H__ */
