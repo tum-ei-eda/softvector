@@ -1322,7 +1322,7 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 	// returning higher half of SIgned*Signed MUL
 	for (int i = size; i <  2 * size; i++)
 	{
-		(*this)[size - i] = out[i];
+		(*this)[i - size] = out[i];
 	}
 
 	delete[] out;
@@ -1430,7 +1430,7 @@ SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
 	// returning higher half of Unsigned * Unsigned MUL
 	for (int i = size; i <  2 * size; i++)
 	{
-		(*this)[size - i] = out[i];
+		(*this)[i - size] = out[i];
 	}
 
 	delete[] out;
@@ -1628,7 +1628,7 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 	// returning higher half of Signed * Unsigned MUL
 	for (int i = size; i <  2 * size; i++)
 	{
-		(*this)[size - i] = out[i];
+		(*this)[i - size] = out[i];
 	}
 
 	delete[] out;
