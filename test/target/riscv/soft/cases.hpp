@@ -1927,4 +1927,42 @@ public:
         return (ret);
     }
 };
+class Cvmulhsu_vv final : public VCase{
+public:
+    uint8_t     _vs1{};
+    uint8_t     _vs2{};
+
+	Cvmulhsu_vv(std::string& path_to_golden_file):
+		VCase(path_to_golden_file){
+		mPars.push_back(new IntegerParameter<uint8_t>("VS2", _vs2, CaseParameter::DATT::UINT8));
+		mPars.push_back(new IntegerParameter<uint8_t>("VS1", _vs1, CaseParameter::DATT::UINT8));
+    	init();
+		if(initdone > 0){
+			run_return = run();
+			compare_return = compare_outputs(run_return);
+		}
+	}
+
+    virtual ~Cvmulhsu_vv(void) {
+    }
+
+    bool run(void){
+
+        uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
+        rep_ISET();
+
+        auto ret = vmulhsu_vv(
+            _V,
+            vtype,
+            _vm,
+            _vd,
+            _vs1,
+            _vs2,
+            _vstart,
+            _vlen,
+            _vl);
+
+        return (ret);
+    }
+};
 #endif /* __RVV_HL_TESTCASES_H__ */

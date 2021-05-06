@@ -887,6 +887,28 @@ public:
 	    }
 	}
 };
+class Cvmulhsu_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmulhsu_vv*> cases;
+    Cvmulhsu_vvTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulhsu_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulhsu_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulhsu_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
 TEST(vtype_decode, HandleBitfieldEncodingZLMULgtNLMUL) {
     uint16_t x;
     uint32_t sew;
@@ -1217,6 +1239,12 @@ TEST_F(Cvmulhu_vvTest, VariousTestCases){
     }
 }
 TEST_F(Cvmulhu_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulhsu_vvTest, VariousTestCases){
 
     for(auto & _case: cases){
         EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
