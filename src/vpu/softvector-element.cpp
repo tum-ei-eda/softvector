@@ -102,10 +102,30 @@ SVElement SVElement::operator--(int){
 }
 
 void SVElement::twos_complement(void){
-	for(size_t i = 0; i < width_in_bits_/8; ++i){
+	uint8_t carry = 0;
+	uint16_t memextend = 0;
+	uint16_t wholesum = 0;
+	for(size_t i = 0; i < width_in_bits_/8; ++i)
+	{
 		mem_[i] = ~(mem_[i]);
 	}
-	++(*this);
+
+	memextend = (uint16_t)mem_[0];
+	wholesum = memextend + 1;
+	mem_[0] = static_cast<uint8_t> (wholesum & 0xFF);
+	wholesum = (wholesum >> 8);
+	carry  = static_cast<uint8_t> (wholesum & 0xFF);
+	for(size_t i = 1; i < width_in_bits_/8; ++i){
+	memextend = (uint16_t)mem_[i];
+	if(carry == 0)
+	{
+		break;
+	}
+	wholesum = memextend + carry;
+	mem_[i] = static_cast<uint8_t> (wholesum);
+	wholesum = (wholesum >> 8);
+	carry  = static_cast<uint8_t> (wholesum & 0xFF);
+	}
 }
 
 SVElement SVElement::operator+(const SVElement& rhs) const {
