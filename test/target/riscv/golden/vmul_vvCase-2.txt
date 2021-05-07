@@ -52,7 +52,7 @@ V31	[00|00|00|00]
 
 #Output:
 
-V0  [9d|3d|bd|00]
+V0  [9d|3d|be|00]
 V1	[cf|cf|bb|e6]
 V2	[fd|8a|c0|e8]
 V3	[48|ff|38|c0]

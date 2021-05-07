@@ -102,30 +102,12 @@ SVElement SVElement::operator--(int){
 }
 
 void SVElement::twos_complement(void){
-	uint8_t carry = 0;
-	uint16_t memextend = 0;
-	uint16_t wholesum = 0;
+	
 	for(size_t i = 0; i < width_in_bits_/8; ++i)
 	{
 		mem_[i] = ~(mem_[i]);
 	}
-
-	memextend = (uint16_t)mem_[0];
-	wholesum = memextend + 1;
-	mem_[0] = static_cast<uint8_t> (wholesum & 0xFF);
-	wholesum = (wholesum >> 8);
-	carry  = static_cast<uint8_t> (wholesum & 0xFF);
-	for(size_t i = 1; i < width_in_bits_/8; ++i){
-	memextend = (uint16_t)mem_[i];
-	if(carry == 0)
-	{
-		break;
-	}
-	wholesum = memextend + carry;
-	mem_[i] = static_cast<uint8_t> (wholesum);
-	wholesum = (wholesum >> 8);
-	carry  = static_cast<uint8_t> (wholesum & 0xFF);
-	}
+	++(*this) ;
 }
 
 SVElement SVElement::operator+(const SVElement& rhs) const {
@@ -721,7 +703,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			out[i] = ~out[i];
 		}
-		out[0]  = out[0] + 1;
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = out[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			out[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
 	}
 	// positiv * negativ
 	else
@@ -762,7 +754,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
 		{
 			out[i] = ~out[i];
 		}
-		out[0]  = out[0] + 1; 
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = out[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			out[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		} 
 	}
 	else
 	{
@@ -814,6 +816,7 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 	uint8_t temp2 = 0;
 	uint16_t temp3 = 0; 
 	int64_t rhsvar = rhs;
+	uint8_t carry = 1;
 	for (int i = 0; i < 2 * size; i++)
 	{
 		out[i] = 0;
@@ -833,7 +836,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 		{
 			rhsarray[i] = ~rhsarray[i];
 		}
-		rhsarray[0] = rhsarray[0] + 1; //two complement
+		carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = rhsarray[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			rhsarray[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
 
 		twopL.twos_complement();
 		
@@ -904,7 +917,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				out[i] = ~out[i];
 			}
-			out[0]  = out[0] + 1;
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 	}
 		// positiv * negativ
 		else
@@ -914,7 +937,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				rhsarray[i] = ~rhsarray[i];
 			}
-			rhsarray[0] = rhsarray[0] + 1; //two complement
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = rhsarray[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				rhsarray[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 			
 			//same as 2 unsigned numbers
 			for (int i = 0; i < size; i++)
@@ -949,7 +982,17 @@ SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
 			{
 				out[i] = ~out[i];
 			}
-				out[0]  = out[0] + 1; 
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			} 
 		}
 		else
 		{
@@ -1082,7 +1125,17 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 			{
 				out[i] = ~out[i];
 			}
-			out[0]  = out[0] + 1;
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 	}
 		// positiv * negativ
 	else if (!(twopL[size - 1] & 0x80) && (tworhs[size - 1] & 0x80))
@@ -1122,7 +1175,17 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
 			{
 				out[i] = ~out[i];
 			}
-				out[0]  = out[0] + 1; 
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 		}
 	else
 	{
@@ -1191,7 +1254,17 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			rhsarray[i] = ~rhsarray[i];
 			
 		}
-		rhsarray[0] = rhsarray[0] + 1; //two complement
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  size; ++i_byte)
+		{
+			uint16_t x = rhsarray[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			rhsarray[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
 		twopL.twos_complement();
 		
 		//same as 2 unsigned positive numbers
@@ -1261,7 +1334,17 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			{
 				out[i] = ~out[i];
 			}
-			out[0]  = out[0] + 1;
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 	}
 		// positiv * negativ
 		else
@@ -1306,7 +1389,17 @@ SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
 			{
 				out[i] = ~out[i];
 			}
-				out[0]  = out[0] + 1; 
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -1510,8 +1603,17 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
 			{
 				out[i] = ~out[i];
 			}
-			out[0]  = out[0] + 1;
-
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 	}
 	
 	else
@@ -1612,8 +1714,17 @@ SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
 			{
 				out[i] = ~out[i];
 			}
-			out[0]  = out[0] + 1;
-
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
 	}
 	else //positive opL
 	{	
