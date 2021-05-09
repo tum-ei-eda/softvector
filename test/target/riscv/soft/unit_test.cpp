@@ -754,8 +754,183 @@ public:
 	    }
 	}
 };
+//12.10 mul
+class Cvmul_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmul_vv*> cases;
+    Cvmul_vvTest(void){
 
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
 
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmul_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmul_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmul_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmul_vxTest : public ::testing::Test {
+public:
+    std::vector<Cvmul_vx*> cases;
+    Cvmul_vxTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmul_vx") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmul_vx(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmul_vxTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulh_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmulh_vv*> cases;
+    Cvmulh_vvTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulh_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulh_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulh_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulh_vxTest : public ::testing::Test {
+public:
+    std::vector<Cvmulh_vx*> cases;
+    Cvmulh_vxTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulh_vx") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulh_vx(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulh_vxTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulhu_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmulhu_vv*> cases;
+    Cvmulhu_vvTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulhu_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulhu_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulhu_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulhu_vxTest : public ::testing::Test {
+public:
+    std::vector<Cvmulhu_vx*> cases;
+    Cvmulhu_vxTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulhu_vx") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulhu_vx(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulhu_vxTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulhsu_vvTest : public ::testing::Test {
+public:
+    std::vector<Cvmulhsu_vv*> cases;
+    Cvmulhsu_vvTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulhsu_vv") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulhsu_vv(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulhsu_vvTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
+class Cvmulhsu_vxTest : public ::testing::Test {
+public:
+    std::vector<Cvmulhsu_vx*> cases;
+    Cvmulhsu_vxTest(void){
+
+    	std::vector<std::string> golden_files;
+    	std::vector<std::string> case_files;
+
+    	read_directory(gGoldenDir.c_str(), golden_files);
+    	for (auto& _f: golden_files){
+    		if(_f.find("vmulhsu_vx") != std::string::npos){
+    			std::string fp = gGoldenDir + _f;
+    			cases.push_back(new Cvmulhsu_vx(fp));
+    		}
+    	}
+    }
+	virtual ~Cvmulhsu_vxTest(void){
+	    for(auto & _case: cases){
+	        delete _case;
+	    }
+	}
+};
 TEST(vtype_decode, HandleBitfieldEncodingZLMULgtNLMUL) {
     uint16_t x;
     uint32_t sew;
@@ -1054,6 +1229,57 @@ TEST_F(Cvsra_vxTest, VariousTestCases){
         EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
     }
 }
+
+TEST_F(Cvmul_vvTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmul_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulh_vvTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulh_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulhu_vvTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulhu_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulhsu_vvTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+TEST_F(Cvmulhsu_vxTest, VariousTestCases){
+
+    for(auto & _case: cases){
+        EXPECT_EQ(_case->compare_return, 0) << 	"Fail at golden compare " << _case->identity;
+    }
+}
+
+
 
 int main (int argc, char **argv){
     ::testing::InitGoogleTest(&argc, argv);
