@@ -1,6 +1,6 @@
 # Softvector
 
-This project targets functional simulation of Vector Processing Units (VPUs).
+This project targets functional simulation of Vector Processing Units (VPUs). It wraps highly abstracted vector arithmetic functions around a target-specific interface.
 
 Softvector mainly focuses on the RISC-V Vector (RVV) instruction set and was built as a support library for the [Extendable Translating Instruction Set Simulator (ETISS)](https://github.com/tum-ei-eda/etiss).
 
