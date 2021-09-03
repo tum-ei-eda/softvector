@@ -83,7 +83,7 @@ IF(CMAKE_TESTING_ENABLED AND TEST_BUILD)
 			FetchContent_GetProperties(gtest_srcs)
 			SET(GTEST_LOCATION ${gtest_srcs_SOURCE_DIR})
 			SET(INSTALL_GTEST OFF CACHE PATH "Do not install GTEST - build gtest locally.")
-			ADD_SUBDIRECTORY(${GTEST_LOCATION})
+			ADD_SUBDIRECTORY(${GTEST_LOCATION} gtest-build)
 		ENDIF()
 	ENDIF()
 	ADD_EXECUTABLE(${PROJECT_NAME}-test
