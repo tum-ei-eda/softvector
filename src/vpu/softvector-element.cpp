@@ -102,10 +102,12 @@ SVElement SVElement::operator--(int){
 }
 
 void SVElement::twos_complement(void){
-	for(size_t i = 0; i < width_in_bits_/8; ++i){
+	
+	for(size_t i = 0; i < width_in_bits_/8; ++i)
+	{
 		mem_[i] = ~(mem_[i]);
 	}
-	++(*this);
+	++(*this) ;
 }
 
 SVElement SVElement::operator+(const SVElement& rhs) const {
@@ -609,4 +611,1159 @@ SVElement& SVElement::s_srl(const SVElement& opL, const uint64_t rhs) {
 		arr_shift_right(mem_, width_in_bits_/8, false);
 	}
 	return(*this);
+}
+
+//MUL 12.10
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_ssmul(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	SVElement twopL(opL);
+	SVElement tworhs(rhs);
+	
+
+	// negativ * negativ
+	if ((twopL[size - 1 ] & 0x80) && (tworhs[size - 1] & 0x80))
+	{
+		twopL.twos_complement();
+		tworhs.twos_complement();
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// negativ * positiv
+	else if ((twopL[size - 1] & 0x80) && !(tworhs[size - 1] & 0x80))
+	{
+		twopL.twos_complement();
+
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+		// Result becomes negative again
+		for (int i = 0; i < 2 * size; i++)
+		{
+			out[i] = ~out[i];
+		}
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = out[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			out[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
+	}
+	// positiv * negativ
+	else
+	if (!(twopL[size - 1] & 0x80) && (tworhs[size - 1] & 0x80))
+	{
+		tworhs.twos_complement();
+		
+		//same as 2 unsigned numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+		// Result becomes negative again
+		for (int i = 0; i < 2 * size; i++)
+		{
+			out[i] = ~out[i];
+		}
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = out[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			out[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		} 
+	}
+	else
+	{
+		// positiv * positiv
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j]; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				temp3 = temp3 + temp1;
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8)& 0xFF; //upper half going into out[i+j+1]
+				temp3 = (uint16_t)(out[i + j + 1]);
+				temp3 = temp3 + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);	
+				
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8) & 0xFF; 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// returning lower half of SIgned*Signed MUL
+	for (size_t i = 0; i < size; i++)
+	{
+		(*this)[i] = out[i];
+	}
+
+	delete[] out;
+	return (*this);
+} 
+SVElement& SVElement::s_ssmul(const SVElement& opL, const int64_t rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	int64_t rhsvar = rhs;
+	uint8_t carry = 1;
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	SVElement twopL(opL);
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 7; i >= 0; i--)
+	{
+		rhsarray[i] = (uint8_t)((rhsvar >> i*8) & 0xFF); 
+	}
+
+	// negativ * negativ
+	if ((twopL[size - 1 ] & 0x80) && (rhsarray[7] & 0x80))
+	{
+		for (int i = 0; i < size; i++)
+		{
+			rhsarray[i] = ~rhsarray[i];
+		}
+		carry = 1;
+		for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+		{
+			uint16_t x = rhsarray[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			rhsarray[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
+
+		twopL.twos_complement();
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				temp1 = twopL[i] * rhsarray[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// negativ * positiv
+	else if ((twopL[size - 1] & 0x80) && !(rhsarray[7] & 0x80))
+	{
+			twopL.twos_complement();
+
+			//same as 2 unsigned positive numbers
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+	}
+		// positiv * negativ
+		else
+		if (!(twopL[size - 1] & 0x80) && (rhsarray[7] & 0x80))
+		{
+			for (int i = 0; i < 7; i++)
+			{
+				rhsarray[i] = ~rhsarray[i];
+			}
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = rhsarray[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				rhsarray[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+			
+			//same as 2 unsigned numbers
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+						
+					temp1 = (temp3 >> 8);
+						
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			} 
+		}
+		else
+		{
+			// positiv * positiv
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+		}
+
+	// returning lower half of SIgned*Signed MUL
+	for (int i = 0; i <  size; i++)
+	{
+		(*this)[i] = out[i];
+	}
+
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_ssmulh(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	SVElement twopL(opL);
+	SVElement tworhs(rhs);
+	
+	// negativ * negativ
+	if ((twopL[size - 1 ] & 0x80) && (tworhs[size - 1] & 0x80))
+	{
+		twopL.twos_complement();
+		tworhs.twos_complement();
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// negativ * positiv
+	else if ((twopL[size - 1] & 0x80) && !(tworhs[size - 1] & 0x80))
+	{
+		twopL.twos_complement();
+
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+	}
+		// positiv * negativ
+	else if (!(twopL[size - 1] & 0x80) && (tworhs[size - 1] & 0x80))
+		{
+			tworhs.twos_complement();
+			
+			//same as 2 unsigned numbers
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < size; j++)
+				{
+					temp1 = twopL[i] * tworhs[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+		}
+	else
+	{
+		// positiv * positiv
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// returning higher half of SIgned*Signed MUL
+	for (size_t i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	};
+	delete[] out;
+
+	return (*this);
+} 
+SVElement& SVElement::s_ssmulh(const SVElement& opL, const int64_t rhs){
+
+	int size = width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	SVElement twopL(opL);
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 7; i >= 0; i--)
+	{
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
+	}
+
+	// negativ * negativ
+	if ((twopL[size - 1 ] & 0x80) && (rhsarray[7] & 0x80))
+	{
+		for (int i = 0; i < size; i++)
+		{
+			rhsarray[i] = ~rhsarray[i];
+			
+		}
+		uint8_t carry = 1;
+		for (size_t i_byte = 0; i_byte <  size; ++i_byte)
+		{
+			uint16_t x = rhsarray[i_byte] + carry;
+			carry = (x & (0xFF00)) ? 1 : 0;
+			rhsarray[i_byte] = static_cast<uint8_t>(x);
+			if(carry == 0)
+			{
+				break;
+			}
+		}
+		twopL.twos_complement();
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				temp1 = twopL[i] * rhsarray[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// negativ * positiv
+	else if ((twopL[size - 1] & 0x80) && !(rhsarray[7] & 0x80))
+	{
+		twopL.twos_complement();
+
+			//same as 2 unsigned positive numbers
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 8; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+	}
+		// positiv * negativ
+		else
+		if (!(twopL[size - 1] & 0x80) && (rhsarray[7] & 0x80))
+		{
+			for (int i = 0; i < 8; i++)
+			{
+				rhsarray[i] = ~rhsarray[i];
+			}
+			rhsarray[0] = rhsarray[0] + 1; //two complement
+			
+			//same as 2 unsigned numbers
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 7; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+			// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+		}
+		else
+		{
+			// positiv * positiv
+			for (int i = 0; i < size; i++)
+			{
+				for (int j = 0; j < 7; j++)
+				{
+					temp1 = twopL[i] * rhsarray[j];
+
+					temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+					out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+					temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+					temp3 = (uint16_t)out[i + j + 1] + temp2;
+					out[i + j + 1] = (uint8_t)temp3; 
+					
+					temp1 = (temp3 >> 8);
+					
+					for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+					{
+						temp3 = out[k] + temp1;
+						out[k] = (uint8_t)temp3;
+						temp1 = (temp3 >> 8); 
+						if(temp1 == 0)
+						{ 
+							break;		// No overflow
+						}
+					}
+				}
+			}
+		}
+	// returning higher half of SIgned*Signed MUL
+	for (int i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	}
+
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_uumulh(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	SVElement twopL(opL);
+	SVElement tworhs(rhs);
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	// returning higher half of Unsigned*Unsigned MUL
+	for (size_t i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	};
+
+	delete[] out;
+	return (*this);
+} 
+SVElement& SVElement::s_uumulh(const SVElement& opL, const int64_t rhs){
+
+	int size = width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	SVElement twopL(opL);
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 7; i >= 0; i--)
+	{
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
+	}
+	for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				temp1 = twopL[i] * rhsarray[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	
+	// returning higher half of Unsigned * Unsigned MUL
+	for (int i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	}
+
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
+}
+///////////////////////////////////////////////////////////////////////////////////////////
+SVElement& SVElement::s_sumulh(const SVElement& opL, const SVElement &rhs){
+
+	int size = (int)width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	SVElement twopL(opL);
+	SVElement tworhs(rhs);
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	// negativ opL
+	if (twopL[size - 1 ] & 0x80)
+	{
+		twopL.twos_complement();
+
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+		// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+	}
+	
+	else
+	{	
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < size; j++)
+			{
+				temp1 = twopL[i] * tworhs[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+		
+	// returning higher half of Signed * Unsigned MUL
+	for (size_t i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	};
+
+	delete[] out;
+
+	return (*this);
+} 
+SVElement& SVElement::s_sumulh(const SVElement& opL, const int64_t rhs){
+
+	int size = width_in_bits_/8;  
+	uint8_t* out = new uint8_t [2 * size];
+	uint16_t temp1 = 0;  
+	uint8_t temp2 = 0;
+	uint16_t temp3 = 0; 
+	SVElement twopL(opL);
+	for (int i = 0; i < 2 * size; i++)
+	{
+		out[i] = 0;
+	}
+	// Changing 64bit signed into 8bit Array
+	uint8_t* rhsarray = new uint8_t [8];
+	for (int i = 7; i >= 0; i--)
+	{
+		rhsarray[i] = (uint8_t)(rhs >> i*8);
+	}
+
+	// negativ opL
+	if (twopL[size - 1 ] & 0x80)
+	{
+		twopL.twos_complement();
+		
+		//same as 2 unsigned positive numbers
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				temp1 = twopL[i] * rhsarray[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + (temp2);
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+		// Result becomes negative again
+			for (int i = 0; i < 2 * size; i++)
+			{
+				out[i] = ~out[i];
+			}
+			uint8_t carry = 1;
+			for (size_t i_byte = 0; i_byte <  2* size; ++i_byte)
+			{
+				uint16_t x = out[i_byte] + carry;
+				carry = (x & (0xFF00)) ? 1 : 0;
+				out[i_byte] = static_cast<uint8_t>(x);
+				if(carry == 0)
+				{
+					break;
+				}
+			}
+	}
+	else //positive opL
+	{	
+		for (int i = 0; i < size; i++)
+		{
+			for (int j = 0; j < 8; j++)
+			{
+				temp1 = twopL[i] * rhsarray[j];
+
+				temp3 = (uint16_t)out[i + j] + temp1; //16bit enough max Value 0xFF * 0xFF + 0xFF = 0xFE01 + 0xFF =0xFF00
+				out[i + j] = (uint8_t)temp3; // same as & 0x00FF
+
+				temp2 = (temp3 >> 8); //upper half going into out[i+j+1]
+				temp3 = (uint16_t)out[i + j + 1] + temp2;
+				out[i + j + 1] = (uint8_t)temp3; 
+				
+				temp1 = (temp3 >> 8);
+				
+				for (int k = i + j + 2 ; k < size * 2 ; k++) //start: k = i+j+2 Already made first 2 Iterations above
+				{
+					temp3 = out[k] + temp1;
+					out[k] = (uint8_t)temp3;
+					temp1 = (temp3 >> 8); 
+					if(temp1 == 0)
+					{ 
+						break;		// No overflow
+					}
+				}
+			}
+		}
+	}
+	// returning higher half of Signed * Unsigned MUL
+	for (int i = size; i <  2 * size; i++)
+	{
+		(*this)[i - size] = out[i];
+	}
+
+	delete[] out;
+	delete[] rhsarray;
+	return (*this);
+
 }
