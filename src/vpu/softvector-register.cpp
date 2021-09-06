@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,28 +95,28 @@ SVRegister& SVRegister::m_s_lt(const SVector& opL, const int64_t rhs, const SVRe
 }
 SVRegister& SVRegister::m_s_lte(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element){
-		if(!mask or vm.get_bit(i_element))	
+		if(!mask or vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] <= rhs[i_element]);
 	}
 	return(*this);
 }
 SVRegister& SVRegister::m_s_lte(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element){
-		if(!mask or vm.get_bit(i_element))	
+		if(!mask or vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] <= rhs);
 	}
 	return(*this);
 }
 SVRegister& SVRegister::m_s_gt(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element){
-		if(!mask or vm.get_bit(i_element))	
+		if(!mask or vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] > rhs[i_element]);
 	}
 	return(*this);
 }
 SVRegister& SVRegister::m_s_gt(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element){
-		if(!mask or vm.get_bit(i_element))	
+		if(!mask or vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] > rhs);
 	}
 	return(*this);

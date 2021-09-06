@@ -77,7 +77,7 @@ uint8_t vload_encoded_unitstride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
 	};
@@ -102,7 +102,7 @@ uint8_t vload_encoded_stride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
 	};
@@ -128,7 +128,7 @@ uint8_t vload_segment_unitstride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
 	};
@@ -161,7 +161,7 @@ uint8_t vload_segment_stride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
 	};
@@ -192,7 +192,7 @@ uint8_t vstore_encoded_unitstride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
 	};
@@ -216,7 +216,7 @@ uint8_t vstore_encoded_stride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
 	};
@@ -241,7 +241,7 @@ uint8_t vstore_segment_unitstride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
 	};
@@ -274,7 +274,7 @@ uint8_t vstore_segment_stride(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
 		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
 	};
@@ -535,7 +535,7 @@ uint8_t vwsubu_w_vv(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	VARITH_INT::wop_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART, pVm, false, false);
 
 	return (0);
@@ -681,7 +681,7 @@ uint8_t vor_vv(
 	uint8_t* VectorRegField;
 
 	VectorRegField = static_cast<uint8_t*>(pV);
-	
+
 	VARITH_INT::or_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART, pVm);
 
 	return (0);

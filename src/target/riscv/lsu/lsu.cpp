@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,12 +39,12 @@ VILL::vpu_return_t VLSU::load_eew(
 	int16_t  stride_bytes
 ){
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, eew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
-	
+
 	if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
-		return(VILL::VPU_RETURN::DST_VEC_ILL);	
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
 	} else {
 		V.init();
-		
+
 		RVVector& vd = V.get_vec(dst_vec_reg);
 		int memOffset = src_mem_start;
 		for(size_t iElement = 0; iElement < vec_len; ++iElement){
@@ -73,12 +73,12 @@ VILL::vpu_return_t VLSU::store_eew(
 	int16_t  stride_bytes
 ){
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, eew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
-	
+
 	if (! V.vec_reg_is_aligned(src_vec_reg) ) {
-		return(VILL::VPU_RETURN::SRC3_VEC_ILL);	
+		return(VILL::VPU_RETURN::SRC3_VEC_ILL);
 	} else {
 		V.init();
-		
+
 		RVVector& vs3 = V.get_vec(src_vec_reg);
 		int memOffset = dst_mem_start;
 		for(size_t iElement = 0; iElement < vec_len; ++iElement){
@@ -90,4 +90,3 @@ VILL::vpu_return_t VLSU::store_eew(
 	}
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
-

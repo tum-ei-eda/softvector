@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,23 +29,23 @@
 /// \brief This space concludes arithmetic helpers
 namespace VMASK {
 
-/* rvv spec. 16.1. Vector Mask-Register Logical Instructions */	
+/* rvv spec. 16.1. Vector Mask-Register Logical Instructions */
 //TODO: ...
-/* rvv spec. 16.2. Vector mask population count vpopc */	
+/* rvv spec. 16.2. Vector mask population count vpopc */
 //TODO: ...
-/* rvv spec. 16.3. vfirst find-first-set mask bit */	
+/* rvv spec. 16.3. vfirst find-first-set mask bit */
 //TODO: ...
-/* rvv spec. 16.4. vmsbf.m set-before-first mask bit */	
+/* rvv spec. 16.4. vmsbf.m set-before-first mask bit */
 //TODO: ...
-/* rvv spec. 16.5. vmsif.m set-including-first mask bit */	
+/* rvv spec. 16.5. vmsif.m set-including-first mask bit */
 //TODO: ...
-/* rvv spec. 16.6. vmsof.m set-only-first mask bit */	
+/* rvv spec. 16.6. vmsof.m set-only-first mask bit */
 //TODO: ...
-/* rvv spec. 16.7. Example using vector mask instructions */	
+/* rvv spec. 16.7. Example using vector mask instructions */
 //TODO: ...
-/* rvv spec. 16.8. Vector Iota Instruction */	
+/* rvv spec. 16.8. Vector Iota Instruction */
 //TODO: ...
-/* rvv spec. 16.9. Vector Element Index Instruction */	
+/* rvv spec. 16.9. Vector Element Index Instruction */
 //TODO: ...
 
 }

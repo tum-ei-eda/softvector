@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,7 +27,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes basic helpers for Illegal-Instruction-related stuff.
 namespace VILL {
- 
+
 typedef enum VPU_RETURN{
 	NO_EXCEPT = 0,
 	DST_VEC_ILL,
@@ -37,13 +37,13 @@ typedef enum VPU_RETURN{
 	WIDENING_OVERLAP_VD_VS1_ILL,
 	WIDENING_OVERLAP_VD_VS2_ILL,
 }vpu_return_t;
-	
+
 }
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes basic helpers for VTYPE-related configuration fields.
 namespace VTYPE {
-	
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit-wise masks for VTYPE bitfield
 typedef enum MASK{
@@ -143,13 +143,13 @@ typedef enum BITS_EEW{
 	/// \brief Extract MA bitfield from VTYPE bitfield
 	/// \return Encoded MA bitfield
 	uint8_t extractMA(uint16_t pVTYPE);
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Concatenate MEW and WIDTH to EEW and return number of bits for EEW
 	/// \return Decoded EEW [bits]
 	uint16_t concatEEW(uint8_t mew, uint8_t width);
 
-	
+
 	class VTYPE{
 	public:
 		uint16_t _bitfield{};

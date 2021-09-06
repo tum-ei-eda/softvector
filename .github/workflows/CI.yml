@@ -6,7 +6,7 @@ env:
   BUILD_TYPE: Release
   TARGET_NAME: soft
   TEST_BUILD: 1
-  
+
 jobs:
   # This workflow contains a single job called "build"
   build:
@@ -14,10 +14,10 @@ jobs:
       matrix:
         config:
           - {name: "Linux", os: ubuntu-latest, cmakegen: "", llvm: "linux-gnu-ubuntu-20.04", llvm-ext: ".tar.xz", tc: "linux-ubuntu14", tc-ext: ".tar.gz", unpack: "tar xf"}
-    
+
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.name }}
-    
+
     steps:
       - uses: actions/checkout@v2
 
@@ -26,29 +26,29 @@ jobs:
         if: matrix.config.name == 'Linux'
         run: |
           sudo apt-get install libboost-system-dev
-          
+
       - name: Create Build Environment
         run: |
           cmake -E make_directory ${{runner.workspace}}/build
-        
+
       - name: Configure CMake
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTARGET_NAME=$TARGET_NAME -DTEST_BUILD=$TEST_BUILD -DCMAKE_INSTALL_PREFIX=../install
-          
+
       - name: Build
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
           cmake --build . --config $BUILD_TYPE
-          
+
       - name: Install
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
           cmake --build . --config $BUILD_TYPE --target install
-          
+
       - name: Test
         shell: bash
         working-directory: ${{runner.workspace}}/build

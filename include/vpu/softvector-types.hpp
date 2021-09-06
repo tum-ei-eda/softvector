@@ -727,28 +727,28 @@ public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Slide the Vector elements down by right-hand-side unsigned 64 bit value. rhs is zero extended to element size
 	SVector& m_slidedown(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t vlmax ,size_t start_index = 0);
-	
+
 	/////////////////////////////////////////////////////////////////////////////////
 	//12.10
-	/// \brief  masked signed*signed MUL for right-hand-side SVector 
+	/// \brief  masked signed*signed MUL for right-hand-side SVector
 	SVector& m_ssmul(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_ssmul(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// \brief  masked signed*signed MUL for right-hand-side SVector 
+	/// \brief  masked signed*signed MUL for right-hand-side SVector
 	SVector& m_ssmulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked signed*signed MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_ssmulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector 
+	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector
 	SVector& m_uumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked unsigned*unsigned MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size
 	SVector& m_uumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////
-	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector 
+	/// \brief  masked unsigned*unsigned MUL for right-hand-side SVector
 	SVector& m_sumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index = 0);
 	/////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	/// \brief masked unsigned*unsigned MUL for right-hand-side signed 64 bit value. rhs is sign extended to element size

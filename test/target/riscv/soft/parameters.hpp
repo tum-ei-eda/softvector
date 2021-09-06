@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,14 +46,14 @@ public:
 		VECTOR,
 		MEMORY
 	}datt_t;
-    
+
 	std::string name;
     datt_t basetype;
 	FRACT_t _fracttype;
 
     CaseParameter(std::string name, datt_t basetype, FRACT_t fractype = FRACT::NONE) : name(name), basetype(basetype), _fracttype(fractype) {}
     virtual ~CaseParameter(void){};
-    
+
     virtual void getVal(void* out) = 0;
     virtual int initbyFile(const char* fp_goldenFile) = 0;
 };
@@ -62,7 +62,7 @@ template <typename base_t = int>
 class IntegerParameter final : public CaseParameter{
 public:
     base_t& mVal;
-    
+
     IntegerParameter(std::string name, base_t& valueref, datt_t basetype = DATT::INT32) : CaseParameter(name, basetype), mVal(valueref) {}
 
     int initbyFile(const char* fp_goldenFile){
@@ -92,10 +92,10 @@ public:
 			}
         }
         fh_golden_output.close();
-        
+
         return 1;
     }
-    
+
     void getVal(void* out) {
         *(reinterpret_cast<base_t*>(out)) = mVal;
     }

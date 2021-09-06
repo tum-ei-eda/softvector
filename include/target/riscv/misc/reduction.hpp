@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -29,13 +29,13 @@
 /// \brief This space concludes vector reduction operations helpers
 namespace VREDUC {
 
-/* rvv spec. 15.1. Vector Single-Width Integer Reduction Instructions */	
+/* rvv spec. 15.1. Vector Single-Width Integer Reduction Instructions */
 //TODO: ...
-/* rvv spec. 15.2. Vector Widening Integer Reduction Instructions */	
+/* rvv spec. 15.2. Vector Widening Integer Reduction Instructions */
 //TODO: ...
-/* rvv spec. 15.3. Vector Single-Width Floating-Point Reduction Instructions */	
+/* rvv spec. 15.3. Vector Single-Width Floating-Point Reduction Instructions */
 //TODO: ...
-/* rvv spec. 15.4. Vector Widening Floating-Point Reduction Instructions */	
+/* rvv spec. 15.4. Vector Widening Floating-Point Reduction Instructions */
 //TODO: ...
 
 }

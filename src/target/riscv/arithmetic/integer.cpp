@@ -1698,7 +1698,7 @@ VILL::vpu_return_t VARITH_INT::msgt_vx(
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
 /*12.10. Vector Single-Width Integer Multiply Instructions */
-//TODO 
+//TODO
 VILL::vpu_return_t VARITH_INT::vmul_vv(
 	uint8_t* vec_reg_mem,
 	uint64_t emul_num,

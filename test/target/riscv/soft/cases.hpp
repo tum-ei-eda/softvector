@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -38,9 +38,9 @@ class Case {
     std::string brief;
     std::string details;
     const std::string filepath_goldenOutput;
-    
+
     std::vector<CaseParameter*> mPars;
-    
+
     int run_return;
     int compare_return;
 
@@ -81,7 +81,7 @@ class Case {
 	  compare_return(-1)
     {}
     virtual ~Case(void){}
-    
+
     virtual std::string rep_VECTORS(uint8_t* V, bool hex = true) = 0;
     virtual std::string rep_inVECTORS(bool hex = true) = 0;
     virtual std::string rep_outVECTORS(bool hex = true) = 0;
@@ -90,7 +90,7 @@ class Case {
     virtual std::string rep_outMEMORY(int nlb = 32, bool hex = true) = 0;
     virtual std::string rep_ISET(void) = 0;
     virtual bool run(void){return (0);};
-    
+
     virtual int initParameters(void){
         int ret = 1;
         for(auto & it: mPars){
@@ -100,7 +100,7 @@ class Case {
         }
         return (ret);
     }
-    
+
     virtual CaseParameter* getParameter(std::string name){
         CaseParameter* ret = nullptr;
         for(auto & it: mPars){
@@ -110,18 +110,18 @@ class Case {
         }
         return (ret);
     }
-    
+
     virtual int compare_outputs(int dut_return){
         std::string fp_case_output;
         std::ofstream fh_case_output;
-        
+
 		std::string exe = "mkdir -p " + gLogDir;
-		
+
         system(exe.c_str());
         fp_case_output = gLogDir;
         fp_case_output += type;
         fp_case_output += identity + ".txt";
-        
+
         fh_case_output.open (fp_case_output, std::ios::out);
         fh_case_output  << "##########################################################################################################"  << std::endl
         				<< "#File: "    << filepath_goldenOutput.substr(filepath_goldenOutput.rfind("/") + 1) << std::endl
@@ -138,7 +138,7 @@ class Case {
                         << rep_outVECTORS() << std::endl
                         << "EXCEPTION:" << bool(dut_return);
         fh_case_output.close();
-        
+
         if(!dut_return){
             std::string diff = std::string("diff -BaiEZw ") + filepath_goldenOutput + std::string(" ") + fp_case_output +
         	//std::string diff = std::string("comm -13 <(sort ") + fp_case_output + std::string(") <(sort ") + filepath_goldenOutput + std::string(")") +
@@ -146,8 +146,8 @@ class Case {
         	//std::string diff = std::string("sort ") + fp_case_output + std::string(" ") + filepath_goldenOutput + " | uniq -u" +
 
         	std::string("\n");
-        
-            int diffret = system(diff.c_str());   
+
+            int diffret = system(diff.c_str());
             return (diffret);
         }else{
             std::ifstream fh_golden_output;
@@ -158,17 +158,17 @@ class Case {
                 x << y;
             }
             fh_golden_output.close();
-            
+
             if (x.str().find("EXCEPTION") == std::string::npos){
                 std::cout << "Golden output either missing or not specifying an EXCEPTION value" << std::endl;
-                return(128);                
+                return(128);
             }else{
                 if (x.str().find("EXCEPTION:1") != std::string::npos){
                     return(0);
                 }
                 return(1);
             }
-        }       
+        }
     }
 };
 
@@ -259,7 +259,7 @@ public:
 
     std::string rep_VECTORS(uint8_t* V, bool hex = true){
         std::stringstream ss;
-        
+
         for (size_t x = 0; x < 32; ++x){
             ss << "V" << x << "\t[";
             for (int i = _vlen/8 -1; i >= 0; --i){
@@ -470,7 +470,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -489,7 +489,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -681,7 +681,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -698,9 +698,9 @@ public:
             _vlen,
             _vl,
 			_xlen/8);
-		
+
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -806,7 +806,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -825,7 +825,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -931,7 +931,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -950,7 +950,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -1348,7 +1348,7 @@ public:
 
     virtual ~Cvload_encoded_unitstride(void) {
     }
-    
+
     bool run(void){
 
         uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
@@ -1360,12 +1360,12 @@ public:
             vtype,
             _vm,
             _eew,
-            _vd, 
+            _vd,
             _vstart,
             _vlen,
             _vl,
             _mstart);
-        
+
         return (ret);
     }
 };
@@ -1736,7 +1736,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -1755,7 +1755,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -1820,7 +1820,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -1839,7 +1839,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -1904,7 +1904,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -1923,7 +1923,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };
@@ -1988,7 +1988,7 @@ public:
 
 		uint16_t vtype = VTYPE::encode(_sew, _Zlmul, _Nlmul, 0, 0);
 		rep_ISET();
-		
+
 		uint8_t* r = new uint8_t[_xlen/8];
 		memset(r, 0, _xlen/8);
 		for(int i = 0; i< _xlen/8; ++i) r[i] = ((uint8_t*)(&_x))[i];
@@ -2007,7 +2007,7 @@ public:
 			_xlen/8);
 
 		delete[] r;
-		
+
         return (ret);
     }
 };

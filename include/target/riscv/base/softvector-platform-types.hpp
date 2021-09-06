@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,13 +43,13 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \class RVVector	
+/// \class RVVector
 /// \brief RISC-V Vector. Makes use of one single SVElement changing its reference to data storage. This prevents excessive allocation overhead.
 class RVVector : public SVector{
 public:
 	uint8_t* mem_;								///!< Main memory.
 	SVElement& activeElement;					///!< Element referencer, is updated when subscript is applied to an object of this class
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Check if memory space of this RVVector overlaps with another
 	/// \param v RVVector to test against
@@ -69,9 +69,9 @@ public:
 	}
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced elements, i.e. externally allocated elements
-	RVVector(const size_t length_elements, const size_t single_element_width_bits, const size_t start_reg_index, uint8_t* mem) : 
-		SVector(length_elements, start_reg_index), 
-		mem_(mem), 
+	RVVector(const size_t length_elements, const size_t single_element_width_bits, const size_t start_reg_index, uint8_t* mem) :
+		SVector(length_elements, start_reg_index),
+		mem_(mem),
 		activeElement(*(new SVElement(single_element_width_bits, mem))) {}
 	virtual ~RVVector(void){
 		delete &activeElement;
@@ -90,14 +90,14 @@ protected:
 	const size_t single_element_width_bits_;			///!< SEW, single element width in bits
 	uint8_t* mem_;										///!< Main memory.
 	const SVMul multiplicity_;							///!< LMUL, Vector register multiplicity, i.e. how many vector register make up one vector
-public:	
+public:
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Constructor for referenced main memory, i.e. externally allocated memory
 	RVVRegField(
 		const size_t vector_register_length_bits, 		///!< VLEN
 		const size_t vector_length,						///!< VL
 		const size_t single_element_width_bits, 		///!< SEW
-		const SVMul& multiplicity, 						///!< MUL 
+		const SVMul& multiplicity, 						///!< MUL
 		uint8_t* mem									///!< Vector register memory field
 	) :
 	vector_register_length_bits_(vector_register_length_bits),
@@ -105,14 +105,14 @@ public:
 	single_element_width_bits_(single_element_width_bits),
 	mem_(mem),
 	multiplicity_(multiplicity){}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Initialization method. Call after constructor before use.
-	void init(void){		
+	void init(void){
 		size_t group_size_regs = (multiplicity_.is_frac() ? 1 : multiplicity_.n_ / multiplicity_.d_); ///!< How many vector register make up one vector
 		size_t n_vector_register_groups = (regs_.size() / (multiplicity_.is_frac() ? 1 : multiplicity_.n_ / multiplicity_.d_)); ///!< How many vector register groups
 		//size_t n_elements_per_reg = ((! multiplicity_.is_frac()) ? (vector_register_length_bits_/single_element_width_bits_) : ((vector_register_length_bits_)*multiplicity_.n_/single_element_width_bits_/multiplicity_.d_)); ///!< Number of elements per vector register
-		
+
 		uint8_t* tmem = mem_;
 		for(auto &it: regs_){
 			it.init_ref(vector_register_length_bits_, tmem);
@@ -122,7 +122,7 @@ public:
 			vs_.push_back( new RVVector(vector_length_, single_element_width_bits_, i_group*group_size_regs, regs_[i_group*group_size_regs].mem_));
 		}
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Destructor. Deletes generated SVector and SRegister fields
 	virtual ~RVVRegField(void){
@@ -131,7 +131,7 @@ public:
 			delete v;
 		}
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Check wether passed register number is aligned with the current vector register field configuration.
 	/// \param reg_n Register number
@@ -142,7 +142,7 @@ public:
 		}
 		return (true);
 	}
-	
+
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Get the SVector for a given register number. Aligns to the vector containing the passed register number
 	RVVector& get_vec(const size_t reg_n){
