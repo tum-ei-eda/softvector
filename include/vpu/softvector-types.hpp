@@ -465,28 +465,28 @@ public:
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	//12.10 MUL
-	//// \brief signed*Signed Multiplikation for right-hand-side SVElement low bit of product
+	//// \brief signed*Signed Multiplikation for right-hand-side SVElement low part of product
 	SVElement& s_ssmul(const SVElement& opL, const SVElement &rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value low bit of product
+	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value low part of product
 	SVElement& s_ssmul(const SVElement& opL, const int64_t rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief signed*Signed Multiplikation for right-hand-side SVElement highbit of product
+	//// \brief signed*Signed Multiplikation for right-hand-side SVElement high part of product
 	SVElement& s_ssmulh(const SVElement& opL, const SVElement &rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value high bit of product
+	//// \brief signed*Signed Multiplikation for right-hand-side 64 bit value high part of product
 	SVElement& s_ssmulh(const SVElement& opL, const int64_t rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief Unsigned*Unsigned Multiplikation for right-hand-side SVElement highbit of product
+	//// \brief Unsigned*Unsigned Multiplikation for right-hand-side SVElement high part of product
 	SVElement& s_uumulh(const SVElement& opL, const SVElement &rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief Unsigned*Unsigned Multiplikation for right-hand-side 64 bit value high bit of product
+	//// \brief Unsigned*Unsigned Multiplikation for right-hand-side 64 bit value high part of product
 	SVElement& s_uumulh(const SVElement& opL, const int64_t rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief Signed*Unsigned Multiplikation for right-hand-side SVElement highbit of product
+	//// \brief Signed*Unsigned Multiplikation for right-hand-side SVElement high part product
 	SVElement& s_sumulh(const SVElement& opL, const SVElement &rhs);
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	//// \brief Signed*Unsigned Multiplikation for right-hand-side 64 bit value high bit of product
+	//// \brief Signed*Unsigned Multiplikation for right-hand-side 64 bit value high part of product
 	SVElement& s_sumulh(const SVElement& opL, const int64_t rhs);
 
 	//////////////////////////////////////////////////////////////////////////////////////
