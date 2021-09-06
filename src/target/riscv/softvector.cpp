@@ -28,46 +28,41 @@
 #include "misc/mask.hpp"
 #include "misc/permutation.hpp"
 #include "misc/reduction.hpp"
-extern "C"
-{
 
-int8_t vtype_decode(uint16_t vtype, uint8_t* ta, uint8_t* ma, uint32_t* sew, uint8_t* z_lmul, uint8_t* n_lmul){
+extern "C" {
+
+int8_t vtype_decode(uint16_t vtype, uint8_t* ta, uint8_t* ma, uint32_t* sew, uint8_t* z_lmul, uint8_t* n_lmul) {
 	return (VTYPE::decode(vtype, ta , ma, sew, z_lmul, n_lmul));
 }
 
-uint16_t vtype_encode(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma){
+uint16_t vtype_encode(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma) {
 	return VTYPE::encode(sew, z_lmul, n_lmul, ta, ma);
 }
 
-uint8_t vtype_extractSEW(uint16_t pVTYPE)
-{
+uint8_t vtype_extractSEW(uint16_t pVTYPE) {
 	return VTYPE::extractSEW(pVTYPE);
 }
 
-uint8_t vtype_extractLMUL(uint16_t pVTYPE)
-{
+uint8_t vtype_extractLMUL(uint16_t pVTYPE) {
 	return VTYPE::extractLMUL(pVTYPE);
 }
 
-uint8_t vtype_extractTA(uint16_t pVTYPE)
-{
+uint8_t vtype_extractTA(uint16_t pVTYPE) {
 	return VTYPE::extractTA(pVTYPE);
 }
 
-uint8_t vtype_extractMA(uint16_t pVTYPE)
-{
+uint8_t vtype_extractMA(uint16_t pVTYPE) {
 	return VTYPE::extractMA(pVTYPE);
 }
 
-uint16_t vcfg_concatEEW(uint8_t mew, uint8_t width){
+uint16_t vcfg_concatEEW(uint8_t mew, uint8_t width) {
 	return (VTYPE::concatEEW(mew, width));
 }
 
 uint8_t vload_encoded_unitstride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t  pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART)
-{
+	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t  pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -79,8 +74,10 @@ uint8_t vload_encoded_unitstride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
+		for (size_t i = 0; i<len; ++i)
+			buff[i] = pM[addr+i];
 	};
+
 	VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd, pMSTART, pVSTART, pVm, 0);
 
 	return (0);
@@ -89,13 +86,12 @@ uint8_t vload_encoded_unitstride(
 uint8_t vload_encoded_stride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t  pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pSTRIDE)
-{
+	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t  pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pSTRIDE) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
 
-	if ((_n_emul > _z_emul*8) || (_z_emul > _n_emul*8)){
+	if ((_n_emul > _z_emul*8) || (_z_emul > _n_emul*8)) {
 		return 1;
 	}
 
@@ -104,7 +100,8 @@ uint8_t vload_encoded_stride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
+		for (size_t i = 0; i<len; ++i)
+			buff[i] = pM[addr+i];
 	};
 
 	VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd, pMSTART, pVSTART, pVm, pSTRIDE);
@@ -115,8 +112,7 @@ uint8_t vload_encoded_stride(
 uint8_t vload_segment_unitstride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART)
-{
+	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -130,13 +126,14 @@ uint8_t vload_segment_unitstride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
+		for (size_t i = 0; i<len; ++i)
+			buff[i] = pM[addr+i];
 	};
 
 	uint16_t _vstart = pVSTART;
 	uint64_t _moffset = pMSTART;
 
-	for(int i = 0; i< pNF; ++i){
+	for(int i = 0; i< pNF; ++i) {
 		VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd + (i*_z_emul/_n_emul), _moffset, _vstart, pVm, 0);
 		_moffset+= (pVL-_vstart)*pEEW/8;
 		_vstart = 0;
@@ -148,8 +145,7 @@ uint8_t vload_segment_unitstride(
 uint8_t vload_segment_stride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pSTRIDE)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pSTRIDE) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -163,13 +159,14 @@ uint8_t vload_segment_stride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_readMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)buff[i] = pM[addr+i];
+		for (size_t i = 0; i<len; ++i)
+			buff[i] = pM[addr+i];
 	};
 
 	uint16_t _vstart = pVSTART;
 	uint64_t _moffset = pMSTART;
 
-	for(int i = 0; i< pNF; ++i){
+	for(int i = 0; i< pNF; ++i) {
 		_moffset = pMSTART + i*pEEW/8;
 		VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd + (i*_z_emul/_n_emul), _moffset, _vstart, pVm, pSTRIDE);
 		_vstart = 0;
@@ -181,8 +178,7 @@ uint8_t vload_segment_stride(
 uint8_t vstore_encoded_unitstride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -194,7 +190,8 @@ uint8_t vstore_encoded_unitstride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
+		for (size_t i = 0; i<len; ++i)
+			pM[addr+i] = buff[i];
 	};
 
 	VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd, pMSTART, pVSTART, pVm, 0);
@@ -205,8 +202,7 @@ uint8_t vstore_encoded_unitstride(
 uint8_t vstore_encoded_stride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pStride)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint16_t pEEW, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pStride) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -218,7 +214,8 @@ uint8_t vstore_encoded_stride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
+		for (size_t i = 0; i<len; ++i)
+			pM[addr+i] = buff[i];
 	};
 	VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd, pMSTART, pVSTART, pVm, pStride);
 
@@ -228,8 +225,7 @@ uint8_t vstore_encoded_stride(
 uint8_t vstore_segment_unitstride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART)
-{
+	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -243,13 +239,14 @@ uint8_t vstore_segment_unitstride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
+		for (size_t i = 0; i<len; ++i)
+			pM[addr+i] = buff[i];
 	};
 
 	uint16_t _vstart = pVSTART;
 	uint64_t _moffset = pMSTART;
 
-	for(int i = 0; i< pNF; ++i){
+	for(int i = 0; i< pNF; ++i) {
 		VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd + (i*_z_emul/_n_emul), _moffset, _vstart, pVm, 0);
 		_moffset+= (pVL-_vstart)*pEEW/8;
 		_vstart = 0;
@@ -261,8 +258,7 @@ uint8_t vstore_segment_unitstride(
 uint8_t vstore_segment_stride(
 	void* pV,
 	uint8_t* pM,
-	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pStride)
-{
+	uint16_t pVTYPE, uint8_t  pVm, uint16_t pEEW, uint8_t pNF, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint64_t pMSTART, int16_t pStride) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint64_t _z_emul = pEEW*_vt._z_lmul;
 	uint64_t _n_emul = _vt._sew*_vt._n_lmul;
@@ -276,12 +272,13 @@ uint8_t vstore_segment_stride(
 	VectorRegField = static_cast<uint8_t*>(pV);
 
 	std::function<void(size_t, uint8_t*, size_t)> f_writeMem = [pM](size_t addr, uint8_t* buff, size_t len) {
-		for (size_t i = 0; i<len; ++i)pM[addr+i] = buff[i];
+		for (size_t i = 0; i<len; ++i)
+			pM[addr+i] = buff[i];
 	};
 
 	uint16_t _vstart = pVSTART;
 	uint64_t _moffset = pMSTART;
-	for(int i = 0; i< pNF; ++i){
+	for(int i = 0; i< pNF; ++i) {
 		_moffset = pMSTART + i*pEEW/8;
 		VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW/8, pVL, pVLEN/8, pVd + (i*_z_emul/_n_emul), _moffset, _vstart, pVm, 0);
 		_moffset+= (pVL-_vstart)*pEEW/8;
@@ -295,8 +292,7 @@ uint8_t vstore_segment_stride(
 
 uint8_t vadd_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -309,8 +305,7 @@ uint8_t vadd_vv(
 
 uint8_t vadd_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -324,8 +319,7 @@ uint8_t vadd_vi(
 uint8_t vadd_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -341,8 +335,7 @@ uint8_t vadd_vx(
 
 uint8_t vsub_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -356,8 +349,7 @@ uint8_t vsub_vv(
 uint8_t vsub_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -373,8 +365,7 @@ uint8_t vsub_vx(
 
 uint8_t vwaddu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -387,8 +378,7 @@ uint8_t vwaddu_vv(
 
 uint8_t vwadd_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -401,8 +391,7 @@ uint8_t vwadd_vv(
 
 uint8_t vwsubu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -415,8 +404,7 @@ uint8_t vwsubu_vv(
 
 uint8_t vwsub_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -430,8 +418,7 @@ uint8_t vwsub_vv(
 uint8_t vwaddu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -448,8 +435,7 @@ uint8_t vwaddu_vx(
 uint8_t vwadd_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -466,8 +452,7 @@ uint8_t vwadd_vx(
 uint8_t vwsubu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -484,8 +469,7 @@ uint8_t vwsubu_vx(
 uint8_t vwsub_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -501,8 +485,7 @@ uint8_t vwsub_vx(
 
 uint8_t vwaddu_w_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -515,8 +498,7 @@ uint8_t vwaddu_w_vv(
 
 uint8_t vwadd_w_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -529,8 +511,7 @@ uint8_t vwadd_w_vv(
 
 uint8_t vwsubu_w_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -543,8 +524,7 @@ uint8_t vwsubu_w_vv(
 
 uint8_t vwsub_w_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -558,8 +538,7 @@ uint8_t vwsub_w_vv(
 uint8_t vwaddu_w_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -576,8 +555,7 @@ uint8_t vwaddu_w_vx(
 uint8_t vwadd_w_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -594,8 +572,7 @@ uint8_t vwadd_w_vx(
 uint8_t vwsubu_w_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -612,8 +589,7 @@ uint8_t vwsubu_w_vx(
 uint8_t vwsub_w_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -629,8 +605,7 @@ uint8_t vwsub_w_vx(
 
 uint8_t vand_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -643,8 +618,7 @@ uint8_t vand_vv(
 
 uint8_t vand_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -658,8 +632,7 @@ uint8_t vand_vi(
 uint8_t vand_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -675,8 +648,7 @@ uint8_t vand_vx(
 
 uint8_t vor_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -689,8 +661,7 @@ uint8_t vor_vv(
 
 uint8_t vor_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -704,8 +675,7 @@ uint8_t vor_vi(
 uint8_t vor_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -721,8 +691,7 @@ uint8_t vor_vx(
 
 uint8_t vxor_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -735,8 +704,7 @@ uint8_t vxor_vv(
 
 uint8_t vxor_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -750,8 +718,7 @@ uint8_t vxor_vi(
 uint8_t vxor_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -767,8 +734,7 @@ uint8_t vxor_vx(
 
 uint8_t vsll_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -781,8 +747,7 @@ uint8_t vsll_vv(
 
 uint8_t vsll_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -795,8 +760,7 @@ uint8_t vsll_vi(
 uint8_t vsll_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -812,8 +776,7 @@ uint8_t vsll_vx(
 
 uint8_t vsrl_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -826,8 +789,7 @@ uint8_t vsrl_vv(
 
 uint8_t vsrl_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -841,8 +803,7 @@ uint8_t vsrl_vi(
 uint8_t vsrl_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -858,8 +819,7 @@ uint8_t vsrl_vx(
 
 uint8_t vsra_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -872,8 +832,7 @@ uint8_t vsra_vv(
 
 uint8_t vsra_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -887,8 +846,7 @@ uint8_t vsra_vi(
 uint8_t vsra_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -904,8 +862,7 @@ uint8_t vsra_vx(
 
 uint8_t vmseq_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -918,8 +875,7 @@ uint8_t vmseq_vv(
 
 uint8_t vmseq_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -933,8 +889,7 @@ uint8_t vmseq_vi(
 uint8_t vmseq_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -950,8 +905,7 @@ uint8_t vmseq_vx(
 
 uint8_t vmsne_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -964,8 +918,7 @@ uint8_t vmsne_vv(
 
 uint8_t vmsne_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -979,8 +932,7 @@ uint8_t vmsne_vi(
 uint8_t vmsne_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -996,8 +948,7 @@ uint8_t vmsne_vx(
 
 uint8_t vmsltu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1011,8 +962,7 @@ uint8_t vmsltu_vv(
 uint8_t vmsltu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1028,8 +978,7 @@ uint8_t vmsltu_vx(
 
 uint8_t vmslt_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1043,8 +992,7 @@ uint8_t vmslt_vv(
 uint8_t vmslt_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1060,8 +1008,7 @@ uint8_t vmslt_vx(
 
 uint8_t vmsleu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1074,8 +1021,7 @@ uint8_t vmsleu_vv(
 
 uint8_t vmsleu_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1089,8 +1035,7 @@ uint8_t vmsleu_vi(
 uint8_t vmsleu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1106,8 +1051,7 @@ uint8_t vmsleu_vx(
 
 uint8_t vmsle_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1120,8 +1064,7 @@ uint8_t vmsle_vv(
 
 uint8_t vmsle_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1135,8 +1078,7 @@ uint8_t vmsle_vi(
 uint8_t vmsle_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1152,8 +1094,7 @@ uint8_t vmsle_vx(
 
 uint8_t vmsgtu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1167,8 +1108,7 @@ uint8_t vmsgtu_vv(
 uint8_t vmsgtu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1184,8 +1124,7 @@ uint8_t vmsgtu_vx(
 
 uint8_t vmsgt_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1199,8 +1138,7 @@ uint8_t vmsgt_vv(
 uint8_t vmsgt_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1263,8 +1201,7 @@ uint8_t vmv_vx(
 uint8_t vmv_xs(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1281,8 +1218,7 @@ uint8_t vmv_xs(
 uint8_t vmv_sx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1299,8 +1235,7 @@ uint8_t vmv_sx(
 uint8_t vfmv_fs(
 	void* pV,
 	void* pF,
-	uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1317,8 +1252,7 @@ uint8_t vfmv_fs(
 uint8_t vfmv_sf(
 	void* pV,
 	void* pF,
-	uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1335,8 +1269,7 @@ uint8_t vfmv_sf(
 uint8_t vslideup_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1352,8 +1285,7 @@ uint8_t vslideup_vx(
 
 uint8_t vslideup_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1367,8 +1299,7 @@ uint8_t vslideup_vi(
 uint8_t vslidedown_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1384,8 +1315,7 @@ uint8_t vslidedown_vx(
 
 uint8_t vslidedown_vi(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1399,8 +1329,7 @@ uint8_t vslidedown_vi(
 uint8_t vslide1up_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1417,8 +1346,7 @@ uint8_t vslide1up_vx(
 uint8_t vfslide1up(
 	void* pV,
 	void* pF,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1435,8 +1363,7 @@ uint8_t vfslide1up(
 uint8_t vslide1down_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1453,8 +1380,7 @@ uint8_t vslide1down_vx(
 uint8_t vfslide1down(
 	void* pV,
 	void* pF,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1467,10 +1393,10 @@ uint8_t vfslide1down(
 
 	return (0);
 }
+
 uint8_t vmul_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1480,11 +1406,11 @@ uint8_t vmul_vv(
 
 	return (0);
 }
+
 uint8_t vmul_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1497,10 +1423,10 @@ uint8_t vmul_vx(
 
 	return (0);
 }
+
 uint8_t vmulh_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1510,11 +1436,11 @@ uint8_t vmulh_vv(
 
 	return (0);
 }
+
 uint8_t vmulh_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1527,10 +1453,10 @@ uint8_t vmulh_vx(
 
 	return (0);
 }
+
 uint8_t vmulhu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1540,11 +1466,11 @@ uint8_t vmulhu_vv(
 
 	return (0);
 }
+
 uint8_t vmulhu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1557,10 +1483,10 @@ uint8_t vmulhu_vx(
 
 	return (0);
 }
+
 uint8_t vmulhsu_vv(
 	void* pV,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* VectorRegField;
 
@@ -1573,8 +1499,7 @@ uint8_t vmulhsu_vv(
 uint8_t vmulhsu_vx(
 	void* pV,
 	void* pR,
-	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
-{
+	uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN) {
 	VTYPE::VTYPE _vt(pVTYPE);
 	uint8_t* ScalarReg;
 	uint8_t* VectorRegField;
@@ -1587,6 +1512,5 @@ uint8_t vmulhsu_vx(
 
 	return (0);
 }
-
 
 } // extern "C"

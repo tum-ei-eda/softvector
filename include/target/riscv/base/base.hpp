@@ -47,71 +47,71 @@ namespace VTYPE {
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit-wise masks for VTYPE bitfield
 typedef enum MASK{
-	MSKSEW   = 0x1C,
-	MSKLMUL  = 0x03,
+	MSKSEW = 0x1C,
+	MSKLMUL = 0x03,
 	MSKFLMUL = 0x20,
-	MSKTA 	 = 0x40,
-	MSKMA 	 = 0x80,
+	MSKTA = 0x40,
+	MSKMA = 0x80,
 }mask_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief VTYPE bitfield element offsets
 typedef enum OFFSETS{
-	OFFSEW   = 2,
+	OFFSEW = 2,
 	OFFFLMUL = 3
 }offsets_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit coding for SEW
 typedef enum BITS_SEW{
-	E8 		= 0x0,
-	E16 	= 0x1,
-	E32 	= 0x2,
-	E64 	= 0x3,
-	E128 	= 0x4,
-	E256 	= 0x5,
-	E512 	= 0x6,
-	E1024 	= 0x7
+	E8 = 0x0,
+	E16 = 0x1,
+	E32 = 0x2,
+	E64 = 0x3,
+	E128 = 0x4,
+	E256 = 0x5,
+	E512 = 0x6,
+	E1024 = 0x7
 }bits_sew_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit coding for LMUL
 typedef enum BITS_LMUL{
-	RES		= 0x4,
-	MF8		= 0x5,
-	MF4		= 0x6,
-	MF2		= 0x7,
-	M1 		= 0x0,
-	M2	 	= 0x1,
-	M4	 	= 0x2,
-	M8	 	= 0x3
+	RES = 0x4,
+	MF8 = 0x5,
+	MF4 = 0x6,
+	MF2 = 0x7,
+	M1 = 0x0,
+	M2 = 0x1,
+	M4 = 0x2,
+	M8 = 0x3
 }bits_LMUL_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit coding for TA
 typedef enum BITS_TA{
-	TAU		= 0x0,
-	TAGN	= 0x1
+	TAU = 0x0,
+	TAGN = 0x1
 }bits_TA_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit coding for MA
 typedef enum BITS_MA{
-	MAU		= 0x0,
-	MAGN	= 0x1
+	MAU = 0x0,
+	MAGN = 0x1
 }bits_MA_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Bit coding for EEW
 typedef enum BITS_EEW{
-	EEW_8 	= 0x0,
-	EEW_16	= 0x5,
-	EEW_32  = 0x6,
-	EEW_64  = 0x7,
+	EEW_8 = 0x0,
+	EEW_16 = 0x5,
+	EEW_32 = 0x6,
+	EEW_64 = 0x7,
 	EEW_128 = 0x8,
 	EEW_256 = 0xd,
 	EEW_512 = 0xe,
-	EEW_1024= 0xf
+	EEW_1024 = 0xf
 } bits_eew_t;
 
 	//////////////////////////////////////////////////////////////////////////////////////
@@ -149,19 +149,25 @@ typedef enum BITS_EEW{
 	/// \return Decoded EEW [bits]
 	uint16_t concatEEW(uint8_t mew, uint8_t width);
 
-
-	class VTYPE{
+	//////////////////////////////////////////////////////////////////////////////////////
+	/// \class VTYPE
+	/// \brief decodes (vtype bitvector) or encodes (variables to vtype bv) on construction
+	class VTYPE {
 	public:
 		uint16_t _bitfield{};
-	    uint8_t _z_lmul{}, _n_lmul{}, _ta{}, _ma{};
-	    uint32_t _sew{};
-	    VTYPE(uint16_t _vtype_bitfield): _bitfield(_vtype_bitfield){
-	    	decode(_bitfield, &_ta, &_ma, &_sew, &_z_lmul, &_n_lmul);
-	    }
-	    VTYPE(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma) :
-	    _z_lmul(z_lmul), _n_lmul(n_lmul), _ta(ta), _ma(ma), _sew(sew){
-	    	_bitfield = encode(_sew, _z_lmul, _n_lmul, _ta, _ma);
-	    }
+		uint8_t _z_lmul{}, _n_lmul{}, _ta{}, _ma{};
+		uint32_t _sew{};
+		VTYPE(uint16_t _vtype_bitfield): _bitfield(_vtype_bitfield){
+			decode(_bitfield, &_ta, &_ma, &_sew, &_z_lmul, &_n_lmul);
+		}
+		VTYPE(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma)
+		: _z_lmul(z_lmul)
+		, _n_lmul(n_lmul)
+		, _ta(ta)
+		, _ma(ma)
+		, _sew(sew) {
+			_bitfield = encode(_sew, _z_lmul, _n_lmul, _ta, _ma);
+		}
 	};
 }
 
