@@ -523,7 +523,7 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \class SVVector
+/// \class SVector
 /// \brief Softvector (SV) Vector. Vector length in multiples SVElement. Implements arithmetic on top
 class SVector {
 	bool reference_mem_{true}; //!< If true the memory is allocated somewhere at a different context. Else SVector allocates itself.
