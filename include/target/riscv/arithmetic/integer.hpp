@@ -42,8 +42,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -94,8 +94,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -164,8 +164,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f, //!< Vector mask flag. 1: masking 0: no masking
 		bool dir_f, //!< Operation type: val > 0: ADD else SUB
@@ -201,8 +201,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f, //!< Vector mask flag. 1: masking 0: no masking
 		bool dir_f, //!< Operation type: val > 0: ADD else SUB
@@ -248,8 +248,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -299,8 +299,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -402,8 +402,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -453,8 +453,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -504,8 +504,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -558,8 +558,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -608,8 +608,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -658,8 +658,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -692,8 +692,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -726,8 +726,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -776,8 +776,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -826,8 +826,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -860,8 +860,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -886,7 +886,6 @@ namespace VARITH_INT {
 /* 12.9. Vector Integer Min/Max Instructions*/
 //TODO: ...
 /*12.10. Vector Single-Width Integer Multiply Instructions */
-//TODO: ...
 /* MUL */
 	//////////////////////////////////////////////////////////////////////////////////////
 	/// \brief Signed Multiplication vector-vector low bits of product
@@ -899,8 +898,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -932,8 +931,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -965,8 +964,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
@@ -998,8 +997,8 @@ namespace VARITH_INT {
 		uint16_t vec_len, //!< Vector length [elements]
 		uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
 		uint16_t dst_vec_reg, //!< Destination vector D [index]
-		uint16_t src_vec_reg_rhs, //!< Source vector L [index]
-		uint16_t src_vec_reg_lhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_rhs, //!< Source vector R [index]
+		uint16_t src_vec_reg_lhs, //!< Source vector L [index]
 		uint16_t vec_elem_start, //!< Starting element [index]
 		bool mask_f //!< Vector mask flag. 1: masking 0: no masking
 	);
