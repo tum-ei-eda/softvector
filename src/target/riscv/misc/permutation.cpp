@@ -31,7 +31,6 @@ VILL::vpu_return_t VPERM::mv_xs(
 	uint16_t vec_reg_len_bytes,
 	uint16_t src_vec_reg,
 	uint8_t* scalar_reg_mem,
-//	uint16_t vec_elem_start, /* spec not specifying vstart for this OP */
 	uint8_t scalar_reg_len_bytes
 ) {
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(1, 1), vec_reg_mem);
@@ -62,8 +61,7 @@ VILL::vpu_return_t VPERM::mv_sx(
 	uint16_t vec_elem_start,
 	uint8_t scalar_reg_len_bytes
 ) {
-
-	if(vec_elem_start > vec_len){
+	if(vec_elem_start > vec_len) {
 		return(VILL::VPU_RETURN::NO_EXCEPT);
 	}
 
@@ -93,9 +91,7 @@ VILL::vpu_return_t VPERM::fmv_fs(
 	uint8_t* scalar_fp_reg_mem,
 	uint8_t scalar_fp_reg_len_bytes
 ) {
-
 	// TODO: not implemented, yet.
-
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
 
@@ -109,9 +105,7 @@ VILL::vpu_return_t VPERM::fmv_sf(
 	uint16_t vec_elem_start,
 	uint8_t scalar_fp_reg_len_bytes
 ) {
-
 	// TODO: not implemented, yet.
-
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
 
@@ -129,8 +123,7 @@ VILL::vpu_return_t VPERM::slideup_vx(
 	bool mask_f,
 	uint8_t scalar_reg_len_bytes
 ) {
-
-	if(vec_elem_start > vec_len){
+	if(vec_elem_start > vec_len) {
 		return(VILL::VPU_RETURN::NO_EXCEPT);
 	}
 
@@ -165,7 +158,7 @@ VILL::vpu_return_t VPERM::slideup_vi(
 	uint16_t vec_elem_start,
 	bool mask_f
 ) {
-	if(vec_elem_start > vec_len){
+	if(vec_elem_start > vec_len) {
 		return(VILL::VPU_RETURN::NO_EXCEPT);
 	}
 
@@ -201,7 +194,6 @@ VILL::vpu_return_t VPERM::slidedown_vx(
 	bool mask_f,
 	uint8_t scalar_reg_len_bytes
 ) {
-
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
 	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
@@ -271,7 +263,7 @@ VILL::vpu_return_t VPERM::slide1up(
 	bool mask_f,
 	uint8_t scalar_reg_len_bytes
 ) {
-	if(vec_elem_start > vec_len){
+	if(vec_elem_start > vec_len) {
 		return(VILL::VPU_RETURN::NO_EXCEPT);
 	}
 
@@ -288,7 +280,7 @@ VILL::vpu_return_t VPERM::slide1up(
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
-		if(V.get_mask_reg().get_bit(vec_elem_start)){
+		if(V.get_mask_reg().get_bit(vec_elem_start)) {
 			V.get_mask_reg().reset_bit(vec_elem_start);
 			vd.m_slideup(vs2, 1, V.get_mask_reg(), !mask_f, vec_elem_start);
 			V.get_mask_reg().set_bit(vec_elem_start);
@@ -314,9 +306,7 @@ VILL::vpu_return_t VPERM::fslide1up(
 	bool mask_f,
 	uint8_t scalar_fp_reg_len_bytes
 ) {
-
 	// TODO: not implemented, yet.
-
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
 
@@ -334,7 +324,7 @@ VILL::vpu_return_t VPERM::slide1down(
 	bool mask_f,
 	uint8_t scalar_reg_len_bytes
 ) {
-	if(vec_elem_start > vec_len){
+	if(vec_elem_start > vec_len) {
 		return(VILL::VPU_RETURN::NO_EXCEPT);
 	}
 
@@ -371,8 +361,6 @@ VILL::vpu_return_t VPERM::fslide1down(
 	bool mask_f,
 	uint8_t scalar_fp_reg_len_bytes
 ) {
-
 	// TODO: not implemented, yet.
-
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }

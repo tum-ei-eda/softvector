@@ -1,6 +1,6 @@
 /*
  * Copyright [2020] [Technical University of Munich]
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -28,39 +28,39 @@
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes floating-point arithmetic helpers
 namespace VARITH_FP {
-/* rvv spec. 14.1. Vector Floating-Point Exception Flags */	
+/* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 //TODO: ...
-/* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */	
+/* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
 //TODO: ...
-/* rvv spec. 14.3. Vector Widening Floating-Point Add/Subtract Instructions */	
+/* rvv spec. 14.3. Vector Widening Floating-Point Add/Subtract Instructions */
 //TODO: ...
-/* rvv spec. 14.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */	
+/* rvv spec. 14.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
 //TODO: ...
-/* rvv spec. 14.5. Vector Widening Floating-Point Multiply */	
+/* rvv spec. 14.5. Vector Widening Floating-Point Multiply */
 //TODO: ...
-/* rvv spec. 14.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */	
+/* rvv spec. 14.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
 //TODO: ...
-/* rvv spec. 14.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */	
+/* rvv spec. 14.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
 //TODO: ...
-/* rvv spec. 14.8. Vector Floating-Point Square-Root Instruction */	
+/* rvv spec. 14.8. Vector Floating-Point Square-Root Instruction */
 //TODO: ...
-/* rvv spec. 14.9. Vector Floating-Point MIN/MAX Instructions */	
+/* rvv spec. 14.9. Vector Floating-Point MIN/MAX Instructions */
 //TODO: ...
-/* rvv spec. 14.10. Vector Floating-Point Sign-Injection Instructions */	
+/* rvv spec. 14.10. Vector Floating-Point Sign-Injection Instructions */
 //TODO: ...
-/* rvv spec. 14.11. Vector Floating-Point Compare Instructions */	
+/* rvv spec. 14.11. Vector Floating-Point Compare Instructions */
 //TODO: ...
-/* rvv spec. 14.12. Vector Floating-Point Classify Instruction */	
+/* rvv spec. 14.12. Vector Floating-Point Classify Instruction */
 //TODO: ...
-/* rvv spec. 14.13. Vector Floating-Point Merge Instruction */	
+/* rvv spec. 14.13. Vector Floating-Point Merge Instruction */
 //TODO: ...
-/* rvv spec. 14.14. Vector Floating-Point Move Instruction */	
+/* rvv spec. 14.14. Vector Floating-Point Move Instruction */
 //TODO: ...
-/* rvv spec. 14.15. Single-Width Floating-Point/Integer Type-Convert Instructions */	
+/* rvv spec. 14.15. Single-Width Floating-Point/Integer Type-Convert Instructions */
 //TODO: ...
-/* rvv spec. 14.16. Widening Floating-Point/Integer Type-Convert Instructions */	
+/* rvv spec. 14.16. Widening Floating-Point/Integer Type-Convert Instructions */
 //TODO: ...
-/* rvv spec. 14.17. Narrowing Floating-Point/Integer Type-Convert Instructions */	
+/* rvv spec. 14.17. Narrowing Floating-Point/Integer Type-Convert Instructions */
 //TODO: ...
 
 }

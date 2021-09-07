@@ -286,18 +286,18 @@ VILL::vpu_return_t VARITH_INT::wop_vv(
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = VD.get_vec(dst_vec_reg);
 
-		if(vd.check_mem_overlap(vs2) != 0){
+		if(vd.check_mem_overlap(vs2) != 0) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS2_ILL);
 		} else if (vd.check_mem_overlap(vs1) ) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS1_ILL);
 		}
 
-		if(signed_f){
+		if(signed_f) {
 			if(dir_f > 0)
 				vd.m_wadd(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
 				vd.m_wsub(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
-		} else{
+		} else {
 			if(dir_f > 0)
 				vd.m_waddu(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
@@ -342,16 +342,16 @@ VILL::vpu_return_t VARITH_INT::wop_vx(
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = VD.get_vec(dst_vec_reg);
 
-		if(vd.check_mem_overlap(vs2) != 0){
+		if(vd.check_mem_overlap(vs2) != 0) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS2_ILL);
 		}
 
-		if(signed_f){
+		if(signed_f) {
 			if(dir_f > 0)
 				vd.m_wadd(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
 				vd.m_wsub(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
-		} else{
+		} else {
 			if(dir_f > 0)
 				vd.m_waddu(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
@@ -397,18 +397,18 @@ VILL::vpu_return_t VARITH_INT::wop_wv(
 		RVVector& vs2 = VD.get_vec(src_vec_reg_lhs);
 		RVVector& vd = VD.get_vec(dst_vec_reg);
 
-		if(vd.check_mem_overlap(vs2) != 0){
+		if(vd.check_mem_overlap(vs2) != 0) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS2_ILL);
 		} else if (vd.check_mem_overlap(vs1) ) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS1_ILL);
 		}
 
-		if(signed_f){
+		if(signed_f) {
 			if(dir_f > 0)
 				vd.m_wadd(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
 				vd.m_wsub(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
-		} else{
+		} else {
 			if(dir_f > 0)
 				vd.m_waddu(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
@@ -449,16 +449,16 @@ VILL::vpu_return_t VARITH_INT::wop_wx(
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
 		RVVector& vd = V.get_vec(dst_vec_reg);
 
-		if(vd.check_mem_overlap(vs2) != 0){
+		if(vd.check_mem_overlap(vs2) != 0) {
 			return(VILL::VPU_RETURN::WIDENING_OVERLAP_VD_VS2_ILL);
 		}
 
-		if(signed_f){
+		if(signed_f) {
 			if(dir_f > 0)
 				vd.m_wadd(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
 				vd.m_wsub(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
-		} else{
+		} else {
 			if(dir_f > 0)
 				vd.m_waddu(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
 			else
@@ -511,9 +511,8 @@ VILL::vpu_return_t VARITH_INT::and_vi(
 	uint16_t src_vec_reg_lhs,
 	uint8_t s_imm,
 	uint16_t vec_elem_start,
-	bool mask_f
-	)
-{
+	bool mask_f) {
+		
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
 	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
@@ -1070,7 +1069,7 @@ VILL::vpu_return_t VARITH_INT::mseq_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1167,7 +1166,7 @@ VILL::vpu_return_t VARITH_INT::msne_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
 		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
@@ -1263,7 +1262,7 @@ VILL::vpu_return_t VARITH_INT::msltu_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1328,7 +1327,7 @@ VILL::vpu_return_t VARITH_INT::mslt_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1393,7 +1392,7 @@ VILL::vpu_return_t VARITH_INT::msleu_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1490,7 +1489,7 @@ VILL::vpu_return_t VARITH_INT::msle_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1588,7 +1587,7 @@ VILL::vpu_return_t VARITH_INT::msgtu_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1653,7 +1652,7 @@ VILL::vpu_return_t VARITH_INT::msgt_vv(
 		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
 	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
 		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
-	}  else {
+	} else {
 		V.init();
 
 		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
@@ -1697,7 +1696,264 @@ VILL::vpu_return_t VARITH_INT::msgt_vx(
 	}
 	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
+/*12.10. Vector Single-Width Integer Multiply Instructions */
+//TODO
+VILL::vpu_return_t VARITH_INT::vmul_vv(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_rhs,
+	uint16_t src_vec_reg_lhs,
+	uint16_t vec_elem_start,
+	bool mask_f
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
+	if(! V.vec_reg_is_aligned(src_vec_reg_rhs) ) {
+		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_ssmul(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VARITH_INT::vmul_vx(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_lhs,
+	uint8_t* scalar_reg_mem,
+	uint16_t vec_elem_start,
+	bool mask_f,
+	uint8_t scalar_reg_len_bytes
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t*>(scalar_reg_mem)) : *(reinterpret_cast<int32_t*>(scalar_reg_mem));
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_ssmul(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VARITH_INT::vmulh_vv(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_rhs,
+	uint16_t src_vec_reg_lhs,
+	uint16_t vec_elem_start,
+	bool mask_f
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if(! V.vec_reg_is_aligned(src_vec_reg_rhs) ) {
+		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_ssmulh(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+VILL::vpu_return_t VARITH_INT::vmulh_vx(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_lhs,
+	uint8_t* scalar_reg_mem,
+	uint16_t vec_elem_start,
+	bool mask_f,
+	uint8_t scalar_reg_len_bytes
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t*>(scalar_reg_mem)) : *(reinterpret_cast<int32_t*>(scalar_reg_mem));
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_ssmulh(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VARITH_INT::vmulhu_vv(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_rhs,
+	uint16_t src_vec_reg_lhs,
+	uint16_t vec_elem_start,
+	bool mask_f
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if(! V.vec_reg_is_aligned(src_vec_reg_rhs) ) {
+		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_uumulh(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+VILL::vpu_return_t VARITH_INT::vmulhu_vx(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_lhs,
+	uint8_t* scalar_reg_mem,
+	uint16_t vec_elem_start,
+	bool mask_f,
+	uint8_t scalar_reg_len_bytes
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t*>(scalar_reg_mem)) : *(reinterpret_cast<int32_t*>(scalar_reg_mem));
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_uumulh(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VARITH_INT::vmulhsu_vv(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_rhs,
+	uint16_t src_vec_reg_lhs,
+	uint16_t vec_elem_start,
+	bool mask_f
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if(! V.vec_reg_is_aligned(src_vec_reg_rhs) ) {
+		return(VILL::VPU_RETURN::SRC1_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		RVVector& vs1 = V.get_vec(src_vec_reg_rhs);
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_sumulh(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
+VILL::vpu_return_t VARITH_INT::vmulhsu_vx(
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint16_t src_vec_reg_lhs,
+	uint8_t* scalar_reg_mem,
+	uint16_t vec_elem_start,
+	bool mask_f,
+	uint8_t scalar_reg_len_bytes
+) {
+	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+	if (! V.vec_reg_is_aligned(src_vec_reg_lhs) ) {
+		return(VILL::VPU_RETURN::SRC2_VEC_ILL);
+	} else if (! V.vec_reg_is_aligned(dst_vec_reg) ) {
+		return(VILL::VPU_RETURN::DST_VEC_ILL);
+	} else {
+		V.init();
+
+		int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t*>(scalar_reg_mem)) : *(reinterpret_cast<int32_t*>(scalar_reg_mem));
+		RVVector& vs2 = V.get_vec(src_vec_reg_lhs);
+		RVVector& vd = V.get_vec(dst_vec_reg);
+
+		vd.m_sumulh(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
+}
 
 /*12.17. Vector Integer Move Instructions */
 VILL::vpu_return_t VARITH_INT::mv_vv(
@@ -1730,16 +1986,16 @@ VILL::vpu_return_t VARITH_INT::mv_vv(
 
 
 VILL::vpu_return_t VARITH_INT::mv_vx(
-	uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
-	uint64_t emul_num,				//!< Register multiplicity numerator
-	uint64_t emul_denom,			//!< Register multiplicity denominator
-	uint16_t sew_bytes,				//!< Element width [bytes]
-	uint16_t vec_len,				//!< Vector length [elements]
-	uint16_t vec_reg_len_bytes,		//!< Vector register length [bytes]
-	uint16_t dst_vec_reg,			//!< Destination vector D [index]
-	uint8_t* scalar_reg_mem,		//!< Memory space holding scalar data (min. _xlenb bytes)
-	uint16_t vec_elem_start,		//!< Starting element [index]
-	uint8_t scalar_reg_len_bytes	//!< Length of scalar [bytes]
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint8_t* scalar_reg_mem,
+	uint16_t vec_elem_start,
+	uint8_t scalar_reg_len_bytes
 ) {
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1758,15 +2014,15 @@ VILL::vpu_return_t VARITH_INT::mv_vx(
 
 
 VILL::vpu_return_t VARITH_INT::mv_vi(
-	uint8_t* vec_reg_mem,			//!< Vector register file memory space. One dimensional
-	uint64_t emul_num,				//!< Register multiplicity numerator
-	uint64_t emul_denom,			//!< Register multiplicity denominator
-	uint16_t sew_bytes,				//!< Element width [bytes]
-	uint16_t vec_len,				//!< Vector length [elements]
-	uint16_t vec_reg_len_bytes,		//!< Vector register length [bytes]
-	uint16_t dst_vec_reg,			//!< Destination vector D [index]
-	uint8_t s_imm,					//!< Sign extending 5-bit immediate
-	uint16_t vec_elem_start		//!< Starting element [index]
+	uint8_t* vec_reg_mem,
+	uint64_t emul_num,
+	uint64_t emul_denom,
+	uint16_t sew_bytes,
+	uint16_t vec_len,
+	uint16_t vec_reg_len_bytes,
+	uint16_t dst_vec_reg,
+	uint8_t s_imm,
+	uint16_t vec_elem_start
 ) {
 	RVVRegField V(vec_reg_len_bytes*8, vec_len, sew_bytes*8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1775,10 +2031,10 @@ VILL::vpu_return_t VARITH_INT::mv_vi(
 	} else {
 		V.init();
 
-			int64_t imm = static_cast<int64_t>(s_imm & 0x10 ? s_imm | ~0x1F : s_imm);
-			RVVector& vd = V.get_vec(dst_vec_reg);
+		int64_t imm = static_cast<int64_t>(s_imm & 0x10 ? s_imm | ~0x1F : s_imm);
+		RVVector& vd = V.get_vec(dst_vec_reg);
 
-			vd.m_assign(imm, V.get_mask_reg(), false, vec_elem_start);
-		}
-		return(VILL::VPU_RETURN::NO_EXCEPT);
+		vd.m_assign(imm, V.get_mask_reg(), false, vec_elem_start);
+	}
+	return(VILL::VPU_RETURN::NO_EXCEPT);
 }
