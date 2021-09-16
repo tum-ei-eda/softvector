@@ -327,21 +327,21 @@ SVRegister SVector::op_u_gte(const uint64_t rhs) const {
 // masked ops
 void SVector::m_assign(const SVector& vin, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element] = vin[i_element];
 	}
 }
 
 void SVector::m_assign(const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element] = rhs;
 	}
 }
 
 SVector& SVector::m_add(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_add(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -350,7 +350,7 @@ SVector& SVector::m_add(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_add(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_add(opL[i_element], rhs);
 	}
 	return(*this);
@@ -358,7 +358,7 @@ SVector& SVector::m_add(const SVector& opL, const int64_t rhs, const SVRegister&
 
 SVector& SVector::m_sub(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sub(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -366,7 +366,7 @@ SVector& SVector::m_sub(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_sub(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sub(opL[i_element], rhs);
 	}
 	return(*this);
@@ -374,7 +374,7 @@ SVector& SVector::m_sub(const SVector& opL, const int64_t rhs, const SVRegister&
 
 SVector& SVector::m_rsub(const int64_t lhs, const SVector& opR, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_rsub(lhs, opR[i_element]);
 	}
 	return(*this);
@@ -382,7 +382,7 @@ SVector& SVector::m_rsub(const int64_t lhs, const SVector& opR, const SVRegister
 
 SVector& SVector::m_waddu(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_waddu(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -390,7 +390,7 @@ SVector& SVector::m_waddu(const SVector& opL, const SVector& rhs,  const SVRegis
 
 SVector& SVector::m_waddu(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_waddu(opL[i_element], rhs);
 	}
 	return(*this);
@@ -398,7 +398,7 @@ SVector& SVector::m_waddu(const SVector& opL, const int64_t rhs, const SVRegiste
 
 SVector& SVector::m_wsubu(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wsubu(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -406,7 +406,7 @@ SVector& SVector::m_wsubu(const SVector& opL, const SVector& rhs,  const SVRegis
 
 SVector& SVector::m_wsubu(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wsubu(opL[i_element], rhs);
 	}
 	return(*this);
@@ -414,7 +414,7 @@ SVector& SVector::m_wsubu(const SVector& opL, const int64_t rhs, const SVRegiste
 
 SVector& SVector::m_wadd(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wadd(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -422,7 +422,7 @@ SVector& SVector::m_wadd(const SVector& opL, const SVector& rhs,  const SVRegist
 
 SVector& SVector::m_wadd(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wadd(opL[i_element], rhs);
 	}
 	return(*this);
@@ -430,7 +430,7 @@ SVector& SVector::m_wadd(const SVector& opL, const int64_t rhs, const SVRegister
 
 SVector& SVector::m_wsub(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wsub(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -438,7 +438,7 @@ SVector& SVector::m_wsub(const SVector& opL, const SVector& rhs,  const SVRegist
 
 SVector& SVector::m_wsub(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_wsub(opL[i_element], rhs);
 	}
 	return(*this);
@@ -446,56 +446,56 @@ SVector& SVector::m_wsub(const SVector& opL, const int64_t rhs, const SVRegister
 //12.10 Multiplikation
 SVector& SVector::m_ssmul(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_ssmul(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
 }
 SVector& SVector::m_ssmul(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_ssmul(opL[i_element], rhs);
 	}
 	return(*this);
 }
 SVector& SVector::m_ssmulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_ssmulh(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
 }
 SVector& SVector::m_ssmulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_ssmulh(opL[i_element], rhs);
 	}
 	return(*this);
 }
 SVector& SVector::m_uumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_uumulh(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
 }
 SVector& SVector::m_uumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_uumulh(opL[i_element], rhs);
 	}
 	return(*this);
 }
 SVector& SVector::m_sumulh(const SVector& opL, const SVector& rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sumulh(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
 }
 SVector& SVector::m_sumulh(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sumulh(opL[i_element], rhs);
 	}
 	return(*this);
@@ -503,7 +503,7 @@ SVector& SVector::m_sumulh(const SVector& opL, const int64_t rhs, const SVRegist
 
 SVector& SVector::m_and(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_and(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -511,7 +511,7 @@ SVector& SVector::m_and(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_and(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_and(opL[i_element], rhs);
 	}
 	return(*this);
@@ -519,7 +519,7 @@ SVector& SVector::m_and(const SVector& opL, const int64_t rhs, const SVRegister&
 
 SVector& SVector::m_or(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_or(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -527,7 +527,7 @@ SVector& SVector::m_or(const SVector& opL, const SVector& rhs,  const SVRegister
 
 SVector& SVector::m_or(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_or(opL[i_element], rhs);
 	}
 	return(*this);
@@ -535,7 +535,7 @@ SVector& SVector::m_or(const SVector& opL, const int64_t rhs, const SVRegister& 
 
 SVector& SVector::m_xor(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_xor(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -543,7 +543,7 @@ SVector& SVector::m_xor(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_xor(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_xor(opL[i_element], rhs);
 	}
 	return(*this);
@@ -551,7 +551,7 @@ SVector& SVector::m_xor(const SVector& opL, const int64_t rhs, const SVRegister&
 
 SVector& SVector::m_sll(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sll(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -559,7 +559,7 @@ SVector& SVector::m_sll(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_sll(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sll(opL[i_element], rhs);
 	}
 	return(*this);
@@ -567,7 +567,7 @@ SVector& SVector::m_sll(const SVector& opL, const uint64_t rhs, const SVRegister
 
 SVector& SVector::m_sra(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sra(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -575,7 +575,7 @@ SVector& SVector::m_sra(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_sra(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_sra(opL[i_element], rhs);
 	}
 	return(*this);
@@ -583,7 +583,7 @@ SVector& SVector::m_sra(const SVector& opL, const uint64_t rhs, const SVRegister
 
 SVector& SVector::m_srl(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_srl(opL[i_element], rhs[i_element]);
 	}
 	return(*this);
@@ -591,7 +591,7 @@ SVector& SVector::m_srl(const SVector& opL, const SVector& rhs,  const SVRegiste
 
 SVector& SVector::m_srl(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element].s_srl(opL[i_element], rhs);
 	}
 	return(*this);
@@ -600,7 +600,7 @@ SVector& SVector::m_srl(const SVector& opL, const uint64_t rhs, const SVRegister
 SVector& SVector::m_slideup(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	size_t max = rhs > start_index ? rhs : start_index;
 	for(size_t i_element = max; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			(*this)[i_element] = opL[i_element];
 	}
 	return(*this);
@@ -608,7 +608,7 @@ SVector& SVector::m_slideup(const SVector& opL, const uint64_t rhs, const SVRegi
 
 SVector& SVector::m_slidedown(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t vlmax, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element)) {
+		if(!mask || vm.get_bit(i_element)) {
 			size_t i_src_element = i_element + rhs;
 			if(i_src_element < length_) {
 				(*this)[i_element] = opL[i_element + rhs];
