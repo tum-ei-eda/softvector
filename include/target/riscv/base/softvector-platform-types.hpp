@@ -60,9 +60,9 @@ public:
 	/// \param v RVVector to test against
 	/// \returns 1 if v starts within this. -1 if this starts within v. 0 if no overlap detected.
 	int8_t check_mem_overlap(const RVVector& v) {
-		if( (v.mem_ >= mem_) and (v.mem_ < mem_+length_*activeElement.width_in_bits_))
+		if( (v.mem_ >= mem_) && (v.mem_ < mem_+length_*activeElement.width_in_bits_))
 			return 1;
-		if( (mem_ >= v.mem_) and (mem_ < v.mem_+v.length_*v.activeElement.width_in_bits_))
+		if( (mem_ >= v.mem_) && (mem_ < v.mem_+v.length_*v.activeElement.width_in_bits_))
 			return -1;
 		return 0;
 	}

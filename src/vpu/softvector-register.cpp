@@ -44,7 +44,7 @@ void SVRegister::m_assign(
 	size_t start_index
 ) {
 	for(size_t i_byte = start_index/8; i_byte < length_bits_; ++i_byte) {
-		if((i_byte == start_index/8) and (start_index != 0)) {
+		if((i_byte == start_index/8) && (start_index != 0)) {
 			for(size_t i_bit = start_index % 8; i_bit <8; ++i_bit) {
 				(*this)[i_byte] = ((*this)[i_byte] & (~vm[i_byte] & (0x1 << i_bit))) ^ (in[i_byte] & vm[i_byte]  & (0x1 << i_bit));
 			}
@@ -56,7 +56,7 @@ void SVRegister::m_assign(
 
 SVRegister& SVRegister::m_eq(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] == rhs[i_element]);
 	}
 	return(*this);
@@ -64,7 +64,7 @@ SVRegister& SVRegister::m_eq(const SVector& opL, const SVector& rhs,  const SVRe
 
 SVRegister& SVRegister::m_eq(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] == rhs);
 	}
 	return(*this);
@@ -72,7 +72,7 @@ SVRegister& SVRegister::m_eq(const SVector& opL, const int64_t rhs, const SVRegi
 
 SVRegister& SVRegister::m_neq(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] != rhs[i_element]);
 	}
 	return(*this);
@@ -80,7 +80,7 @@ SVRegister& SVRegister::m_neq(const SVector& opL, const SVector& rhs,  const SVR
 
 SVRegister& SVRegister::m_neq(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] != rhs);
 	}
 	return(*this);
@@ -88,7 +88,7 @@ SVRegister& SVRegister::m_neq(const SVector& opL, const int64_t rhs, const SVReg
 
 SVRegister& SVRegister::m_s_lt(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] < rhs[i_element]);
 	}
 	return(*this);
@@ -96,7 +96,7 @@ SVRegister& SVRegister::m_s_lt(const SVector& opL, const SVector& rhs,  const SV
 
 SVRegister& SVRegister::m_s_lt(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] < rhs);
 	}
 	return(*this);
@@ -104,7 +104,7 @@ SVRegister& SVRegister::m_s_lt(const SVector& opL, const int64_t rhs, const SVRe
 
 SVRegister& SVRegister::m_s_lte(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] <= rhs[i_element]);
 	}
 	return(*this);
@@ -112,7 +112,7 @@ SVRegister& SVRegister::m_s_lte(const SVector& opL, const SVector& rhs,  const S
 
 SVRegister& SVRegister::m_s_lte(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] <= rhs);
 	}
 	return(*this);
@@ -120,7 +120,7 @@ SVRegister& SVRegister::m_s_lte(const SVector& opL, const int64_t rhs, const SVR
 
 SVRegister& SVRegister::m_s_gt(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] > rhs[i_element]);
 	}
 	return(*this);
@@ -128,7 +128,7 @@ SVRegister& SVRegister::m_s_gt(const SVector& opL, const SVector& rhs,  const SV
 
 SVRegister& SVRegister::m_s_gt(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] > rhs);
 	}
 	return(*this);
@@ -136,7 +136,7 @@ SVRegister& SVRegister::m_s_gt(const SVector& opL, const int64_t rhs, const SVRe
 
 SVRegister& SVRegister::m_s_gte(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] >= rhs[i_element]);
 	}
 	return(*this);
@@ -144,7 +144,7 @@ SVRegister& SVRegister::m_s_gte(const SVector& opL, const SVector& rhs,  const S
 
 SVRegister& SVRegister::m_s_gte(const SVector& opL, const int64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element] >= rhs);
 	}
 	return(*this);
@@ -153,7 +153,7 @@ SVRegister& SVRegister::m_s_gte(const SVector& opL, const int64_t rhs, const SVR
 // unsigned comparisons
 SVRegister& SVRegister::m_u_lt(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_lt(rhs[i_element]));
 	}
 	return(*this);
@@ -161,7 +161,7 @@ SVRegister& SVRegister::m_u_lt(const SVector& opL, const SVector& rhs,  const SV
 
 SVRegister& SVRegister::m_u_lt(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_lt(rhs));
 	}
 	return(*this);
@@ -169,7 +169,7 @@ SVRegister& SVRegister::m_u_lt(const SVector& opL, const uint64_t rhs, const SVR
 
 SVRegister& SVRegister::m_u_lte(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_lte(rhs[i_element]));
 	}
 	return(*this);
@@ -177,7 +177,7 @@ SVRegister& SVRegister::m_u_lte(const SVector& opL, const SVector& rhs,  const S
 
 SVRegister& SVRegister::m_u_lte(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_lte(rhs));
 	}
 	return(*this);
@@ -185,7 +185,7 @@ SVRegister& SVRegister::m_u_lte(const SVector& opL, const uint64_t rhs, const SV
 
 SVRegister& SVRegister::m_u_gt(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_gt(rhs[i_element]));
 	}
 	return(*this);
@@ -193,7 +193,7 @@ SVRegister& SVRegister::m_u_gt(const SVector& opL, const SVector& rhs,  const SV
 
 SVRegister& SVRegister::m_u_gt(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_gt(rhs));
 	}
 	return(*this);
@@ -201,7 +201,7 @@ SVRegister& SVRegister::m_u_gt(const SVector& opL, const uint64_t rhs, const SVR
 
 SVRegister& SVRegister::m_u_gte(const SVector& opL, const SVector& rhs,  const SVRegister& vm, bool mask, size_t start_index) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_gte(rhs[i_element]));
 	}
 	return(*this);
@@ -209,7 +209,7 @@ SVRegister& SVRegister::m_u_gte(const SVector& opL, const SVector& rhs,  const S
 
 SVRegister& SVRegister::m_u_gte(const SVector& opL, const uint64_t rhs, const SVRegister& vm, bool mask, size_t start_index ) {
 	for(size_t i_element = start_index; i_element < opL.length_; ++i_element) {
-		if(!mask or vm.get_bit(i_element))
+		if(!mask || vm.get_bit(i_element))
 			set_bit(i_element, opL[i_element].op_u_gte(rhs));
 	}
 	return(*this);
