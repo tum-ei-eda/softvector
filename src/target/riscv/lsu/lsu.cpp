@@ -46,7 +46,7 @@ VILL::vpu_return_t VLSU::load_eew(
 		V.init();
 
 		RVVector& vd = V.get_vec(dst_vec_reg);
-		int memOffset = src_mem_start;
+		size_t memOffset = src_mem_start;
 		for(size_t iElement = 0; iElement < vec_len; ++iElement) {
 			if(iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement))) {
 				func_read_mem(memOffset , vd[iElement].mem_, eew_bytes);
@@ -80,7 +80,7 @@ VILL::vpu_return_t VLSU::store_eew(
 		V.init();
 
 		RVVector& vs3 = V.get_vec(src_vec_reg);
-		int memOffset = dst_mem_start;
+		size_t memOffset = dst_mem_start;
 		for(size_t iElement = 0; iElement < vec_len; ++iElement) {
 			if(iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement))) {
 				func_write_mem(memOffset , vs3[iElement].mem_, eew_bytes);
