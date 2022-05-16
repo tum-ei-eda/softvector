@@ -84,7 +84,6 @@ uint8_t VTYPE::extractSEW(uint16_t pVTYPE) {
 
 uint8_t VTYPE::extractLMUL(uint16_t pVTYPE) {
 	uint8_t x = 0;
-	// x |= ((pVTYPE & MASK::MSKFLMUL) >> OFFSETS::OFFFLMUL) | (pVTYPE & MASK::MSKLMUL);
 	x |= (pVTYPE & MASK::MSKLMUL);
 	return (x);
 }
