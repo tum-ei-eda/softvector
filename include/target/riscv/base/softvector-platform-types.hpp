@@ -143,7 +143,7 @@ public:
 	/// \param reg_n Register number
 	/// \returns True unless not aligned.
 	bool vec_reg_is_aligned(const size_t reg_n) {
-		if(multiplicity_.is_frac()) {
+		if(!multiplicity_.is_frac()) {
 			return ( (reg_n % (multiplicity_.n_/multiplicity_.d_)) ? false : true);
 		}
 		return (true);
