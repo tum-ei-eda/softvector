@@ -77,6 +77,7 @@ IF(CMAKE_TESTING_ENABLED AND TEST_BUILD)
 		FetchContent_Declare(gtest_srcs
 			GIT_REPOSITORY https://github.com/google/googletest.git
 			GIT_PROGRESS TRUE
+			GIT_TAG main
 		)
 		IF(NOT gtest_srcs_POPULATED)
 			FetchContent_Populate(gtest_srcs)
