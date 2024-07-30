@@ -57,6 +57,7 @@ inline SVElement u_mul_u(const SVElement& target, const SVElement& op1, const SV
 inline size_t get_shiftamount(size_t target_width_bits, const uint8_t* rhs) {
 	size_t numberofbits = 0;
 	size_t shiftamount = 0;
+	target_width_bits >>= 1;
 	while(target_width_bits) {
 		target_width_bits = target_width_bits >> 1;
 		shiftamount |= rhs[numberofbits/8] & (1 << numberofbits);
@@ -68,6 +69,7 @@ inline size_t get_shiftamount(size_t target_width_bits, const uint8_t* rhs) {
 inline size_t get_shiftamount(size_t target_width_bits, uint64_t rhs) {
 	size_t numberofbits = 0;
 	size_t shiftamount = 0;
+	target_width_bits >>= 1;
 	while(target_width_bits) {
 		target_width_bits = target_width_bits >> 1;
 		shiftamount |= rhs & (1 << numberofbits);
