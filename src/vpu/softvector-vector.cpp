@@ -1944,7 +1944,9 @@ SVector &SVector::m_scaling_srl(const SVector &opL, const SVector &rhs, const SV
     {
         if (!mask || vm.get_bit(i_element))
         {
-            (*this)[i_element] = roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64(), rounding_mode);
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            (*this)[i_element] =
+                roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -1957,7 +1959,8 @@ SVector &SVector::m_scaling_srl(const SVector &opL, const uint64_t rhs, const SV
     {
         if (!mask || vm.get_bit(i_element))
         {
-            (*this)[i_element] = roundoff_unsigned(opL[i_element].to_u64(), rhs, rounding_mode);
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            (*this)[i_element] = roundoff_unsigned(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -1970,7 +1973,9 @@ SVector &SVector::m_scaling_sra(const SVector &opL, const SVector &rhs, const SV
     {
         if (!mask || vm.get_bit(i_element))
         {
-            (*this)[i_element] = roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64(), rounding_mode);
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            (*this)[i_element] =
+                roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -1983,7 +1988,8 @@ SVector &SVector::m_scaling_sra(const SVector &opL, const uint64_t rhs, const SV
     {
         if (!mask || vm.get_bit(i_element))
         {
-            (*this)[i_element] = roundoff_signed(opL[i_element].to_i64(), rhs, rounding_mode);
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            (*this)[i_element] = roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
         }
     }
     return (*this);
