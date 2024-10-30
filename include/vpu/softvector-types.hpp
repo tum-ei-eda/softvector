@@ -292,6 +292,8 @@ class SVElement
     auto to_i64() const -> int64_t;
     auto to_u64() const -> uint64_t;
     auto msb_is_set() const -> bool;
+    auto get_max_unsigned() const -> uint64_t;
+    auto get_max_signed() const -> int64_t;
     auto set_max_signed() const -> void;
     auto set_min_signed() const -> void;
 
@@ -794,7 +796,8 @@ class SVector
     SVRegister op_u_gte(const uint64_t rhs) const;
 
     // TODO: refactor such that a generic loop/iteration function uses a kernel parameter to do operations
-    // auto iterate_kernel(SVector &dest, const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask) -> void;
+    // auto iterate_kernel(SVector &dest, const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask) ->
+    // void;
 
     // masked (self assign) operations
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1170,24 +1173,39 @@ class SVector
     /* 12.4. Vector Single-Width Scaling Shift Instructions */
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Masked scaling SRL for right-hand-side SVector
-    SVector &m_scaling_srl(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask, uint8_t rounding_mode,
-                       size_t start_index = 0);
+    SVector &m_scaling_srl(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                           uint8_t rounding_mode, size_t start_index = 0);
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Masked scaling SRL for right-hand-side signed 64 bit value.
-    SVector &m_scaling_srl(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask, uint8_t rounding_mode,
-                       size_t start_index = 0);
+    SVector &m_scaling_srl(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                           uint8_t rounding_mode, size_t start_index = 0);
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Masked scaling SRA for right-hand-side SVector
-    SVector &m_scaling_sra(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask, uint8_t rounding_mode,
-                       size_t start_index = 0);
+    SVector &m_scaling_sra(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                           uint8_t rounding_mode, size_t start_index = 0);
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Masked scaling SRA for right-hand-side signed 64 bit value.
-    SVector &m_scaling_sra(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask, uint8_t rounding_mode,
-                       size_t start_index = 0);
+    SVector &m_scaling_sra(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                           uint8_t rounding_mode, size_t start_index = 0);
     /* End 12.4. */
 
     /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
-
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked unsigned narrowing CLIP for right-hand-side SVector
+    SVector &m_narrowing_clipu(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                               uint8_t rounding_mode, bool *sat, size_t start_index = 0);
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked unsigned narrowing CLIP for right-hand-side unsigned 64 bit value.
+    SVector &m_narrowing_clipu(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                               uint8_t rounding_mode, bool *sat, size_t start_index = 0);
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked signed narrowing CLIP for right-hand-side SVector
+    SVector &m_narrowing_clip(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                              uint8_t rounding_mode, bool *sat, size_t start_index = 0);
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked signed narrowing CLIP for right-hand-side unsigned 64 bit value.
+    SVector &m_narrowing_clip(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                              uint8_t rounding_mode, bool *sat, size_t start_index = 0);
     /* End 12.5. */
 
     /* End 12. */

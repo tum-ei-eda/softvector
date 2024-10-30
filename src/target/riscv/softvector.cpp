@@ -3090,7 +3090,99 @@ extern "C"
     /* End 12.4. */
 
     /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
+    uint8_t vnclipu_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
 
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FIXP::vnclipu_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs1, pVs2, pVSTART, pVm, pRm);
+
+        return 0;
+    }
+
+    uint8_t vnclipu_wi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FIXP::vnclipu_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs2, pVimm, pVSTART, pVm, pRm);
+
+        return 0;
+    }
+
+    uint8_t vnclipu_wx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *ScalarReg;
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
+        else
+            ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
+
+        VARITH_FIXP::vnclipu_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+
+        return 0;
+    }
+
+    uint8_t vnclip_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FIXP::vnclip_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs1, pVs2, pVSTART, pVm, pRm);
+
+        return 0;
+    }
+
+    uint8_t vnclip_wi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FIXP::vnclip_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs2, pVimm, pVSTART, pVm, pRm);
+
+        return 0;
+    }
+
+    uint8_t vnclip_wx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *ScalarReg;
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
+        else
+            ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
+
+        VARITH_FIXP::vnclip_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+
+        return 0;
+    }
     /* End 12.5. */
     /* End 12. */
 

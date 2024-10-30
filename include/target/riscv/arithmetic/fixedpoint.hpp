@@ -359,17 +359,111 @@ VILL::vpu_return_t vssra_vx(uint8_t *vec_reg_mem,         //!< Vector register f
 /* End 12.4. */
 
 /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing unsigned clip vector-vector
+/// \details For all i: D[i] = roundoff_signed(L[i], R[i])
+VILL::vpu_return_t vnclipu_wv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,          //!< Register multiplicity numerator
+                              uint64_t emul_denom,        //!< Register multiplicity denominator
+                              uint16_t sew_bytes,         //!< Element width [bytes]
+                              uint16_t vec_len,           //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                              uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                              uint16_t vec_elem_start,    //!< Starting element [index]
+                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t rounding_mode       //!< Rounding mode
+);
 
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing unsigned clip vector-immediate
+/// \details For all i: D[i] = roundoff_signed(L[i], uimm)
+VILL::vpu_return_t vnclipu_wi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,          //!< Register multiplicity numerator
+                              uint64_t emul_denom,        //!< Register multiplicity denominator
+                              uint16_t sew_bytes,         //!< Element width [bytes]
+                              uint16_t vec_len,           //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                              uint8_t imm,                //!< Sign or zero extending 5-bit immediate
+                              uint16_t vec_elem_start,    //!< Starting element [index]
+                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t rounding_mode       //!< Rounding mode
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing unsigned clip vector-scalar
+/// \details For all i: D[i] = roundoff_signed(L[i], x[Rs1])
+VILL::vpu_return_t vnclipu_wx(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,            //!< Register multiplicity numerator
+                              uint64_t emul_denom,          //!< Register multiplicity denominator
+                              uint16_t sew_bytes,           //!< Element width [bytes]
+                              uint16_t vec_len,             //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,         //!< Destination vector D [index]
+                              uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                              uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
+                              uint16_t vec_elem_start,      //!< Starting element [index]
+                              bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
+                              uint8_t rounding_mode         //!< Rounding mode
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing signed clip vector-vector
+/// \details For all i: D[i] = roundoff_signed(L[i], R[i])
+VILL::vpu_return_t vnclip_wv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,          //!< Register multiplicity numerator
+                              uint64_t emul_denom,        //!< Register multiplicity denominator
+                              uint16_t sew_bytes,         //!< Element width [bytes]
+                              uint16_t vec_len,           //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                              uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                              uint16_t vec_elem_start,    //!< Starting element [index]
+                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t rounding_mode       //!< Rounding mode
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing signed clip vector-immediate
+/// \details For all i: D[i] = roundoff_signed(L[i], uimm)
+VILL::vpu_return_t vnclip_wi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,          //!< Register multiplicity numerator
+                              uint64_t emul_denom,        //!< Register multiplicity denominator
+                              uint16_t sew_bytes,         //!< Element width [bytes]
+                              uint16_t vec_len,           //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                              uint8_t imm,                //!< Sign or zero extending 5-bit immediate
+                              uint16_t vec_elem_start,    //!< Starting element [index]
+                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t rounding_mode       //!< Rounding mode
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Narrowing signed clip vector-scalar
+/// \details For all i: D[i] = roundoff_signed(L[i], x[Rs1])
+VILL::vpu_return_t vnclip_wx(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,            //!< Register multiplicity numerator
+                              uint64_t emul_denom,          //!< Register multiplicity denominator
+                              uint16_t sew_bytes,           //!< Element width [bytes]
+                              uint16_t vec_len,             //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,         //!< Destination vector D [index]
+                              uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                              uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
+                              uint16_t vec_elem_start,      //!< Starting element [index]
+                              bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
+                              uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
+                              uint8_t rounding_mode         //!< Rounding mode
+);
 /* End 12.5. */
 /* End 12. */
-/* rvv spec. 13.2 - Vector Single-Width Averaging Add and Substract */
-// TODO: ...
-/* rvv spec. 13.3 - Vector Single-Width Fractional Multiply with Rounding and Saturation */
-// TODO: ...
-/* rvv spec. 13.4 - Vector Single-Width Scaling Shift Instructions */
-// TODO: ...
-/* rvv spec. 13.5 - Vector Narrowing Fixed-Point Clip Instructions */
-// TODO: ...
 
 } // namespace VARITH_FIXP
 #endif /* __RVVHL_ARITH_FIXEDPOINT_H__ */

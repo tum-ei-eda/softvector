@@ -1997,7 +1997,89 @@ SVector &SVector::m_scaling_sra(const SVector &opL, const uint64_t rhs, const SV
 /* End 12.4. */
 
 /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
+SVector &SVector::m_narrowing_clipu(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // opL: 2*SEW
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            auto result = roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            if (result > (*this)[i_element].get_max_unsigned())
+            {
+                // Overflow
+                *sat = true;
+                (*this)[i_element] = -1;
+            }
+        }
+    }
+    return (*this);
+}
 
+SVector &SVector::m_narrowing_clipu(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // opL: 2*SEW
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            auto result = roundoff_signed(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
+            if (result > (*this)[i_element].get_max_unsigned())
+            {
+                // Overflow
+                *sat = true;
+                (*this)[i_element] = -1;
+            }
+        }
+    }
+    return (*this);
+}
+
+SVector &SVector::m_narrowing_clip(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // opL: 2*SEW
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            auto result = roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            if (result > (*this)[i_element].get_max_signed())
+            {
+                // Overflow
+                *sat = true;
+                (*this)[i_element].set_max_signed();
+            }
+        }
+    }
+    return (*this);
+}
+
+SVector &SVector::m_narrowing_clip(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
+                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // opL: 2*SEW
+            auto bitmask = opL[i_element].width_in_bits_ - 1;
+            auto result = roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
+            if (result > (*this)[i_element].get_max_signed())
+            {
+                // Overflow
+                *sat = true;
+                (*this)[i_element].set_max_signed();
+            }
+        }
+    }
+    return (*this);
+}
 /* End 12.5. */
 
 /* End 12. */

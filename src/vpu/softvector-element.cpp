@@ -39,12 +39,24 @@ auto SVElement::to_u64() const -> uint64_t
     return value;
 }
 
-auto SVElement::msb_is_set() const -> bool {
+auto SVElement::msb_is_set() const -> bool
+{
     auto width_in_bytes = width_in_bits_ >> 3;
     return mem_[width_in_bytes - 1] >> 7;
 }
 
-auto SVElement::set_max_signed() const -> void {
+auto SVElement::get_max_signed() const -> int64_t
+{
+    return (1 << (width_in_bits_ - 1)) - 1;
+}
+
+auto SVElement::get_max_unsigned() const -> uint64_t
+{
+    return ((1 << (width_in_bits_ - 1)) - 1) | (1 << (width_in_bits_ - 1));
+}
+
+auto SVElement::set_max_signed() const -> void
+{
     auto width_in_bytes = width_in_bits_ >> 3;
     for (size_t i = 0; i < width_in_bytes - 1; i++)
     {
@@ -53,7 +65,8 @@ auto SVElement::set_max_signed() const -> void {
     mem_[width_in_bytes - 1] = 0x7F;
 }
 
-auto SVElement::set_min_signed() const -> void {
+auto SVElement::set_min_signed() const -> void
+{
     auto width_in_bytes = width_in_bits_ >> 3;
     for (size_t i = 0; i < width_in_bytes - 1; i++)
     {
