@@ -15,7 +15,8 @@
  */
 //////////////////////////////////////////////////////////////////////////////////////
 /// \file fixedpoint.hpp
-/// \brief Defines helpers implementing fixed-point arithmetics after https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats
+/// \brief Defines helpers implementing fixed-point arithmetics after
+/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats 
 /// \date 09/09/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,18 +28,19 @@
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes fixed-point arithmetic helpers
-namespace VARITH_FIXP {
+namespace VARITH_FIXP
+{
 
 /* rvv spec. 13.1 - Vector Single-Width Saturating Add and Substract */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 13.2 - Vector Single-Width Averaging Add and Substract */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 13.3 - Vector Single-Width Fractional Multiply with Rounding and Saturation */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 13.4 - Vector Single-Width Scaling Shift Instructions */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 13.5 - Vector Narrowing Fixed-Point Clip Instructions */
-//TODO: ...
+// TODO: ...
 
-}
+} // namespace VARITH_FIXP
 #endif /* __RVVHL_ARITH_FIXEDPOINT_H__ */

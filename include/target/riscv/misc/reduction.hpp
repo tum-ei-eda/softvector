@@ -15,7 +15,8 @@
  */
 //////////////////////////////////////////////////////////////////////////////////////
 /// \file reduction.hpp
-/// \brief Defines helpers implementing reduction operations after https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats
+/// \brief Defines helpers implementing reduction operations after
+/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats 
 /// \date 09/09/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,16 +28,17 @@
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes vector reduction operations helpers
-namespace VREDUC {
+namespace VREDUC
+{
 
 /* rvv spec. 15.1. Vector Single-Width Integer Reduction Instructions */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 15.2. Vector Widening Integer Reduction Instructions */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 15.3. Vector Single-Width Floating-Point Reduction Instructions */
-//TODO: ...
+// TODO: ...
 /* rvv spec. 15.4. Vector Widening Floating-Point Reduction Instructions */
-//TODO: ...
+// TODO: ...
 
-}
+} // namespace VREDUC
 #endif /* __RVVHL_MISC_REDUCTION_H_ */
