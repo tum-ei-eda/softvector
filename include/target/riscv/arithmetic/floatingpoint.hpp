@@ -16,7 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 /// \file floatingpoint.hpp
 /// \brief Defines helpers implementing floating-point arithmetics after
-/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats 
+/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-arithmetic-instruction-formats
 /// \date 09/09/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
@@ -26,10 +26,32 @@
 #include "stdint.h"
 #include "base/base.hpp"
 
+#ifdef ETISS_SOFTFLOAT
+extern "C"
+{
+#include "softfloat_orig.h"
+}
+#else
+#include "softfloat.hpp"
+#endif
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes floating-point arithmetic helpers
 namespace VARITH_FP
 {
+VILL::vpu_return_t vf_single_width_op_vv(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
+                                         uint64_t emul_num,    //!< Register multiplicity numerator
+                                         uint64_t emul_denom,  //!< Register multiplicity denominator
+                                         uint16_t sew_bytes,   //!< Element width [bytes]
+                                         uint16_t vec_len,     //!< Vector length [elements]
+                                         uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                         uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                                         uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                         uint16_t vec_elem_start,    //!< Starting element [index]
+                                         bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                                         bool is_signed              //!< Signed or unsigned operation
+);
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...
 /* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */

@@ -26,12 +26,23 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 	src/target/${TARGET_PLATFORM_NAME}/lsu/lsu.cpp
 	src/target/${TARGET_PLATFORM_NAME}/arithmetic/integer.cpp
 	src/target/${TARGET_PLATFORM_NAME}/arithmetic/fixedpoint.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/arithmetic/floatingpoint.cpp
+	src/target/${TARGET_PLATFORM_NAME}/arithmetic/floatingpoint.cpp
 	#src/target/${TARGET_PLATFORM_NAME}/misc/mask.cpp
 	src/target/${TARGET_PLATFORM_NAME}/misc/permutation.cpp
 	#src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
 	${TARGET_SRCS}
 )
+
+# Set NO_ETISS to 1 to build using own softfloat library
+SET(NO_ETISS 0)
+IF(NO_ETISS EQUAL 1)
+	MESSAGE("Using softvector softfloat")
+	ADD_SUBDIRECTORY(lib)
+ELSE()
+	target_compile_definitions(${PROJECT_NAME} PRIVATE ETISS_SOFTFLOAT)
+	MESSAGE("Using ETISS softfloat")
+ENDIF()
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} softfloat)
 
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	include/target/${TARGET_PLATFORM_NAME}
