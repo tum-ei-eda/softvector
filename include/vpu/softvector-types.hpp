@@ -1210,6 +1210,11 @@ class SVector
 
     /* End 12. */
 
+    /* Floating point */
+    SVector &m_iterate_vector(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
+                              size_t start_index = 0);
+    /* End floating point */
+
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Constructor for referenced elements, i.e. externally allocated elements
     SVector(const size_t length_elements, const size_t start_reg_index)

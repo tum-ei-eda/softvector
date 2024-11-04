@@ -1413,6 +1413,11 @@ extern "C"
 
     /* 13. Vector Floating-Point Instructions */
     /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
+    uint8_t vfadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
     /* End 13.2. */
     /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
     /* End 13.3. */

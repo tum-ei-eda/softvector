@@ -23,8 +23,11 @@
 #ifndef __RVVHL_ARITH_FLOATINGPOINT_H__
 #define __RVVHL_ARITH_FLOATINGPOINT_H__
 
+#include <functional>
+
 #include "stdint.h"
 #include "base/base.hpp"
+#include "vpu/softvector-types.hpp"
 
 #ifdef ETISS_SOFTFLOAT
 extern "C"
@@ -35,9 +38,29 @@ extern "C"
 #include "softfloat.hpp"
 #endif
 
+using FloatFunction = std::function<void(uint64_t, uint64_t, SVElement &, size_t)>;
+
+inline float16_t f16(uint64_t value)
+{
+    float16_t cast_f16{ (uint16_t)value };
+    return cast_f16;
+}
+
+inline float32_t f32(uint64_t value)
+{
+    float32_t cast_f32{ (uint32_t)value };
+    return cast_f32;
+}
+
+inline float64_t f64(uint64_t value)
+{
+    float64_t cast_f64{ (uint64_t)value };
+    return cast_f64;
+}
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes floating-point arithmetic helpers
-namespace VARITH_FP
+namespace VARITH_FLOAT
 {
 VILL::vpu_return_t vf_single_width_op_vv(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
                                          uint64_t emul_num,    //!< Register multiplicity numerator
@@ -50,8 +73,21 @@ VILL::vpu_return_t vf_single_width_op_vv(uint8_t *vec_reg_mem, //!< Vector regis
                                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
                                          uint16_t vec_elem_start,    //!< Starting element [index]
                                          bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                         bool is_signed              //!< Signed or unsigned operation
-);
+                                         FloatFunction func);
+
+VILL::vpu_return_t vf_single_width_op_vf(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
+                                         uint64_t emul_num,    //!< Register multiplicity numerator
+                                         uint64_t emul_denom,  //!< Register multiplicity denominator
+                                         uint16_t sew_bytes,   //!< Element width [bytes]
+                                         uint16_t vec_len,     //!< Vector length [elements]
+                                         uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                         uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
+                                         uint8_t *scalar_reg_mem,    //!< Source vector L [index]
+                                         uint8_t scalar_reg_len_bytes,
+                                         uint16_t vec_elem_start, //!< Starting element [index]
+                                         bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
+                                         FloatFunction func);
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...
 /* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
@@ -87,5 +123,5 @@ VILL::vpu_return_t vf_single_width_op_vv(uint8_t *vec_reg_mem, //!< Vector regis
 /* rvv spec. 14.17. Narrowing Floating-Point/Integer Type-Convert Instructions */
 // TODO: ...
 
-} // namespace VARITH_FP
+} // namespace VARITH_FLOAT
 #endif /* __RVVHL_ARITH_FLOATINGPOINT_H__ */

@@ -2995,35 +2995,35 @@ extern "C"
 
     /* 12.4. Vector Single-Width Scaling Shift Instructions */
     uint8_t vssrl_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vssrl_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, pRm);
+        VARITH_FIXP::vssrl_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, pRm);
 
         return 0;
     }
 
-    uint8_t vssrl_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    uint8_t vssrl_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vssrl_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, pVimm, pVSTART, pVm, pRm);
+        VARITH_FIXP::vssrl_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
+                              pVSTART, pVm, pRm);
 
         return 0;
     }
 
     uint8_t vssrl_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
@@ -3035,42 +3035,42 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vssrl_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+        VARITH_FIXP::vssrl_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                              ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
 
         return 0;
     }
 
     uint8_t vssra_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vssra_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, pRm);
+        VARITH_FIXP::vssra_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, pRm);
 
         return 0;
     }
 
-    uint8_t vssra_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    uint8_t vssra_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vssra_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, pVimm, pVSTART, pVm, pRm);
+        VARITH_FIXP::vssra_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
+                              pVSTART, pVm, pRm);
 
         return 0;
     }
 
     uint8_t vssra_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
@@ -3082,44 +3082,44 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vssra_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+        VARITH_FIXP::vssra_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                              ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
 
         return 0;
     }
     /* End 12.4. */
 
     /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
-    uint8_t vnclipu_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    uint8_t vnclipu_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vnclipu_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, pRm);
+        VARITH_FIXP::vnclipu_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                                pVSTART, pVm, pRm);
 
         return 0;
     }
 
     uint8_t vnclipu_wi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vnclipu_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, pVimm, pVSTART, pVm, pRm);
+        VARITH_FIXP::vnclipu_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                pVimm, pVSTART, pVm, pRm);
 
         return 0;
     }
 
     uint8_t vnclipu_wx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
@@ -3131,8 +3131,8 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vnclipu_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+        VARITH_FIXP::vnclipu_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
 
         return 0;
     }
@@ -3145,8 +3145,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vnclip_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, pRm);
+        VARITH_FIXP::vnclip_wv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, pRm);
 
         return 0;
     }
@@ -3159,8 +3159,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vnclip_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, pVimm, pVSTART, pVm, pRm);
+        VARITH_FIXP::vnclip_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
+                               pVSTART, pVm, pRm);
 
         return 0;
     }
@@ -3178,12 +3178,104 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vnclip_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+        VARITH_FIXP::vnclip_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                               ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
 
         return 0;
     }
     /* End 12.5. */
     /* End 12. */
+
+    /* 13. Vector Floating-Point Instructions */
+    /* 13.1. Vector Floating-Point Exception Flags */
+    /* End 13.1. */
+    /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
+    FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+        switch (sew)
+        {
+        case 16:
+            vd = f16_add(f16(opL), f16(rhs)).v;
+            break;
+        case 32:
+            vd = f32_add(f32(opL), f32(rhs)).v;
+            break;
+        case 64:
+            // return f64_add(f64(opL), f64(rhs)).v;
+            // TODO: currently unsupported
+            exit(EXIT_FAILURE);
+        default:
+            // TODO: Illegal, check for better error handling
+            exit(EXIT_FAILURE);
+        }
+    };
+
+    uint8_t vfadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_single_width_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                            pVs1, pVs2, pVSTART, pVm, vfadd);
+
+        return 0;
+    }
+
+    uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *ScalarReg;
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
+        else
+            ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
+
+        VARITH_FLOAT::vf_single_width_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfadd);
+
+        return 0;
+    }
+    /* End 13.2. */
+    /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
+    /* End 13.3. */
+    /* 13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
+    /* End 13.4. */
+    /* 13.5. Vector Widening Floating-Point Multiply */
+    /* End 13.5. */
+    /* 13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
+    /* End 13.6. */
+    /* 13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
+    /* End 13.7. */
+    /* 13.8. Vector Floating-Point Square-Root Instruction */
+    /* End 13.8. */
+    /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
+    /* End 13.9. */
+    /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
+    /* End 13.10. */
+    /* 13.11. Vector Floating-Point MIN/MAX Instructions */
+    /* End 13.11. */
+    /* 13.12. Vector Floating-Point Sign-Injection Instructions */
+    /* End 13.12. */
+    /* 13.13. Vector Floating-Point Compare Instructions */
+    /* End 13.13. */
+    /* 13.14. Vector Floating-Point Classify Instruction */
+    /* End 13.14. */
+    /* 13.15. Vector Floating-Point Merge Instruction */
+    /* End 13.15. */
+    /* 13.16. Vector Floating-Point Move Instruction */
+    /* End 13.16. */
+    /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
+    /* End 13.17. */
+    /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
+    /* End 13.18. */
+    /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
+    /* End 13.19. */
+    /* End 13. */
 
 } // extern "C"
