@@ -26,8 +26,8 @@ void iterate_vector(const SVector &opL, const SVector &rhs, SVector &vd, const S
     }
 }
 
-void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, bool mask,
-                    FloatFunction func, size_t sew, size_t start_index = 0)
+void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, bool mask, FloatFunction func,
+                    size_t sew, size_t start_index = 0)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
@@ -38,11 +38,10 @@ void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegis
     }
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_single_width_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                       uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                       uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs,
-                                                       uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f,
-                                                       FloatFunction func)
+VILL::vpu_return_t VARITH_FLOAT::vf_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
+                                          uint16_t vec_elem_start, bool mask_f, FloatFunction func)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -70,11 +69,11 @@ VILL::vpu_return_t VARITH_FLOAT::vf_single_width_op_vv(uint8_t *vec_reg_mem, uin
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_single_width_op_vf(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                       uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                       uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                                                       uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
-                                                       uint16_t vec_elem_start, bool mask_f, FloatFunction func)
+VILL::vpu_return_t VARITH_FLOAT::vf_op_vf(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
+                                          uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start, bool mask_f,
+                                          FloatFunction func)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
