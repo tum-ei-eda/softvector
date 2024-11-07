@@ -33,6 +33,7 @@ void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegis
     {
         if (!mask || vm.get_bit(i_element))
         {
+            auto opL_u64 = opL[i_element].to_u64();
             func(opL[i_element].to_u64(), rhs, vd[i_element], sew);
         }
     }

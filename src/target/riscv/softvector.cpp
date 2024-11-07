@@ -3205,21 +3205,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfadd);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfadd);
 
         return 0;
     }
@@ -3238,40 +3238,40 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfsub);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfsub);
 
         return 0;
     }
 
-    uint8_t vfrsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfrsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfrsub);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfrsub);
 
         return 0;
     }
@@ -3291,21 +3291,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwadd);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwadd);
 
         return 0;
     }
@@ -3324,21 +3324,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwsub);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwsub);
 
         return 0;
     }
@@ -3357,21 +3357,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwadd_w);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwadd_w);
 
         return 0;
     }
@@ -3390,21 +3390,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwsub_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwsub_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwsub_w);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwsub_w);
 
         return 0;
     }
@@ -3424,21 +3424,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfmul);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfmul);
 
         return 0;
     }
@@ -3457,21 +3457,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfdiv);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfdiv);
 
         return 0;
     }
@@ -3491,21 +3491,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwmul);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwmul);
 
         return 0;
     }
@@ -3525,21 +3525,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfmacc);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfmacc);
 
         return 0;
     }
@@ -3558,21 +3558,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfnmacc);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfnmacc);
 
         return 0;
     }
@@ -3591,21 +3591,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfmsac);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfmsac);
 
         return 0;
     }
@@ -3624,21 +3624,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfnmsac);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfnmsac);
 
         return 0;
     }
@@ -3657,21 +3657,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfmadd);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfmadd);
 
         return 0;
     }
@@ -3690,21 +3690,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfnmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfnmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfnmadd);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfnmadd);
 
         return 0;
     }
@@ -3723,21 +3723,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfmsub);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfmsub);
 
         return 0;
     }
@@ -3756,21 +3756,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfnmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfnmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfnmsub);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfnmsub);
 
         return 0;
     }
@@ -3790,21 +3790,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwmacc);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwmacc);
 
         return 0;
     }
@@ -3823,21 +3823,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwnmacc);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwnmacc);
 
         return 0;
     }
@@ -3856,21 +3856,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwmsac);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwmsac);
 
         return 0;
     }
@@ -3889,21 +3889,21 @@ extern "C"
         return 0;
     }
 
-    uint8_t vfwnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pRs1, uint8_t pVs2,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    uint8_t vfwnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *ScalarReg;
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<uint8_t *>(pR))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                            pVs2, ScalarReg, pXLEN / 8, pVSTART, pVm, vfwnmsac);
+                                            pVs2, ScalarReg, pFLEN / 8, pVSTART, pVm, vfwnmsac);
 
         return 0;
     }
