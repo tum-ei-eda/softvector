@@ -1,7 +1,7 @@
 add_library(softfloat
 	bf16_to_f32.c
 	f128_add.c
-	f128_classify.c
+	# f128_classify.c
 	f128_div.c
 	f128_eq.c
 	f128_eq_signaling.c
@@ -28,7 +28,7 @@ add_library(softfloat
 	f128_to_ui64.c
 	f128_to_ui64_r_minMag.c
 	f16_add.c
-	f16_classify.c
+	# f16_classify.c
 	f16_div.c
 	f16_eq.c
 	f16_eq_signaling.c
@@ -59,7 +59,7 @@ add_library(softfloat
 	f16_to_ui64.c
 	f16_to_ui64_r_minMag.c
 	f32_add.c
-	f32_classify.c
+	# f32_classify.c
 	f32_div.c
 	f32_eq.c
 	f32_eq_signaling.c
@@ -89,7 +89,7 @@ add_library(softfloat
 	f32_to_ui64.c
 	f32_to_ui64_r_minMag.c
 	f64_add.c
-	f64_classify.c
+	# f64_classify.c
 	f64_div.c
 	f64_eq.c
 	f64_eq_signaling.c

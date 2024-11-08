@@ -28,6 +28,8 @@
 #include "stdint.h"
 #include "base/base.hpp"
 #include "vpu/softvector-types.hpp"
+#include "internals.h"
+#include "specialize.h"
 
 #ifdef ETISS_SOFTFLOAT
 extern "C"
@@ -38,7 +40,7 @@ extern "C"
 #include "softfloat.hpp"
 #endif
 
-using FloatFunction = std::function<void(uint64_t, uint64_t, SVElement &, size_t)>;
+using FloatFunction = std::function<bool(uint64_t, uint64_t, SVElement &, size_t)>;
 
 /*
 This part of the code is copied from or heavily inspired by https://github.com/ics-jku/riscv-vp-plusplus
@@ -46,6 +48,8 @@ Therefore, this marks the start of the following copyright notice:
 Copyright (c) 2017-2018 Group of Computer Architecture, University of Bremen <riscv@systemc-verification.org>
 Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University Linz <ics-office@jku.at>
 */
+
+/* Float helpers */
 constexpr uint16_t F16_SIGN_BIT = 1 << 15;
 constexpr uint32_t F32_SIGN_BIT = 1 << 31;
 constexpr uint64_t F64_SIGN_BIT = 1ul << 63;
@@ -84,8 +88,141 @@ inline float64_t f64_neg(float64_t x)
     return float64_t{ x.v ^ F64_SIGN_BIT };
 }
 
+inline float16_t f16_sgnj(float16_t f1, float16_t f2)
+{
+    uint16_t res = (f1.v & ~F16_SIGN_BIT) | (f2.v & F16_SIGN_BIT);
+    return float16_t{ res };
+}
+
+inline float16_t f16_sgnjn(float16_t f1, float16_t f2)
+{
+    uint16_t res = (f1.v & ~F16_SIGN_BIT) | (~f2.v & F16_SIGN_BIT);
+    return float16_t{ res };
+}
+
+inline float16_t f16_sgnjx(float16_t f1, float16_t f2)
+{
+    uint16_t res = f1.v ^ (f2.v & F16_SIGN_BIT);
+    return float16_t{ res };
+}
+
+inline float32_t f32_sgnj(float32_t f1, float32_t f2)
+{
+    return float32_t{ (f1.v & ~F32_SIGN_BIT) | (f2.v & F32_SIGN_BIT) };
+}
+
+inline float32_t f32_sgnjn(float32_t f1, float32_t f2)
+{
+    return float32_t{ (f1.v & ~F32_SIGN_BIT) | (~f2.v & F32_SIGN_BIT) };
+}
+
+inline float32_t f32_sgnjx(float32_t f1, float32_t f2)
+{
+    return float32_t{ f1.v ^ (f2.v & F32_SIGN_BIT) };
+}
+
+inline float64_t f64_sgnj(float64_t f1, float64_t f2)
+{
+    return float64_t{ (f1.v & ~F64_SIGN_BIT) | (f2.v & F64_SIGN_BIT) };
+}
+
+inline float64_t f64_sgnjn(float64_t f1, float64_t f2)
+{
+    return float64_t{ (f1.v & ~F64_SIGN_BIT) | (~f2.v & F64_SIGN_BIT) };
+}
+
+inline float64_t f64_sgnjx(float64_t f1, float64_t f2)
+{
+    return float64_t{ f1.v ^ (f2.v & F64_SIGN_BIT) };
+}
+
+uint_fast16_t f16_classify( float16_t a )
+{
+    union ui16_f16 uA;
+    uint_fast16_t uiA;
+
+    uA.f = a;
+    uiA = uA.ui;
+
+    uint_fast16_t infOrNaN = expF16UI( uiA ) == 0x1F;
+    uint_fast16_t subnormalOrZero = expF16UI( uiA ) == 0;
+    bool sign = signF16UI( uiA );
+    bool fracZero = fracF16UI( uiA ) == 0;
+    bool isNaN = isNaNF16UI( uiA );
+    bool isSNaN = softfloat_isSigNaNF16UI( uiA );
+
+    return
+        (  sign && infOrNaN && fracZero )          << 0 |
+        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
+        (  sign && subnormalOrZero && !fracZero )  << 2 |
+        (  sign && subnormalOrZero && fracZero )   << 3 |
+        ( !sign && infOrNaN && fracZero )          << 7 |
+        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
+        ( !sign && subnormalOrZero && !fracZero )  << 5 |
+        ( !sign && subnormalOrZero && fracZero )   << 4 |
+        ( isNaN &&  isSNaN )                       << 8 |
+        ( isNaN && !isSNaN )                       << 9;
+}
+
+uint_fast16_t f32_classify( float32_t a )
+{
+    union ui32_f32 uA;
+    uint_fast32_t uiA;
+
+    uA.f = a;
+    uiA = uA.ui;
+
+    uint_fast16_t infOrNaN = expF32UI( uiA ) == 0xFF;
+    uint_fast16_t subnormalOrZero = expF32UI( uiA ) == 0;
+    bool sign = signF32UI( uiA );
+    bool fracZero = fracF32UI( uiA ) == 0;
+    bool isNaN = isNaNF32UI( uiA );
+    bool isSNaN = softfloat_isSigNaNF32UI( uiA );
+
+    return
+        (  sign && infOrNaN && fracZero )          << 0 |
+        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
+        (  sign && subnormalOrZero && !fracZero )  << 2 |
+        (  sign && subnormalOrZero && fracZero )   << 3 |
+        ( !sign && infOrNaN && fracZero )          << 7 |
+        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
+        ( !sign && subnormalOrZero && !fracZero )  << 5 |
+        ( !sign && subnormalOrZero && fracZero )   << 4 |
+        ( isNaN &&  isSNaN )                       << 8 |
+        ( isNaN && !isSNaN )                       << 9;
+}
+
+uint_fast16_t f64_classify( float64_t a )
+{
+    union ui64_f64 uA;
+    uint_fast64_t uiA;
+
+    uA.f = a;
+    uiA = uA.ui;
+
+    uint_fast16_t infOrNaN = expF64UI( uiA ) == 0x7FF;
+    uint_fast16_t subnormalOrZero = expF64UI( uiA ) == 0;
+    bool sign = signF64UI( uiA );
+    bool fracZero = fracF64UI( uiA ) == 0;
+    bool isNaN = isNaNF64UI( uiA );
+    bool isSNaN = softfloat_isSigNaNF64UI( uiA );
+
+    return
+        (  sign && infOrNaN && fracZero )          << 0 |
+        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
+        (  sign && subnormalOrZero && !fracZero )  << 2 |
+        (  sign && subnormalOrZero && fracZero )   << 3 |
+        ( !sign && infOrNaN && fracZero )          << 7 |
+        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
+        ( !sign && subnormalOrZero && !fracZero )  << 5 |
+        ( !sign && subnormalOrZero && fracZero )   << 4 |
+        ( isNaN &&  isSNaN )                       << 8 |
+        ( isNaN && !isSNaN )                       << 9;
+}
+/* End float helpers */
+
 /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
-inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -101,9 +238,10 @@ inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -119,9 +257,10 @@ inline FloatFunction vfsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfrsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfrsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -137,11 +276,12 @@ inline FloatFunction vfrsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.2. */
 
 /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
-inline FloatFunction vfwadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -154,9 +294,10 @@ inline FloatFunction vfwadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfwsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -169,10 +310,11 @@ inline FloatFunction vfwsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
 // Wide vs2 (2*SEW)
-inline FloatFunction vfwadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -185,10 +327,11 @@ inline FloatFunction vfwadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
 // Wide vs2 (2*SEW)
-inline FloatFunction vfwsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -201,11 +344,12 @@ inline FloatFunction vfwsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.3. */
 
 /* 13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
-inline FloatFunction vfmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -221,9 +365,10 @@ inline FloatFunction vfmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -239,9 +384,10 @@ inline FloatFunction vfdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfrdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfrdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -257,11 +403,12 @@ inline FloatFunction vfrdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.4. */
 
 /* 13.5. Vector Widening Floating-Point Multiply */
-inline FloatFunction vfwmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -274,11 +421,12 @@ inline FloatFunction vfwmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.5. */
 
 /* 13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
-inline FloatFunction vfmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -294,9 +442,10 @@ inline FloatFunction vfmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -312,9 +461,10 @@ inline FloatFunction vfnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -330,9 +480,10 @@ inline FloatFunction vfmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -348,9 +499,10 @@ inline FloatFunction vfnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -366,9 +518,10 @@ inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfnmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfnmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -384,9 +537,10 @@ inline FloatFunction vfnmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -402,9 +556,10 @@ inline FloatFunction vfmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfnmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfnmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -420,11 +575,12 @@ inline FloatFunction vfnmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.6. */
 
 /* 13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
-inline FloatFunction vfwmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -437,9 +593,10 @@ inline FloatFunction vfwmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfwnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -452,9 +609,10 @@ inline FloatFunction vfwnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfwmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -467,9 +625,10 @@ inline FloatFunction vfwmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 
-inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> void {
+inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -482,35 +641,283 @@ inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
         // TODO: Illegal, check for better error handling
         exit(EXIT_FAILURE);
     }
+    return true;
 };
 /* End 13.7. */
 
 /* 13.8. Vector Floating-Point Square-Root Instruction */
-
+inline FloatFunction vfsqrt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_sqrt(f16(opL)).v;
+        break;
+    case 32:
+        vd = f32_sqrt(f32(opL)).v;
+        break;
+    case 64:
+        vd = f64_sqrt(f64(opL)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.8. */
 
 /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
-
+inline FloatFunction vfrsqrt7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_rsqrte7(f16(opL)).v;
+        break;
+    case 32:
+        vd = f32_rsqrte7(f32(opL)).v;
+        break;
+    case 64:
+        vd = f64_rsqrte7(f64(opL)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.9. */
 
 /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
-
+inline FloatFunction vfrec7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_recip7(f16(opL)).v;
+        break;
+    case 32:
+        vd = f32_recip7(f32(opL)).v;
+        break;
+    case 64:
+        vd = f64_recip7(f64(opL)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.10. */
 
 /* 13.11. Vector Floating-Point MIN/MAX Instructions */
+inline FloatFunction vfmin = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_min(f16(opL), f16(rhs)).v;
+        break;
+    case 32:
+        vd = f32_min(f32(opL), f32(rhs)).v;
+        break;
+    case 64:
+        vd = f64_min(f64(opL), f64(rhs)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 
+inline FloatFunction vfmax = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_max(f16(opL), f16(rhs)).v;
+        break;
+    case 32:
+        vd = f32_max(f32(opL), f32(rhs)).v;
+        break;
+    case 64:
+        vd = f64_max(f64(opL), f64(rhs)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.11. */
 
 /* 13.12. Vector Floating-Point Sign-Injection Instructions */
+inline FloatFunction vfsgnj = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_sgnj(f16(opL), f16(rhs)).v;
+        break;
+    case 32:
+        vd = f32_sgnj(f32(opL), f32(rhs)).v;
+        break;
+    case 64:
+        vd = f64_sgnj(f64(opL), f64(rhs)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 
+inline FloatFunction vfsgnjn = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_sgnjn(f16(opL), f16(rhs)).v;
+        break;
+    case 32:
+        vd = f32_sgnjn(f32(opL), f32(rhs)).v;
+        break;
+    case 64:
+        vd = f64_sgnjn(f64(opL), f64(rhs)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
+
+inline FloatFunction vfsgnjx = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_sgnjx(f16(opL), f16(rhs)).v;
+        break;
+    case 32:
+        vd = f32_sgnjx(f32(opL), f32(rhs)).v;
+        break;
+    case 64:
+        vd = f64_sgnjx(f64(opL), f64(rhs)).v;
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.12. */
 
 /* 13.13. Vector Floating-Point Compare Instructions */
+inline FloatFunction vmfeq = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return f16_eq(f16(opL), f16(rhs));
+    case 32:
+        return f32_eq(f32(opL), f32(rhs));
+    case 64:
+        return f64_eq(f64(opL), f64(rhs));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
 
+inline FloatFunction vmfne = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return !f16_eq(f16(opL), f16(rhs));
+    case 32:
+        return !f32_eq(f32(opL), f32(rhs));
+    case 64:
+        return !f64_eq(f64(opL), f64(rhs));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
+
+inline FloatFunction vmflt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return f16_lt(f16(opL), f16(rhs));
+    case 32:
+        return f32_lt(f32(opL), f32(rhs));
+    case 64:
+        return f64_lt(f64(opL), f64(rhs));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
+
+inline FloatFunction vmfle = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return f16_le(f16(opL), f16(rhs));
+    case 32:
+        return f32_le(f32(opL), f32(rhs));
+    case 64:
+        return f64_le(f64(opL), f64(rhs));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
+
+inline FloatFunction vmfgt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return f16_lt(f16(rhs), f16(opL));
+    case 32:
+        return f32_lt(f32(rhs), f32(opL));
+    case 64:
+        return f64_lt(f64(rhs), f64(opL));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
+
+inline FloatFunction vmfge = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        return f16_le(f16(rhs), f16(opL));
+    case 32:
+        return f32_le(f32(rhs), f32(opL));
+    case 64:
+        return f64_le(f64(rhs), f64(opL));
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+};
 /* End 13.13. */
 
 /* 13.14. Vector Floating-Point Classify Instruction */
-
+inline FloatFunction vfclass = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+    switch (sew)
+    {
+    case 16:
+        vd = 0 | f16_classify(f16(opL));
+        break;
+    case 32:
+        vd = 0 | f32_classify(f32(opL));
+        break;
+    case 64:
+        vd = 0 | f64_classify(f64(opL));
+        break;
+    default:
+        // TODO: Illegal, check for better error handling
+        exit(EXIT_FAILURE);
+    }
+    return true;
+};
 /* End 13.14. */
 
 /* 13.15. Vector Floating-Point Merge Instruction */
@@ -530,7 +937,7 @@ inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
 /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
 /* End 13.19. */
 
-/* 
+/*
 End of following copyright notice:
 Copyright (c) 2017-2018 Group of Computer Architecture, University of Bremen <riscv@systemc-verification.org>
 Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University Linz <ics-office@jku.at>
@@ -540,32 +947,88 @@ Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University
 /// \brief This space concludes floating-point arithmetic helpers
 namespace VARITH_FLOAT
 {
-VILL::vpu_return_t vf_op_vv(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
-                                         uint64_t emul_num,    //!< Register multiplicity numerator
-                                         uint64_t emul_denom,  //!< Register multiplicity denominator
-                                         uint16_t sew_bytes,   //!< Element width [bytes]
-                                         uint16_t vec_len,     //!< Vector length [elements]
-                                         uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                         uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                                         uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                         uint16_t vec_elem_start,    //!< Starting element [index]
-                                         bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                         FloatFunction func);
+VILL::vpu_return_t vf_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                            uint64_t emul_num,          //!< Register multiplicity numerator
+                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            uint16_t sew_bytes,         //!< Element width [bytes]
+                            uint16_t vec_len,           //!< Vector length [elements]
+                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t vec_elem_start,    //!< Starting element [index]
+                            bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                            FloatFunction func,         //!< Floating-point function lambda
+                            uint8_t rounding_mode,      //!< Floating-point rounding mode
+                            bool wide_dest = false,     //!< Use wide destination (2*SEW)
+                            bool wide_vs2 = false       //!< Use wide vs2 (2*SEW)
+);
 
-VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
-                                         uint64_t emul_num,    //!< Register multiplicity numerator
-                                         uint64_t emul_denom,  //!< Register multiplicity denominator
-                                         uint16_t sew_bytes,   //!< Element width [bytes]
-                                         uint16_t vec_len,     //!< Vector length [elements]
-                                         uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                         uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
-                                         uint8_t *scalar_reg_mem,    //!< Source vector L [index]
-                                         uint8_t scalar_reg_len_bytes,
-                                         uint16_t vec_elem_start, //!< Starting element [index]
-                                         bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
-                                         FloatFunction func);
+// Unary
+VILL::vpu_return_t vf_op_v(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                           uint64_t emul_num,          //!< Register multiplicity numerator
+                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           uint16_t sew_bytes,         //!< Element width [bytes]
+                           uint16_t vec_len,           //!< Vector length [elements]
+                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t vec_elem_start,    //!< Starting element [index]
+                           bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                           FloatFunction func,         //!< Floating-point function lambda
+                           uint8_t rounding_mode       //!< Floating-point rounding mode
+);
+
+VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                            uint64_t emul_num,          //!< Register multiplicity numerator
+                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            uint16_t sew_bytes,         //!< Element width [bytes]
+                            uint16_t vec_len,           //!< Vector length [elements]
+                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                            uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
+                            uint8_t *scalar_reg_mem,    //!< Source vector L [index]
+                            uint8_t scalar_reg_len_bytes,
+                            uint16_t vec_elem_start, //!< Starting element [index]
+                            bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
+                            FloatFunction func,      //!< Floating-point function lamb
+                            uint8_t rounding_mode,   //!< Floating-point rounding mode
+                            bool wide_dest = false,  //!< Use wide destination (2*SEW)
+                            bool wide_vs2 = false    //!< Use wide vs2 (2*SEW)
+);
+
+// Destination is register
+VILL::vpu_return_t vf_op_vv_to_reg(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                   uint64_t emul_num,          //!< Register multiplicity numerator
+                                   uint64_t emul_denom,        //!< Register multiplicity denominator
+                                   uint16_t sew_bytes,         //!< Element width [bytes]
+                                   uint16_t vec_len,           //!< Vector length [elements]
+                                   uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                   uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                   uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                                   uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                   uint16_t vec_elem_start,    //!< Starting element [index]
+                                   bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                                   FloatFunction func,         //!< Floating-point function lambda
+                                   uint8_t rounding_mode       //!< Floating-point rounding mode
+);
+
+// Destination is register
+VILL::vpu_return_t vf_op_vf_to_reg(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                   uint64_t emul_num,          //!< Register multiplicity numerator
+                                   uint64_t emul_denom,        //!< Register multiplicity denominator
+                                   uint16_t sew_bytes,         //!< Element width [bytes]
+                                   uint16_t vec_len,           //!< Vector length [elements]
+                                   uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                   uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                   uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
+                                   uint8_t *scalar_reg_mem,    //!< Source vector L [index]
+                                   uint8_t scalar_reg_len_bytes,
+                                   uint16_t vec_elem_start, //!< Starting element [index]
+                                   bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
+                                   FloatFunction func,      //!< Floating-point function lamb
+                                   uint8_t rounding_mode    //!< Floating-point rounding mode
+);
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...
 /* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
