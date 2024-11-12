@@ -28,8 +28,7 @@
 #include "stdint.h"
 #include "base/base.hpp"
 #include "vpu/softvector-types.hpp"
-#include "internals.h"
-#include "specialize.h"
+#include "arithmetic/softfloat-extension.hpp"
 
 #ifdef ETISS_SOFTFLOAT
 extern "C"
@@ -43,183 +42,13 @@ extern "C"
 using FloatFunction = std::function<bool(uint64_t, uint64_t, SVElement &, size_t)>;
 
 /*
-This part of the code is copied from or heavily inspired by https://github.com/ics-jku/riscv-vp-plusplus
+============================================================================================================
+The following code is copied from or heavily inspired by https://github.com/ics-jku/riscv-vp-plusplus
 Therefore, this marks the start of the following copyright notice:
 Copyright (c) 2017-2018 Group of Computer Architecture, University of Bremen <riscv@systemc-verification.org>
 Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University Linz <ics-office@jku.at>
+============================================================================================================
 */
-
-/* Float helpers */
-constexpr uint16_t F16_SIGN_BIT = 1 << 15;
-constexpr uint32_t F32_SIGN_BIT = 1 << 31;
-constexpr uint64_t F64_SIGN_BIT = 1ul << 63;
-
-inline float16_t f16(uint64_t value)
-{
-    float16_t cast_f16{ (uint16_t)value };
-    return cast_f16;
-}
-
-inline float32_t f32(uint64_t value)
-{
-    float32_t cast_f32{ (uint32_t)value };
-    return cast_f32;
-}
-
-inline float64_t f64(uint64_t value)
-{
-    float64_t cast_f64{ (uint64_t)value };
-    return cast_f64;
-}
-
-inline float16_t f16_neg(float16_t x)
-{
-    uint16_t res = x.v ^ F16_SIGN_BIT;
-    return float16_t{ res };
-}
-
-inline float32_t f32_neg(float32_t x)
-{
-    return float32_t{ x.v ^ F32_SIGN_BIT };
-}
-
-inline float64_t f64_neg(float64_t x)
-{
-    return float64_t{ x.v ^ F64_SIGN_BIT };
-}
-
-inline float16_t f16_sgnj(float16_t f1, float16_t f2)
-{
-    uint16_t res = (f1.v & ~F16_SIGN_BIT) | (f2.v & F16_SIGN_BIT);
-    return float16_t{ res };
-}
-
-inline float16_t f16_sgnjn(float16_t f1, float16_t f2)
-{
-    uint16_t res = (f1.v & ~F16_SIGN_BIT) | (~f2.v & F16_SIGN_BIT);
-    return float16_t{ res };
-}
-
-inline float16_t f16_sgnjx(float16_t f1, float16_t f2)
-{
-    uint16_t res = f1.v ^ (f2.v & F16_SIGN_BIT);
-    return float16_t{ res };
-}
-
-inline float32_t f32_sgnj(float32_t f1, float32_t f2)
-{
-    return float32_t{ (f1.v & ~F32_SIGN_BIT) | (f2.v & F32_SIGN_BIT) };
-}
-
-inline float32_t f32_sgnjn(float32_t f1, float32_t f2)
-{
-    return float32_t{ (f1.v & ~F32_SIGN_BIT) | (~f2.v & F32_SIGN_BIT) };
-}
-
-inline float32_t f32_sgnjx(float32_t f1, float32_t f2)
-{
-    return float32_t{ f1.v ^ (f2.v & F32_SIGN_BIT) };
-}
-
-inline float64_t f64_sgnj(float64_t f1, float64_t f2)
-{
-    return float64_t{ (f1.v & ~F64_SIGN_BIT) | (f2.v & F64_SIGN_BIT) };
-}
-
-inline float64_t f64_sgnjn(float64_t f1, float64_t f2)
-{
-    return float64_t{ (f1.v & ~F64_SIGN_BIT) | (~f2.v & F64_SIGN_BIT) };
-}
-
-inline float64_t f64_sgnjx(float64_t f1, float64_t f2)
-{
-    return float64_t{ f1.v ^ (f2.v & F64_SIGN_BIT) };
-}
-
-uint_fast16_t f16_classify( float16_t a )
-{
-    union ui16_f16 uA;
-    uint_fast16_t uiA;
-
-    uA.f = a;
-    uiA = uA.ui;
-
-    uint_fast16_t infOrNaN = expF16UI( uiA ) == 0x1F;
-    uint_fast16_t subnormalOrZero = expF16UI( uiA ) == 0;
-    bool sign = signF16UI( uiA );
-    bool fracZero = fracF16UI( uiA ) == 0;
-    bool isNaN = isNaNF16UI( uiA );
-    bool isSNaN = softfloat_isSigNaNF16UI( uiA );
-
-    return
-        (  sign && infOrNaN && fracZero )          << 0 |
-        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
-        (  sign && subnormalOrZero && !fracZero )  << 2 |
-        (  sign && subnormalOrZero && fracZero )   << 3 |
-        ( !sign && infOrNaN && fracZero )          << 7 |
-        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
-        ( !sign && subnormalOrZero && !fracZero )  << 5 |
-        ( !sign && subnormalOrZero && fracZero )   << 4 |
-        ( isNaN &&  isSNaN )                       << 8 |
-        ( isNaN && !isSNaN )                       << 9;
-}
-
-uint_fast16_t f32_classify( float32_t a )
-{
-    union ui32_f32 uA;
-    uint_fast32_t uiA;
-
-    uA.f = a;
-    uiA = uA.ui;
-
-    uint_fast16_t infOrNaN = expF32UI( uiA ) == 0xFF;
-    uint_fast16_t subnormalOrZero = expF32UI( uiA ) == 0;
-    bool sign = signF32UI( uiA );
-    bool fracZero = fracF32UI( uiA ) == 0;
-    bool isNaN = isNaNF32UI( uiA );
-    bool isSNaN = softfloat_isSigNaNF32UI( uiA );
-
-    return
-        (  sign && infOrNaN && fracZero )          << 0 |
-        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
-        (  sign && subnormalOrZero && !fracZero )  << 2 |
-        (  sign && subnormalOrZero && fracZero )   << 3 |
-        ( !sign && infOrNaN && fracZero )          << 7 |
-        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
-        ( !sign && subnormalOrZero && !fracZero )  << 5 |
-        ( !sign && subnormalOrZero && fracZero )   << 4 |
-        ( isNaN &&  isSNaN )                       << 8 |
-        ( isNaN && !isSNaN )                       << 9;
-}
-
-uint_fast16_t f64_classify( float64_t a )
-{
-    union ui64_f64 uA;
-    uint_fast64_t uiA;
-
-    uA.f = a;
-    uiA = uA.ui;
-
-    uint_fast16_t infOrNaN = expF64UI( uiA ) == 0x7FF;
-    uint_fast16_t subnormalOrZero = expF64UI( uiA ) == 0;
-    bool sign = signF64UI( uiA );
-    bool fracZero = fracF64UI( uiA ) == 0;
-    bool isNaN = isNaNF64UI( uiA );
-    bool isSNaN = softfloat_isSigNaNF64UI( uiA );
-
-    return
-        (  sign && infOrNaN && fracZero )          << 0 |
-        (  sign && !infOrNaN && !subnormalOrZero ) << 1 |
-        (  sign && subnormalOrZero && !fracZero )  << 2 |
-        (  sign && subnormalOrZero && fracZero )   << 3 |
-        ( !sign && infOrNaN && fracZero )          << 7 |
-        ( !sign && !infOrNaN && !subnormalOrZero ) << 6 |
-        ( !sign && subnormalOrZero && !fracZero )  << 5 |
-        ( !sign && subnormalOrZero && fracZero )   << 4 |
-        ( isNaN &&  isSNaN )                       << 8 |
-        ( isNaN && !isSNaN )                       << 9;
-}
-/* End float helpers */
 
 /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
 inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
@@ -938,9 +767,11 @@ inline FloatFunction vfclass = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
 /* End 13.19. */
 
 /*
-End of following copyright notice:
+============================================================================================================
+End of the following copyright notice:
 Copyright (c) 2017-2018 Group of Computer Architecture, University of Bremen <riscv@systemc-verification.org>
 Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University Linz <ics-office@jku.at>
+============================================================================================================
 */
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -964,21 +795,6 @@ VILL::vpu_return_t vf_op_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             bool wide_vs2 = false       //!< Use wide vs2 (2*SEW)
 );
 
-// Unary
-VILL::vpu_return_t vf_op_v(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
-                           uint16_t sew_bytes,         //!< Element width [bytes]
-                           uint16_t vec_len,           //!< Vector length [elements]
-                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                           uint16_t vec_elem_start,    //!< Starting element [index]
-                           bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                           FloatFunction func,         //!< Floating-point function lambda
-                           uint8_t rounding_mode       //!< Floating-point rounding mode
-);
-
 VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
                             uint64_t emul_num,          //!< Register multiplicity numerator
                             uint64_t emul_denom,        //!< Register multiplicity denominator
@@ -995,6 +811,20 @@ VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint8_t rounding_mode,   //!< Floating-point rounding mode
                             bool wide_dest = false,  //!< Use wide destination (2*SEW)
                             bool wide_vs2 = false    //!< Use wide vs2 (2*SEW)
+);
+
+VILL::vpu_return_t vf_op_unary(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                               uint64_t emul_num,          //!< Register multiplicity numerator
+                               uint64_t emul_denom,        //!< Register multiplicity denominator
+                               uint16_t sew_bytes,         //!< Element width [bytes]
+                               uint16_t vec_len,           //!< Vector length [elements]
+                               uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                               uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                               uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                               uint16_t vec_elem_start,    //!< Starting element [index]
+                               bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                               FloatFunction func,         //!< Floating-point function lambda
+                               uint8_t rounding_mode       //!< Floating-point rounding mode
 );
 
 // Destination is register

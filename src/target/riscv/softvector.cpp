@@ -3910,28 +3910,92 @@ extern "C"
         return 0;
     }
     /* End 13.7. */
+
     /* 13.8. Vector Floating-Point Square-Root Instruction */
+    uint8_t vfsqrt_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_op_unary(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                               pVSTART, pVm, vfsqrt, pRm);
+
+        return 0;
+    }
     /* End 13.8. */
+
     /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
+    uint8_t vfrsqrt7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_op_unary(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                               pVSTART, pVm, vfrsqrt7, pRm);
+
+        return 0;
+    }
     /* End 13.9. */
+
     /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
+    uint8_t vfrec7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_op_unary(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                               pVSTART, pVm, vfrec7, pRm);
+
+        return 0;
+    }
     /* End 13.10. */
+
     /* 13.11. Vector Floating-Point MIN/MAX Instructions */
     /* End 13.11. */
+
     /* 13.12. Vector Floating-Point Sign-Injection Instructions */
     /* End 13.12. */
+
     /* 13.13. Vector Floating-Point Compare Instructions */
     /* End 13.13. */
+
     /* 13.14. Vector Floating-Point Classify Instruction */
+    uint8_t vfclass_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_op_unary(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                               pVSTART, pVm, vfclass, pRm);
+
+        return 0;
+    }
     /* End 13.14. */
+
     /* 13.15. Vector Floating-Point Merge Instruction */
     /* End 13.15. */
+
     /* 13.16. Vector Floating-Point Move Instruction */
     /* End 13.16. */
+
     /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
     /* End 13.17. */
+
     /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
     /* End 13.18. */
+
     /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
     /* End 13.19. */
     /* End 13. */
