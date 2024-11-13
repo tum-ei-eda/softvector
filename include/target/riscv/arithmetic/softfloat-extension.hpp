@@ -22,6 +22,14 @@ constexpr uint16_t F16_SIGN_BIT = 1 << 15;
 constexpr uint32_t F32_SIGN_BIT = 1 << 31;
 constexpr uint64_t F64_SIGN_BIT = 1ul << 63;
 
+constexpr uint16_t defaultNaNF16UI = 0x7E00;
+constexpr uint32_t defaultNaNF32UI = 0x7fc00000;
+constexpr uint64_t defaultNaNF64UI = 0x7FF8000000000000;
+
+constexpr float16_t f16_defaultNaN = { defaultNaNF16UI };
+constexpr float32_t f32_defaultNaN = { defaultNaNF32UI };
+constexpr float64_t f64_defaultNaN = { defaultNaNF64UI };
+
 float16_t f16(uint64_t value);
 
 float32_t f32(uint64_t value);
@@ -33,6 +41,22 @@ float16_t f16_neg(float16_t x);
 float32_t f32_neg(float32_t x);
 
 float64_t f64_neg(float64_t x);
+
+bool is_boxed_f16(float64_t x);
+
+float64_t box_f16(float16_t x);
+
+float16_t unbox_f16(float64_t x);
+
+bool is_boxed_f32(float64_t x);
+
+float32_t unbox_f32(float64_t x);
+
+float64_t box_f32(float32_t x);
+
+float16_t check_and_unbox_f16(float64_t x);
+
+float32_t check_and_unbox_f32(float64_t x);
 
 float16_t f16_sgnj(float16_t f1, float16_t f2);
 

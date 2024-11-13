@@ -56,6 +56,52 @@ float64_t f64_neg(float64_t x)
     return float64_t{ x.v ^ F64_SIGN_BIT };
 }
 
+bool is_boxed_f16(float64_t x)
+{
+    return (x.v >> 16) == 0xFFFFFFFFFFFF;
+}
+
+float64_t box_f16(float16_t x)
+{
+    return float64_t{ (uint64_t)x.v | 0xFFFFFFFFFFFF0000 };
+}
+
+float16_t unbox_f16(float64_t x)
+{
+    return float16_t{ (uint16_t)x.v };
+}
+
+bool is_boxed_f32(float64_t x)
+{
+    return (x.v >> 32) == (uint32_t)-1;
+}
+
+float32_t unbox_f32(float64_t x)
+{
+    return float32_t{ (uint32_t)x.v };
+}
+
+float64_t box_f32(float32_t x)
+{
+    return float64_t{ (uint64_t)x.v | 0xFFFFFFFF00000000 };
+}
+
+float16_t check_and_unbox_f16(float64_t x)
+{
+    if (is_boxed_f32(x))
+        return unbox_f16(x);
+    else
+        return f16_defaultNaN;
+}
+
+float32_t check_and_unbox_f32(float64_t x)
+{
+    if (is_boxed_f32(x))
+        return unbox_f32(x);
+    else
+        return f32_defaultNaN;
+}
+
 float16_t f16_sgnj(float16_t f1, float16_t f2)
 {
     uint16_t res = (f1.v & ~F16_SIGN_BIT) | (f2.v & F16_SIGN_BIT);

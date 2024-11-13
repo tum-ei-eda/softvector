@@ -3928,8 +3928,8 @@ extern "C"
     /* End 13.8. */
 
     /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
-    uint8_t vfrsqrt7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    uint8_t vfrsqrt7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                       uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
@@ -4137,8 +4137,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                               pVSTART, pVm, vmfeq, pRm);
+        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+                                      pVs2, pVSTART, pVm, vmfeq, pRm);
 
         return 0;
     }
@@ -4157,7 +4157,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmfeq, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmfeq, pRm);
 
         return 0;
     }
@@ -4170,8 +4170,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                               pVSTART, pVm, vmfne, pRm);
+        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+                                      pVs2, pVSTART, pVm, vmfne, pRm);
 
         return 0;
     }
@@ -4190,7 +4190,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmfne, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmfne, pRm);
 
         return 0;
     }
@@ -4203,8 +4203,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                               pVSTART, pVm, vmflt, pRm);
+        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+                                      pVs2, pVSTART, pVm, vmflt, pRm);
 
         return 0;
     }
@@ -4223,7 +4223,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmflt, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmflt, pRm);
 
         return 0;
     }
@@ -4236,8 +4236,8 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                               pVSTART, pVm, vmfle, pRm);
+        VARITH_FLOAT::vf_op_vv_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+                                      pVs2, pVSTART, pVm, vmfle, pRm);
 
         return 0;
     }
@@ -4256,7 +4256,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmfle, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmfle, pRm);
 
         return 0;
     }
@@ -4275,7 +4275,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmfgt, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmfgt, pRm);
 
         return 0;
     }
@@ -4294,7 +4294,7 @@ extern "C"
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
         VARITH_FLOAT::vf_op_vf_to_reg(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                               ScalarReg, pFLEN / 8, pVSTART, pVm, vmfge, pRm);
+                                      ScalarReg, pFLEN / 8, pVSTART, pVm, vmfge, pRm);
 
         return 0;
     }

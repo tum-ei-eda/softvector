@@ -335,13 +335,13 @@ inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     switch (sew)
     {
     case 16:
-        vd = f16_mulAdd(f16(vd.to_u64()), f16_neg(f16(rhs)), f16(opL)).v;
+        vd = f16_mulAdd(f16(vd.to_u64()), f16(rhs), f16(opL)).v;
         break;
     case 32:
-        vd = f32_mulAdd(f32(vd.to_u64()), f32_neg(f32(rhs)), f32(opL)).v;
+        vd = f32_mulAdd(f32(vd.to_u64()), f32(rhs), f32(opL)).v;
         break;
     case 64:
-        vd = f64_mulAdd(f64(vd.to_u64()), f64_neg(f64(rhs)), f64(opL)).v;
+        vd = f64_mulAdd(f64(vd.to_u64()), f64(rhs), f64(opL)).v;
         break;
     default:
         // TODO: Illegal, check for better error handling

@@ -82,7 +82,7 @@ void iterate_vector_merge(const SVector &opL, uint64_t rhs, SVector &vd, const S
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         // 0: use vs2[i], f[rs1] otherwise
-        vd[i_element] = vm.get_bit(i_element) ? rhs : opL[i_element];
+        vd[i_element] = vm.get_bit(i_element) ? rhs : opL[i_element].to_u64();
     }
 }
 
@@ -167,8 +167,13 @@ VILL::vpu_return_t VARITH_FLOAT::vf_op_vf(uint8_t *vec_reg_mem, uint64_t emul_nu
     RVVector &vs2 = wide_vs2 ? V_wide.get_vec(src_vec_reg_lhs) : V.get_vec(src_vec_reg_lhs);
     RVVector &vd = wide_dest ? V_wide.get_vec(dst_vec_reg) : V.get_vec(dst_vec_reg);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    if (scalar_reg_len_bytes > sew_bytes)
+    {
+        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+    }
 
     softfloat_exceptionFlags = 0;
     softfloat_roundingMode = rounding_mode;
@@ -265,8 +270,13 @@ VILL::vpu_return_t VARITH_FLOAT::vf_op_vf_to_reg(uint8_t *vec_reg_mem, uint64_t 
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    if (scalar_reg_len_bytes > sew_bytes)
+    {
+        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+    }
 
     softfloat_exceptionFlags = 0;
     softfloat_roundingMode = rounding_mode;
@@ -297,8 +307,13 @@ VILL::vpu_return_t VARITH_FLOAT::vf_merge(uint8_t *vec_reg_mem, uint64_t emul_nu
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    if (scalar_reg_len_bytes > sew_bytes)
+    {
+        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+    }
 
     iterate_vector_merge(vs2, rhs, vd, V.get_mask_reg(), sew_bytes * 8, vec_elem_start);
 
@@ -321,8 +336,13 @@ VILL::vpu_return_t VARITH_FLOAT::vf_move(uint8_t *vec_reg_mem, uint64_t emul_num
 
     RVVector &vd = V.get_vec(dst_vec_reg);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    if (scalar_reg_len_bytes > sew_bytes)
+    {
+        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+    }
 
     iterate_vector_move(rhs, vd, sew_bytes * 8, vec_elem_start);
 
