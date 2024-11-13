@@ -859,6 +859,15 @@ VILL::vpu_return_t vf_op_vf_to_reg(uint8_t *vec_reg_mem,       //!< Vector regis
                                    FloatFunction func,      //!< Floating-point function lamb
                                    uint8_t rounding_mode    //!< Floating-point rounding mode
 );
+
+VILL::vpu_return_t vf_merge(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
+                            uint16_t vec_elem_start);
+
+VILL::vpu_return_t vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+                           uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint8_t *scalar_reg_mem,
+                           uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start);
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...
 /* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */

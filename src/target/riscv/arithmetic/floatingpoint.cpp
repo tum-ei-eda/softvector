@@ -107,16 +107,23 @@ VILL::vpu_return_t VARITH_FLOAT::vf_op_vv(uint8_t *vec_reg_mem, uint64_t emul_nu
     {
         return (VILL::VPU_RETURN::SRC1_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(src_vec_reg_lhs)) ||
+        (wide_vs2 && !V_wide.vec_reg_is_aligned(src_vec_reg_lhs)))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if ((!wide_dest && !V.vec_reg_is_aligned(dst_vec_reg)) || (wide_dest && !V_wide.vec_reg_is_aligned(dst_vec_reg)))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
+    // TODO: check wide V overlap rules
+
     V.init();
+    if (wide_dest || wide_vs2)
+    {
+        V_wide.init();
+    }
 
     RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
     RVVector &vs2 = wide_vs2 ? V_wide.get_vec(src_vec_reg_lhs) : V.get_vec(src_vec_reg_lhs);
@@ -139,16 +146,23 @@ VILL::vpu_return_t VARITH_FLOAT::vf_op_vf(uint8_t *vec_reg_mem, uint64_t emul_nu
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     RVVRegField V_wide(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(src_vec_reg_lhs)) ||
+        (wide_vs2 && !V_wide.vec_reg_is_aligned(src_vec_reg_lhs)))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if ((!wide_dest && !V.vec_reg_is_aligned(dst_vec_reg)) || (wide_dest && !V_wide.vec_reg_is_aligned(dst_vec_reg)))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
+    // TODO: check wide V overlap rules
+
     V.init();
+    if (wide_dest || wide_vs2)
+    {
+        V_wide.init();
+    }
 
     RVVector &vs2 = wide_vs2 ? V_wide.get_vec(src_vec_reg_lhs) : V.get_vec(src_vec_reg_lhs);
     RVVector &vd = wide_dest ? V_wide.get_vec(dst_vec_reg) : V.get_vec(dst_vec_reg);
@@ -258,6 +272,59 @@ VILL::vpu_return_t VARITH_FLOAT::vf_op_vf_to_reg(uint8_t *vec_reg_mem, uint64_t 
     softfloat_roundingMode = rounding_mode;
 
     iterate_vector_register(vs2, rhs, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+VILL::vpu_return_t VARITH_FLOAT::vf_merge(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
+                                          uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    iterate_vector_merge(vs2, rhs, vd, V.get_mask_reg(), sew_bytes * 8, vec_elem_start);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+VILL::vpu_return_t VARITH_FLOAT::vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                         uint16_t dst_vec_reg, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
+                                         uint16_t vec_elem_start)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    uint64_t rhs = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                               : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    iterate_vector_move(rhs, vd, sew_bytes * 8, vec_elem_start);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }

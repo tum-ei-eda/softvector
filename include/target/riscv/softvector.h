@@ -1414,242 +1414,242 @@ extern "C"
     /* 13. Vector Floating-Point Instructions */
     /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
     uint8_t vfadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfrsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.2. */
 
     /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
     uint8_t vfwadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwadd_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwadd_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.3. */
 
     /* 13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
     uint8_t vfmul_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfdiv_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfrdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.4. */
 
     /* 13.5. Vector Widening Floating-Point Multiply */
     uint8_t vfwmul_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.5. */
 
     /* 13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
     uint8_t vfmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfnmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfnmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfmadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfnmadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfnmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfmsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfnmsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfnmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.6. */
 
     /* 13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
     uint8_t vfwmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwnmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfwnmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfwnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.7. */
 
     /* 13.8. Vector Floating-Point Square-Root Instruction */
     uint8_t vfsqrt_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.8. */
 
     /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
     uint8_t vfrsqrt7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
-                       uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.9. */
 
     /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
     uint8_t vfrec7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.10.*/
 
     /* 13.11. Vector Floating-Point MIN/MAX Instructions */
     uint8_t vfmin_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmin_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfmax_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfmax_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.11.*/
 
     /* 13.12. Vector Floating-Point Sign-Injection Instructions */
     uint8_t vfsgnj_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfsgnj_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfsgnjn_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfsgnjn_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vfsgnjx_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vfsgnjx_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.12.*/
 
     /* 13.13. Vector Floating-Point Compare Instructions */
     uint8_t vmfeq_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vmfeq_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vmfne_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vmfne_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vmflt_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vmflt_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vmfle_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
     uint8_t vmfle_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vmfgt_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
     uint8_t vmfge_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.13.*/
 
     /* 13.14. Vector Floating-Point Classify Instruction */
     uint8_t vfclass_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t rounding_mode);
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.14.*/
 
     /* 13.15. Vector Floating-Point Merge Instruction */
     uint8_t vfmerge_vfm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                        uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
     /* End 13.15.*/
 
     /* 13.16. Vector Floating-Point Move Instruction */
     uint8_t vfmv_v_f(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN,
-                     uint16_t pVL, uint8_t pFLEN, uint8_t rounding_mode);
+                     uint16_t pVL, uint8_t pFLEN);
     /* End 13.16.*/
 
     /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
