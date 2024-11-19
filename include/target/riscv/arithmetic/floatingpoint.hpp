@@ -43,13 +43,6 @@ using FloatFunction = std::function<bool(uint64_t, uint64_t, SVElement &, size_t
 using FloatConversionFunction = std::function<void(uint64_t /* opL */, SVElement & /* vd */, size_t /* sew */,
                                                    bool /* signed_x */, bool /* rtz */, bool /* rod */)>;
 
-enum class CVT_DEST_WIDTH
-{
-    SAME,
-    WIDE,
-    NARROW
-};
-
 /*
 ============================================================================================================
 The following code is copied from or heavily inspired by https://github.com/ics-jku/riscv-vp-plusplus
@@ -946,7 +939,7 @@ VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint8_t scalar_reg_len_bytes,
                             uint16_t vec_elem_start, //!< Starting element [index]
                             bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
-                            FloatFunction func,      //!< Floating-point function lamb
+                            FloatFunction func,      //!< Floating-point function lambda
                             uint8_t rounding_mode,   //!< Floating-point rounding mode
                             bool wide_dest = false,  //!< Use wide destination (2*SEW)
                             bool wide_vs2 = false    //!< Use wide vs2 (2*SEW)

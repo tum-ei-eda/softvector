@@ -4680,4 +4680,253 @@ extern "C"
     /* End 13.19. */
     /* End 13. */
 
+    /* 14. Vector Reduction Operations */
+    /* 14.1. Vector Single-Width Integer Reduction Instructions */
+    uint8_t vredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredmaxu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_max, /* is_signed = */ false, /* wide_dest = */ false, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_max, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredminu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_min, /* is_signed = */ false, /* wide_dest = */ false, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_min, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredand_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_logical_and, /* is_signed = */ false, /* wide_dest = */ false,
+                       /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_logical_or, /* is_signed = */ false, /* wide_dest = */ false,
+                       /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vredxor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_logical_xor, /* is_signed = */ false, /* wide_dest = */ false,
+                       /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    /* End 14.1. */
+    /* 14.2. Vector Widening Integer Reduction Instructions */
+    uint8_t vwredsumu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ false, /* wide_dest = */ true, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+
+    uint8_t vwredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ true, /* is_float_instr = */ false,
+                       /* rounding_mode = */ 0);
+
+        return 0;
+    }
+    /* End 14.2. */
+    /* 14.3. Vector Single-Width Floating-Point Reduction Instructions */
+    uint8_t vfredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+
+    uint8_t vfredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+
+    uint8_t vfredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+
+    uint8_t vfredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ false, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+    /* End 14.3. */
+    /* 14.4. Vector Widening Floating-Point Reduction Instructions */
+    uint8_t vfwredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ true, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+
+    uint8_t vfwredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VREDUC::red_op(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2, pVSTART,
+                       pVm, red_sum, /* is_signed = */ true, /* wide_dest = */ true, /* is_float_instr = */ true,
+                       /* rounding_mode = */ pRm);
+
+        return 0;
+    }
+
 } // extern "C"

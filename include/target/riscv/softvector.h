@@ -1723,12 +1723,57 @@ extern "C"
 
     /* 14. Vector Reduction Operations */
     /* 14.1. Vector Single-Width Integer Reduction Instructions */
+    uint8_t vredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmaxu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredminu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredand_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredxor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
     /* End 14.1. */
     /* 14.2. Vector Widening Integer Reduction Instructions */
+    uint8_t vwredsumu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vwredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
     /* End 14.2. */
     /* 14.3. Vector Single-Width Floating-Point Reduction Instructions */
+    uint8_t vfredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 14.3. */
     /* 14.4. Vector Widening Floating-Point Reduction Instructions */
+    uint8_t vfwredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 14.4. */
     /* End 14. */
     /* 15. Vector Mask Instructions */

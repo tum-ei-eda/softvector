@@ -30,7 +30,7 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 	src/target/${TARGET_PLATFORM_NAME}/arithmetic/softfloat-extension.cpp
 	#src/target/${TARGET_PLATFORM_NAME}/misc/mask.cpp
 	src/target/${TARGET_PLATFORM_NAME}/misc/permutation.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
+	src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
 	${TARGET_SRCS}
 )
 

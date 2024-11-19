@@ -484,8 +484,8 @@ VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, uint64_
     softfloat_exceptionFlags = 0;
     softfloat_roundingMode = rounding_mode;
 
-    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, rod,
-                           vs2_is_int, vec_elem_start);
+    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, rod, vs2_is_int,
+                           vec_elem_start);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
