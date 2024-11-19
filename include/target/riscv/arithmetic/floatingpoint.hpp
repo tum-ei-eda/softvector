@@ -858,12 +858,9 @@ inline FloatConversionFunction convert_narrowing_x_f = [](uint64_t opL, SVElemen
     switch (sew)
     {
     case 16:
-        vd = signed_x ? f16_to_i8(f16(opL), rounding_mode, true) : f16_to_ui8(f16(opL), rounding_mode, true);
-        return;
-    case 32:
         vd = signed_x ? f32_to_i16(f32(opL), rounding_mode, true) : f32_to_ui16(f32(opL), rounding_mode, true);
         return;
-    case 64:
+    case 32:
         vd = signed_x ? f64_to_i32(f64(opL), rounding_mode, true) : f64_to_ui32(f64(opL), rounding_mode, true);
         return;
     default:
@@ -880,10 +877,7 @@ inline FloatConversionFunction convert_narrowing_f_x = [](uint64_t opL, SVElemen
         vd = signed_x ? i32_to_f16(opL).v : ui32_to_f16(opL).v;
         return;
     case 32:
-        vd = signed_x ? i32_to_f32(opL).v : ui32_to_f32(opL).v;
-        return;
-    case 64:
-        vd = signed_x ? i64_to_f64(opL).v : ui64_to_f64(opL).v;
+        vd = signed_x ? i64_to_f32(opL).v : ui64_to_f32(opL).v;
         return;
     default:
         break;
@@ -899,10 +893,10 @@ inline FloatConversionFunction convert_narrowing_f_f = [](uint64_t opL, SVElemen
     }
     switch (sew)
     {
-    case 32:
+    case 16:
         vd = f32_to_f16(f32(opL)).v;
         return;
-    case 64:
+    case 32:
         vd = f64_to_f32(f64(opL)).v;
         return;
     default:

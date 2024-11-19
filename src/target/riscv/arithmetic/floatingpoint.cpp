@@ -124,6 +124,7 @@ void iterate_vector_convert(const SVector &opL, SVector &vd, const SVRegister &v
                             FloatConversionFunction func, size_t sew, bool signed_x, bool rtz, bool rod,
                             bool vs2_is_int, size_t start_index)
 {
+
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
@@ -462,8 +463,8 @@ VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, uint64_
                                                    bool rod)
 {
     // TODO: check
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
     RVVRegField V_narrow(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
 
     if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
     {
@@ -483,8 +484,8 @@ VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, uint64_
     softfloat_exceptionFlags = 0;
     softfloat_roundingMode = rounding_mode;
 
-    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, rod, vs2_is_int,
-                           vec_elem_start);
+    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, rod,
+                           vs2_is_int, vec_elem_start);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
