@@ -1653,12 +1653,72 @@ extern "C"
     /* End 13.16.*/
 
     /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.17.*/
 
     /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfwcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.18.*/
 
     /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfncvt_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rtz_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rtz_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_xu_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_x_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rod_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 13.19.*/
 
     /* 14. Vector Reduction Operations */

@@ -4359,12 +4359,324 @@ extern "C"
     /* End 13.16. */
 
     /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_x_f, pRm, /* signed_x = */ false,
+                                 /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_x_f, pRm, /* signed_x = */ true,
+                                 /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_x_f, pRm, /* signed_x = */ false,
+                                 /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_x_f, pRm, /* signed_x = */ true,
+                                 /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_f_x, pRm, /* signed_x = */ false,
+                                 /* vs2_is_int = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                 pVSTART, pVm, convert_f_x, pRm, /* signed_x = */ true,
+                                 /* vs2_is_int = */ true);
+
+        return 0;
+    }
     /* End 13.17. */
 
     /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfwcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_x_f, pRm, /* signed_x = */ false,
+                                      /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_x_f, pRm, /* signed_x = */ true,
+                                      /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_x_f, pRm, /* signed_x = */ false,
+                                      /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_x_f, pRm, /* signed_x = */ true,
+                                      /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_f_x, pRm, /* signed_x = */ false,
+                                      /* vs2_is_int = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_f_x, pRm, /* signed_x = */ true,
+                                      /* vs2_is_int = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfwcvt_f_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_wide(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVSTART, pVm, convert_widening_f_f, pRm, /* signed_x = */ false,
+                                      /* vs2_is_int = */ false);
+
+        return 0;
+    }
     /* End 13.18. */
 
     /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfncvt_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_x_f, pRm, /* signed_x = */ false,
+                                        /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_x_f, pRm, /* signed_x = */ true,
+                                        /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_rtz_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_x_f, pRm, /* signed_x = */ false,
+                                        /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_rtz_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_x_f, pRm, /* signed_x = */ true,
+                                        /* vs2_is_int = */ false, /* rtz = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_f_xu_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_f_x, pRm, /* signed_x = */ false,
+                                        /* vs2_is_int = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_f_x_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_f_x, pRm, /* signed_x = */ true,
+                                        /* vs2_is_int = */ true);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_f_f, pRm, /* signed_x = */ false,
+                                        /* vs2_is_int = */ false);
+
+        return 0;
+    }
+
+    uint8_t vfncvt_rod_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VARITH_FLOAT::vf_convert_narrow(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+                                        pVs2, pVSTART, pVm, convert_narrowing_f_f, pRm, /* signed_x = */ false,
+                                        /* vs2_is_int = */ false, /* rtz = */ false, /* rod = */ false);
+
+        return 0;
+    }
     /* End 13.19. */
     /* End 13. */
 

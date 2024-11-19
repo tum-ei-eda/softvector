@@ -10,8 +10,6 @@ Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University
 #include <assert.h>
 
 #include "arithmetic/softfloat-extension.hpp"
-#include "internals.h"
-#include "specialize.h"
 
 #ifdef ETISS_SOFTFLOAT
 extern "C"
@@ -21,6 +19,12 @@ extern "C"
 #else
 #include "softfloat.hpp"
 #endif
+
+extern "C"
+{
+#include "internals.h"
+#include "specialize.h"
+}
 
 float16_t f16(uint64_t value)
 {
@@ -591,4 +595,203 @@ float64_t f64_recip7(float64_t in)
     }
 
     return uA.f;
+}
+
+int_fast8_t f16_to_i8(float16_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    int_fast32_t sig32 = f16_to_i32(a, roundingMode, exact);
+
+    if (sig32 > INT8_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i8_fromPosOverflow;
+    }
+    else if (sig32 < INT8_MIN)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i8_fromNegOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
+}
+
+int_fast16_t f32_to_i16(float32_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    int_fast32_t sig32 = f32_to_i32(a, roundingMode, exact);
+
+    if (sig32 > INT16_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i16_fromPosOverflow;
+    }
+    else if (sig32 < INT16_MIN)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i16_fromNegOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
+}
+
+int_fast32_t f64_to_i32(float64_t a, uint_fast8_t roundingMode, bool exact)
+{
+    union ui64_f64 uA;
+    uint_fast64_t uiA;
+    bool sign;
+    int_fast16_t exp;
+    uint_fast64_t sig;
+    int_fast16_t shiftDist;
+
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+    uA.f = a;
+    uiA = uA.ui;
+    sign = signF64UI(uiA);
+    exp = expF64UI(uiA);
+    sig = fracF64UI(uiA);
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+#if (i32_fromNaN != i32_fromPosOverflow) || (i32_fromNaN != i32_fromNegOverflow)
+    if ((exp == 0x7FF) && sig)
+    {
+#if (i32_fromNaN == i32_fromPosOverflow)
+        sign = 0;
+#elif (i32_fromNaN == i32_fromNegOverflow)
+        sign = 1;
+#else
+        softfloat_raiseFlags(softfloat_flag_invalid);
+        return i32_fromNaN;
+#endif
+    }
+#endif
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+    if (exp)
+        sig |= UINT64_C(0x0010000000000000);
+    shiftDist = 0x427 - exp;
+    if (0 < shiftDist)
+        sig = softfloat_shiftRightJam64(sig, shiftDist);
+    return softfloat_roundToI32(sign, sig, roundingMode, exact);
+}
+
+uint_fast8_t f16_to_ui8(float16_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    uint_fast32_t sig32 = f16_to_ui32(a, roundingMode, exact);
+
+    if (sig32 > UINT8_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return ui8_fromPosOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
+}
+
+uint_fast16_t f32_to_ui16(float32_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    uint_fast32_t sig32 = f32_to_ui32(a, roundingMode, exact);
+
+    if (sig32 > UINT16_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return ui16_fromPosOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
+}
+
+uint_fast32_t f64_to_ui32(float64_t a, uint_fast8_t roundingMode, bool exact)
+{
+    union ui64_f64 uA;
+    uint_fast64_t uiA;
+    bool sign;
+    int_fast16_t exp;
+    uint_fast64_t sig;
+    int_fast16_t shiftDist;
+
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+    uA.f = a;
+    uiA = uA.ui;
+    sign = signF64UI(uiA);
+    exp = expF64UI(uiA);
+    sig = fracF64UI(uiA);
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+#if (ui32_fromNaN != ui32_fromPosOverflow) || (ui32_fromNaN != ui32_fromNegOverflow)
+    if ((exp == 0x7FF) && sig)
+    {
+#if (ui32_fromNaN == ui32_fromPosOverflow)
+        sign = 0;
+#elif (ui32_fromNaN == ui32_fromNegOverflow)
+        sign = 1;
+#else
+        softfloat_raiseFlags(softfloat_flag_invalid);
+        return ui32_fromNaN;
+#endif
+    }
+#endif
+    /*------------------------------------------------------------------------
+     *------------------------------------------------------------------------*/
+    if (exp)
+        sig |= UINT64_C(0x0010000000000000);
+    shiftDist = 0x427 - exp;
+    if (0 < shiftDist)
+        sig = softfloat_shiftRightJam64(sig, shiftDist);
+    return softfloat_roundToUI32(sign, sig, roundingMode, exact);
+}
+
+int_fast16_t f16_to_i16(float16_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    int_fast32_t sig32 = f16_to_i32(a, roundingMode, exact);
+
+    if (sig32 > INT16_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i16_fromPosOverflow;
+    }
+    else if (sig32 < INT16_MIN)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return i16_fromNegOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
+}
+
+uint_fast16_t f16_to_ui16(float16_t a, uint_fast8_t roundingMode, bool exact)
+{
+    uint_fast8_t old_flags = softfloat_exceptionFlags;
+
+    uint_fast32_t sig32 = f16_to_ui32(a, roundingMode, exact);
+
+    if (sig32 > UINT16_MAX)
+    {
+        softfloat_exceptionFlags = old_flags | softfloat_flag_invalid;
+        return ui16_fromPosOverflow;
+    }
+    else
+    {
+        return sig32;
+    }
 }

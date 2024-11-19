@@ -30,6 +30,20 @@ constexpr float16_t f16_defaultNaN = { defaultNaNF16UI };
 constexpr float32_t f32_defaultNaN = { defaultNaNF32UI };
 constexpr float64_t f64_defaultNaN = { defaultNaNF64UI };
 
+constexpr auto ui8_fromPosOverflow = 0xFF;
+constexpr auto ui8_fromNegOverflow = 0;
+constexpr auto ui8_fromNaN = 0xFF;
+constexpr auto i8_fromPosOverflow = 0x7F;
+constexpr auto i8_fromNegOverflow = (-0x7F - 1);
+constexpr auto i8_fromNaN = 0x7F;
+
+constexpr auto ui16_fromPosOverflow = 0xFFFF;
+constexpr auto ui16_fromNegOverflow = 0;
+constexpr auto ui16_fromNaN = 0xFFFF;
+constexpr auto i16_fromPosOverflow = 0x7FFF;
+constexpr auto i16_fromNegOverflow = (-0x7FFF - 1);
+constexpr auto i16_fromNaN = 0x7FFF;
+
 float16_t f16(uint64_t value);
 
 float32_t f32(uint64_t value);
@@ -105,3 +119,19 @@ float32_t f32_recip7(float32_t in);
 float64_t f64_rsqrte7(float64_t in);
 
 float64_t f64_recip7(float64_t in);
+
+int_fast8_t f16_to_i8(float16_t a, uint_fast8_t roundingMode, bool exact);
+
+int_fast16_t f32_to_i16(float32_t a, uint_fast8_t roundingMode, bool exact);
+
+int_fast32_t f64_to_i32(float64_t a, uint_fast8_t roundingMode, bool exact);
+
+uint_fast8_t f16_to_ui8(float16_t a, uint_fast8_t roundingMode, bool exact);
+
+uint_fast16_t f32_to_ui16(float32_t a, uint_fast8_t roundingMode, bool exact);
+
+uint_fast32_t f64_to_ui32(float64_t a, uint_fast8_t roundingMode, bool exact);
+
+int_fast16_t f16_to_i16(float16_t a, uint_fast8_t roundingMode, bool exact);
+
+uint_fast16_t f16_to_ui16(float16_t a, uint_fast8_t roundingMode, bool exact);

@@ -40,6 +40,15 @@ extern "C"
 #endif
 
 using FloatFunction = std::function<bool(uint64_t, uint64_t, SVElement &, size_t)>;
+using FloatConversionFunction = std::function<void(uint64_t /* opL */, SVElement & /* vd */, size_t /* sew */,
+                                                   bool /* signed_x */, bool /* rtz */, bool /* rod */)>;
+
+enum class CVT_DEST_WIDTH
+{
+    SAME,
+    WIDE,
+    NARROW
+};
 
 /*
 ============================================================================================================
@@ -749,21 +758,157 @@ inline FloatFunction vfclass = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
 };
 /* End 13.14. */
 
-/* 13.15. Vector Floating-Point Merge Instruction */
-
-/* End 13.15. */
-
-/* 13.16. Vector Floating-Point Move Instruction */
-
-/* End 13.16. */
-
 /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
+// Float to (un)signed int, same width
+inline FloatConversionFunction convert_x_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x, bool rtz,
+                                                bool rod = false) -> void {
+    auto rounding_mode = rtz ? softfloat_round_minMag : softfloat_roundingMode;
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? f16_to_i16(f16(opL), rounding_mode, true) : f16_to_ui16(f16(opL), rounding_mode, true);
+        return;
+    case 32:
+        vd = signed_x ? f32_to_i32(f32(opL), rounding_mode, true) : f32_to_ui32(f32(opL), rounding_mode, true);
+        return;
+    case 64:
+        vd = signed_x ? f64_to_i64(f64(opL), rounding_mode, true) : f64_to_ui64(f64(opL), rounding_mode, true);
+        return;
+    default:
+        break;
+    }
+};
+
+// (Un)signed int to float, same width
+inline FloatConversionFunction convert_f_x = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                bool rtz = false, bool rod = false) -> void {
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? i32_to_f16(opL).v : ui32_to_f16(opL).v;
+        return;
+    case 32:
+        vd = signed_x ? i32_to_f32(opL).v : ui32_to_f32(opL).v;
+        return;
+    case 64:
+        vd = signed_x ? i64_to_f64(opL).v : ui64_to_f64(opL).v;
+        return;
+    default:
+        break;
+    }
+};
 /* End 13.17. */
 
 /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
+// Float to (un)signed int, widening
+inline FloatConversionFunction convert_widening_x_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                         bool rtz, bool rod = false) -> void {
+    auto rounding_mode = rtz ? softfloat_round_minMag : softfloat_roundingMode;
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? f16_to_i32(f16(opL), rounding_mode, true) : f16_to_ui32(f16(opL), rounding_mode, true);
+        return;
+    case 32:
+        vd = signed_x ? f32_to_i64(f32(opL), rounding_mode, true) : f32_to_ui64(f32(opL), rounding_mode, true);
+        return;
+    default:
+        break;
+    }
+};
+
+// (Un)signed int to float, widening
+inline FloatConversionFunction convert_widening_f_x = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                         bool rtz = false, bool rod = false) -> void {
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? i32_to_f32(opL).v : ui32_to_f32(opL).v;
+        return;
+    case 32:
+        vd = signed_x ? i32_to_f64(opL).v : ui32_to_f64(opL).v;
+        return;
+    default:
+        break;
+    }
+};
+
+// Float to float, widening
+inline FloatConversionFunction convert_widening_f_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                         bool rtz = false, bool rod = false) -> void {
+    switch (sew)
+    {
+    case 16:
+        vd = f16_to_f32(f16(opL)).v;
+        return;
+    case 32:
+        vd = f32_to_f64(f32(opL)).v;
+        return;
+    default:
+        break;
+    }
+};
 /* End 13.18. */
 
 /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
+// Float to (un)signed int, narrowing
+inline FloatConversionFunction convert_narrowing_x_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                          bool rtz, bool rod = false) -> void {
+    auto rounding_mode = rtz ? softfloat_round_minMag : softfloat_roundingMode;
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? f16_to_i8(f16(opL), rounding_mode, true) : f16_to_ui8(f16(opL), rounding_mode, true);
+        return;
+    case 32:
+        vd = signed_x ? f32_to_i16(f32(opL), rounding_mode, true) : f32_to_ui16(f32(opL), rounding_mode, true);
+        return;
+    case 64:
+        vd = signed_x ? f64_to_i32(f64(opL), rounding_mode, true) : f64_to_ui32(f64(opL), rounding_mode, true);
+        return;
+    default:
+        break;
+    }
+};
+
+// (Un)signed int to float, narrowing
+inline FloatConversionFunction convert_narrowing_f_x = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                          bool rtz = false, bool rod = false) -> void {
+    switch (sew)
+    {
+    case 16:
+        vd = signed_x ? i32_to_f16(opL).v : ui32_to_f16(opL).v;
+        return;
+    case 32:
+        vd = signed_x ? i32_to_f32(opL).v : ui32_to_f32(opL).v;
+        return;
+    case 64:
+        vd = signed_x ? i64_to_f64(opL).v : ui64_to_f64(opL).v;
+        return;
+    default:
+        break;
+    }
+};
+
+// Float to float, narrowing
+inline FloatConversionFunction convert_narrowing_f_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
+                                                          bool rtz, bool rod) -> void {
+    if (rod)
+    {
+        softfloat_roundingMode = softfloat_round_odd;
+    }
+    switch (sew)
+    {
+    case 32:
+        vd = f32_to_f16(f32(opL)).v;
+        return;
+    case 64:
+        vd = f64_to_f32(f64(opL)).v;
+        return;
+    default:
+        break;
+    }
+};
 /* End 13.19. */
 
 /*
@@ -868,6 +1013,58 @@ VILL::vpu_return_t vf_merge(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t em
 VILL::vpu_return_t vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint8_t *scalar_reg_mem,
                            uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start);
+
+VILL::vpu_return_t vf_convert(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
+                              uint64_t emul_num,            //!< Register multiplicity numerator
+                              uint64_t emul_denom,          //!< Register multiplicity denominator
+                              uint16_t sew_bytes,           //!< Element width [bytes]
+                              uint16_t vec_len,             //!< Vector length [elements]
+                              uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
+                              uint16_t dst_vec_reg,         //!< Destination vector D [index]
+                              uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                              uint16_t vec_elem_start,      //!< Starting element [index]
+                              bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
+                              FloatConversionFunction func, //!< Conversion function
+                              uint8_t rounding_mode,        //!< Floating-point rounding mode
+                              bool signed_x,                //!< Whether any used integer is signed
+                              bool vs2_is_int,              //!< Whether vs2 is converted from int to float
+                              bool rtz = false              //!< Use rtz rounding (XF)
+);
+
+VILL::vpu_return_t vf_convert_wide(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
+                                   uint64_t emul_num,            //!< Register multiplicity numerator
+                                   uint64_t emul_denom,          //!< Register multiplicity denominator
+                                   uint16_t sew_bytes,           //!< Element width [bytes]
+                                   uint16_t vec_len,             //!< Vector length [elements]
+                                   uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
+                                   uint16_t dst_vec_reg,         //!< Destination vector D [index]
+                                   uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                                   uint16_t vec_elem_start,      //!< Starting element [index]
+                                   bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
+                                   FloatConversionFunction func, //!< Conversion function
+                                   uint8_t rounding_mode,        //!< Floating-point rounding mode
+                                   bool signed_x,                //!< Whether any used integer is signed
+                                   bool vs2_is_int,              //!< Whether vs2 is converted from int to float
+                                   bool rtz = false              //!< Use rtz rounding (XF)
+);
+
+VILL::vpu_return_t vf_convert_narrow(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                     uint64_t emul_num,          //!< Register multiplicity numerator
+                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     uint16_t sew_bytes,         //!< Element width [bytes]
+                                     uint16_t vec_len,           //!< Vector length [elements]
+                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                     uint16_t vec_elem_start,    //!< Starting element [index]
+                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                                     FloatConversionFunction func, //!< Conversion function
+                                     uint8_t rounding_mode,        //!< Floating-point rounding mode
+                                     bool signed_x,                //!< Whether any used integer is signed
+                                     bool vs2_is_int,              //!< Whether vs2 is converted from int to float
+                                     bool rtz = false,             //!< Use rtz rounding (XF)
+                                     bool rod = false              //!< Use rod rounding (narrowing FF)
+);
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...
 /* rvv spec. 14.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
@@ -903,5 +1100,5 @@ VILL::vpu_return_t vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emu
 /* rvv spec. 14.17. Narrowing Floating-Point/Integer Type-Convert Instructions */
 // TODO: ...
 
-} // namespace VARITH_FLOAT
+};     // namespace VARITH_FLOAT
 #endif /* __RVVHL_ARITH_FLOATINGPOINT_H__ */
