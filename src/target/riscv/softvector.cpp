@@ -4929,4 +4929,233 @@ extern "C"
         return 0;
     }
 
+    /* 15. Vector Mask Instructions */
+    /* 15.1. Vector Mask-Register Logical Instructions */
+    uint8_t vmand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_and);
+
+        return 0;
+    }
+
+    uint8_t vmnand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_nand);
+
+        return 0;
+    }
+
+    uint8_t vmandn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_andn);
+
+        return 0;
+    }
+
+    uint8_t vmxor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_xor);
+
+        return 0;
+    }
+
+    uint8_t vmor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_or);
+
+        return 0;
+    }
+
+    uint8_t vmnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_nor);
+
+        return 0;
+    }
+
+    uint8_t vmorn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_orn);
+
+        return 0;
+    }
+
+    uint8_t vmxnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_logical(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                               pVSTART, pVm, VMASK::logical_xnor);
+
+        return 0;
+    }
+    /* End 15.1. */
+    /* 15.2. Vector count population in mask vcpop.m */
+    uint8_t vcpop_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *ScalarReg;
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<uint8_t *>(pR))[pRd * 4]);
+        else
+            ScalarReg = &(static_cast<uint8_t *>(pR)[pRd * 8]);
+
+        VMASK::mask_op_to_scalar(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVs2,
+                                 ScalarReg, pVSTART, pVm, pXLEN / 8, /* is_vcpop = */ true);
+
+        return (0);
+    }
+    /* End 15.2. */
+    /* 15.3. vfirst find-first-set mask bit */
+    uint8_t vfirst_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *ScalarReg;
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<uint8_t *>(pR))[pRd * 4]);
+        else
+            ScalarReg = &(static_cast<uint8_t *>(pR)[pRd * 8]);
+
+        VMASK::mask_op_to_scalar(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVs2,
+                                 ScalarReg, pVSTART, pVm, pXLEN / 8, /* is_vcpop = */ false);
+
+        return (0);
+    }
+    /* End 15.3. */
+    /* 15.4. vmsbf.m set-before-first mask bit */
+    uint8_t vmsbf_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_sxf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVSTART,
+                           pVm, /* including_first = */ false, /* only_first = */ false);
+
+        return 0;
+    }
+    /* End 15.4. */
+    /* 15.5. vmsif.m set-including-first mask bit */
+    uint8_t vmsif_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_sxf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVSTART,
+                           pVm, /* including_first = */ true, /* only_first = */ false);
+
+        return 0;
+    }
+    /* End 15.5. */
+    /* 15.6. vmsof.m set-only-first mask bit */
+    uint8_t vmsof_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_op_sxf(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVSTART,
+                           pVm, /* including_first = */ false, /* only_first = */ true);
+
+        return 0;
+    }
+    /* End 15.6. */
+    /* 15.8. Vector Iota Instruction */
+    uint8_t viota_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_viota(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVSTART,
+                          pVm);
+
+        return 0;
+    }
+    /* End 15.8. */
+    /* 15.9. Vector Element Index Instruction */
+    uint8_t vid_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<uint8_t *>(pV);
+
+        VMASK::mask_vid(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVSTART, pVm);
+
+        return 0;
+    }
+    /* End 15.9. */
+    /* End 15. */
+
 } // extern "C"

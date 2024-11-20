@@ -1776,24 +1776,59 @@ extern "C"
                           uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
     /* End 14.4. */
     /* End 14. */
+
     /* 15. Vector Mask Instructions */
     /* 15.1. Vector Mask-Register Logical Instructions */
+    uint8_t vmand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmnand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmandn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmxor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmorn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmxnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
     /* End 15.1. */
     /* 15.2. Vector count population in mask vcpop.m */
+    uint8_t vcpop_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
     /* End 15.2. */
     /* 15.3. vfirst find-first-set mask bit */
+    uint8_t vfirst_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
     /* End 15.3. */
     /* 15.4. vmsbf.m set-before-first mask bit */
+    uint8_t vmsbf_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL);
     /* End 15.4. */
     /* 15.5. vmsif.m set-including-first mask bit */
+    uint8_t vmsif_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL);
     /* End 15.5. */
     /* 15.6. vmsof.m set-only-first mask bit */
+    uint8_t vmsof_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL);
     /* End 15.6. */
-    /* 15.7. Example using vector mask instructions */
-    /* End 15.7. */
     /* 15.8. Vector Iota Instruction */
+    uint8_t viota_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL);
     /* End 15.8. */
     /* 15.9. Vector Element Index Instruction */
+    uint8_t vid_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
     /* End 15.9. */
     /* End 15. */
     /* 16. Vector Permutation Instructions */
