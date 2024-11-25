@@ -1210,10 +1210,22 @@ class SVector
 
     /* End 12. */
 
-    /* Floating point */
-    SVector &m_iterate_vector(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
-                              size_t start_index = 0);
-    /* End floating point */
+    /* 16.4. Vector Register Gather Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked VRGATHER(EI16) for right-hand-side SVector.
+    SVector &m_vrgather(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask, size_t vlmax,
+                        size_t start_index = 0);
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Masked VRGATHER for right-hand-side 64 bit value.
+    SVector &m_vrgather(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask, size_t vlmax,
+                        size_t start_index = 0);
+    /* End 16.4 */
+
+    /* 16.5. Vector Compress Instruction */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VCOMPRESS for right-hand-side SVector.
+    SVector &m_vcompress(const SVector &opL, const SVRegister &vm, size_t start_index = 0);
+    /* End 16.5. Vector Compress Instruction */
 
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief Constructor for referenced elements, i.e. externally allocated elements

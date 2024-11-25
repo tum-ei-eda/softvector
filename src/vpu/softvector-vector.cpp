@@ -1223,8 +1223,9 @@ SVector &SVector::m_slideup(const SVector &opL, const uint64_t rhs, const SVRegi
     size_t max = rhs > start_index ? rhs : start_index;
     for (size_t i_element = max; i_element < length_; ++i_element)
     {
+        // i_element >= max -> i_element - max >= 0
         if (!mask || vm.get_bit(i_element))
-            (*this)[i_element] = opL[i_element];
+            (*this)[i_element] = opL[i_element - max];
     }
     return (*this);
 }
@@ -1256,6 +1257,46 @@ SVector &SVector::m_slidedown(const SVector &opL, const uint64_t rhs, const SVRe
         }
     }
     return (*this);
+}
+
+SVector &SVector::m_vrgather(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask, size_t vlmax,
+                             size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // Risky?
+            auto i_rhs = rhs[i_element].to_u64();
+            (*this)[i_element] = i_rhs >= vlmax ? 0 : opL[i_rhs].to_i64();
+        }
+    }
+}
+
+SVector &SVector::m_vrgather(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask, size_t vlmax,
+                             size_t start_index)
+{
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            // Risky?
+            (*this)[i_element] = rhs >= vlmax ? 0 : opL[rhs].to_i64();
+        }
+    }
+}
+
+SVector &SVector::m_vcompress(const SVector &opL, const SVRegister &vm, size_t start_index)
+{
+    size_t i_dest = 0;
+    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    {
+        if (vm.get_bit(i_element))
+        {
+            (*this)[i_dest] = opL[i_element];
+            i_dest++;
+        }
+    }
 }
 
 // 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
@@ -2040,7 +2081,7 @@ SVector &SVector::m_narrowing_clipu(const SVector &opL, const uint64_t rhs, cons
 }
 
 SVector &SVector::m_narrowing_clip(const SVector &opL, const SVector &rhs, const SVRegister &vm, bool mask,
-                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+                                   uint8_t rounding_mode, bool *sat, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {
@@ -2061,7 +2102,7 @@ SVector &SVector::m_narrowing_clip(const SVector &opL, const SVector &rhs, const
 }
 
 SVector &SVector::m_narrowing_clip(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask,
-                                    uint8_t rounding_mode, bool *sat, size_t start_index)
+                                   uint8_t rounding_mode, bool *sat, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {

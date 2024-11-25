@@ -1813,15 +1813,15 @@ extern "C"
     /* End 15.3. */
     /* 15.4. vmsbf.m set-before-first mask bit */
     uint8_t vmsbf_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
-                   uint16_t pVL);
+                    uint16_t pVL);
     /* End 15.4. */
     /* 15.5. vmsif.m set-including-first mask bit */
     uint8_t vmsif_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
-                   uint16_t pVL);
+                    uint16_t pVL);
     /* End 15.5. */
     /* 15.6. vmsof.m set-only-first mask bit */
     uint8_t vmsof_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
-                   uint16_t pVL);
+                    uint16_t pVL);
     /* End 15.6. */
     /* 15.8. Vector Iota Instruction */
     uint8_t viota_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
@@ -1839,10 +1839,49 @@ extern "C"
     /* 16.3. Vector Slide Instructions */
     /* End 16.3. */
     /* 16.4. Vector Register Gather Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vv(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHEREI16 vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgatherei16_vv(void *pV, //!<[inout] Vector register field as local memory
+                            uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vi(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vx(void *pV, //!<[inout] Vector register field as local memory
+                        void *pR, //!<[in] Integer/General Purpose register field
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
     /* End 16.4. */
+
     /* 16.5. Vector Compress Instruction */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VCOMPRESS vector - mask register
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vm(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                        uint16_t pVL);
     /* End 16.5. */
+
     /* 16.6. Whole Vector Register Move */
+    uint8_t vmvr_v(void *pV, //!<[inout] Vector register field as local memory
+                   uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t simm5, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL);
     /* End 16.6. */
     /* End 16. */
 

@@ -19,6 +19,8 @@
 /// \date 09/10/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include <cstring>
+
 #include "misc/permutation.hpp"
 #include "base/base.hpp"
 #include "vpu/softvector-types.hpp"
@@ -248,7 +250,7 @@ VILL::vpu_return_t VPERM::slide1up(uint8_t *vec_reg_mem, uint64_t emul_num, uint
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
-        if (V.get_mask_reg().get_bit(vec_elem_start))
+        if (V.get_mask_reg().get_bit(vec_elem_start) || mask_f)
         {
             V.get_mask_reg().reset_bit(vec_elem_start);
             vd.m_slideup(vs2, 1, V.get_mask_reg(), !mask_f, vec_elem_start);
@@ -302,7 +304,10 @@ VILL::vpu_return_t VPERM::slide1down(uint8_t *vec_reg_mem, uint64_t emul_num, ui
         RVVector &vd = V.get_vec(dst_vec_reg);
 
         vd.m_slidedown(vs2, 1, V.get_mask_reg(), !mask_f, vec_elem_start);
-        vd[vd.length_ - 1] = imm;
+        if (V.get_mask_reg().get_bit(vd.length_ - 1) || mask_f)
+        {
+            vd[vd.length_ - 1] = imm;
+        }
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
@@ -314,4 +319,163 @@ VILL::vpu_return_t VPERM::fslide1down(uint8_t *vec_reg_mem, uint64_t emul_num, u
 {
     // TODO: not implemented, yet.
     return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VPERM::vrgather_vv(uint8_t *vec_reg_mem, uint64_t lmul_num, uint64_t lmul_denom, uint16_t sew_bytes,
+                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
+                                      bool mask_f, bool ei16)
+{
+    static constexpr auto eew_ei16 = 16;
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(lmul_num, lmul_denom), vec_reg_mem);
+    RVVRegField V_ei16(vec_reg_len_bytes * 8, vec_len, eew_ei16, SVMul(16 * lmul_num, sew_bytes * 8 * lmul_denom),
+                       vec_reg_mem);
+
+    if ((!ei16 && !V.vec_reg_is_aligned(src_vec_reg_rhs)) || (ei16 && !V_ei16.vec_reg_is_aligned(src_vec_reg_rhs)))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+    if (ei16)
+    {
+        V_ei16.init();
+    }
+
+    RVVector &vs1 = ei16 ? V_ei16.get_vec(src_vec_reg_rhs) : V.get_vec(src_vec_reg_rhs);
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
+    vd.m_vrgather(vs2, vs1, V.get_mask_reg(), !mask_f, vlmax, vec_elem_start);
+
+    return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VPERM::vrgather_vi(uint8_t *vec_reg_mem, uint64_t lmul_num, uint64_t lmul_denom, uint16_t sew_bytes,
+                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                                      uint16_t src_vec_reg_lhs, uint8_t imm, uint16_t vec_elem_start, bool mask_f)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(lmul_num, lmul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    uint64_t rhs = imm & 0x1F;
+    size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
+    vd.m_vrgather(vs2, rhs, V.get_mask_reg(), !mask_f, vlmax, vec_elem_start);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+VILL::vpu_return_t VPERM::vrgather_vx(uint8_t *vec_reg_mem, uint64_t lmul_num, uint64_t lmul_denom, uint16_t sew_bytes,
+                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
+                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(lmul_num, lmul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
+    vd.m_vrgather(vs2, imm, V.get_mask_reg(), !mask_f, vlmax, vec_elem_start);
+
+    return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VPERM::vcompress_vm(uint8_t *vec_reg_mem, uint64_t lmul_num, uint64_t lmul_denom, uint16_t sew_bytes,
+                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(lmul_num, lmul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    SVRegister &vs1 = V.get_vecreg(src_vec_reg_rhs);
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
+    vd.m_vcompress(vs2, vs1, vec_elem_start);
+
+    return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+VILL::vpu_return_t VPERM::vmvr_v(uint8_t *vec_reg_mem, uint64_t lmul_num, uint64_t lmul_denom, uint16_t sew_bytes,
+                                 uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
+                                 uint16_t src_vec_reg_lhs, uint8_t simm, uint16_t vec_elem_start)
+{
+    auto n_registers = simm + 1;
+    if (!(n_registers == 1 || n_registers == 2 || n_registers == 4 || n_registers == 8))
+    {
+        return VILL::VPU_RETURN::VMVR_SIMM_ILL;
+    }
+
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(n_registers, 1), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    SVRegister &vs2 = V.get_vecreg(src_vec_reg_lhs);
+    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+
+    // TODO: check overrun!
+    std::memcpy(vd.mem_, vs2.mem_, vec_reg_len_bytes * n_registers);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
 }
