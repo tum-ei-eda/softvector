@@ -1479,10 +1479,10 @@ extern "C"
     uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
 
-    uint8_t vfwadd_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+    uint8_t vfwsub_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
                       uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
 
-    uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+    uint8_t vfwsub_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
     /* End 13.3. */
 
