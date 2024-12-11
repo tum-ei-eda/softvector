@@ -880,7 +880,19 @@ SVector &SVector::m_ssrem(const SVector &opL, const SVector &rhs, const SVRegist
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
-            (*this)[i_element].s_ssrem(opL[i_element], rhs[i_element]);
+        {
+            if (rhs[i_element] == 0)
+            {
+                (*this)[i_element] = opL[i_element];
+                continue;
+            }
+            if (opL[i_element] == ~(opL[i_element].get_max_signed()) && rhs[i_element] == -1)
+            {
+                (*this)[i_element] = 0;
+                continue;
+            }
+            (*this)[i_element] = opL[i_element].to_i64() % rhs[i_element].to_i64();
+        }
     }
     return (*this);
 }
@@ -890,7 +902,19 @@ SVector &SVector::m_ssrem(const SVector &opL, const int64_t rhs, const SVRegiste
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
-            (*this)[i_element].s_ssrem(opL[i_element], rhs);
+        {
+            if (rhs == 0)
+            {
+                (*this)[i_element] = opL[i_element];
+                continue;
+            }
+            if (opL[i_element] == ~(opL[i_element].get_max_signed()) && rhs == -1)
+            {
+                (*this)[i_element] = 0;
+                continue;
+            }
+            (*this)[i_element] = opL[i_element].to_i64() % rhs;
+        }
     }
     return (*this);
 }
@@ -900,7 +924,14 @@ SVector &SVector::m_uurem(const SVector &opL, const SVector &rhs, const SVRegist
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
-            (*this)[i_element].s_uurem(opL[i_element], rhs[i_element]);
+        {
+            if (rhs[i_element] == 0)
+            {
+                (*this)[i_element] = opL[i_element];
+                continue;
+            }
+            (*this)[i_element] = opL[i_element].to_u64() % rhs[i_element].to_u64();
+        }
     }
     return (*this);
 }
@@ -910,7 +941,14 @@ SVector &SVector::m_uurem(const SVector &opL, const uint64_t rhs, const SVRegist
     for (size_t i_element = start_index; i_element < length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
-            (*this)[i_element].s_uurem(opL[i_element], rhs);
+        {
+            if (rhs == 0)
+            {
+                (*this)[i_element] = opL[i_element];
+                continue;
+            }
+            (*this)[i_element] = opL[i_element].to_u64() % rhs;
+        }
     }
     return (*this);
 }

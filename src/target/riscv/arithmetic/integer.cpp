@@ -52,6 +52,7 @@ VILL::vpu_return_t VARITH_INT::add_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
         RVVector &vd = V.get_vec(dst_vec_reg);
 
         vd.m_add(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
+        auto a = 0;
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
