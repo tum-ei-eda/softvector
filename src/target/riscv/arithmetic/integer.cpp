@@ -103,7 +103,7 @@ VILL::vpu_return_t VARITH_INT::add_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -164,7 +164,7 @@ VILL::vpu_return_t VARITH_INT::sub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -193,7 +193,7 @@ VILL::vpu_return_t VARITH_INT::rsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_rhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -314,7 +314,7 @@ VILL::vpu_return_t VARITH_INT::wop_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
         V.init();
         VD.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = VD.get_vec(dst_vec_reg);
@@ -422,7 +422,7 @@ VILL::vpu_return_t VARITH_INT::wop_wx(uint8_t *vec_reg_mem, uint64_t emul_num, u
 
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -590,7 +590,7 @@ VILL::vpu_return_t VARITH_INT::and_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -678,7 +678,7 @@ VILL::vpu_return_t VARITH_INT::or_vx(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -766,7 +766,7 @@ VILL::vpu_return_t VARITH_INT::xor_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -855,7 +855,7 @@ VILL::vpu_return_t VARITH_INT::sll_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -943,7 +943,7 @@ VILL::vpu_return_t VARITH_INT::srl_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -1031,7 +1031,7 @@ VILL::vpu_return_t VARITH_INT::sra_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -1142,7 +1142,7 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
@@ -1259,7 +1259,7 @@ VILL::vpu_return_t VARITH_INT::vnsra_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
@@ -1352,7 +1352,7 @@ VILL::vpu_return_t VARITH_INT::mseq_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1436,7 +1436,7 @@ VILL::vpu_return_t VARITH_INT::msne_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1493,7 +1493,7 @@ VILL::vpu_return_t VARITH_INT::msltu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1550,7 +1550,7 @@ VILL::vpu_return_t VARITH_INT::mslt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1635,7 +1635,7 @@ VILL::vpu_return_t VARITH_INT::msleu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1719,7 +1719,7 @@ VILL::vpu_return_t VARITH_INT::msle_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1777,7 +1777,7 @@ VILL::vpu_return_t VARITH_INT::msgtu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1862,7 +1862,7 @@ VILL::vpu_return_t VARITH_INT::msgt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -1951,7 +1951,7 @@ VILL::vpu_return_t VARITH_INT::vmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2011,7 +2011,7 @@ VILL::vpu_return_t VARITH_INT::vmulh_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2071,7 +2071,7 @@ VILL::vpu_return_t VARITH_INT::vmulhu_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2131,7 +2131,7 @@ VILL::vpu_return_t VARITH_INT::vmulhsu_vx(uint8_t *vec_reg_mem, uint64_t emul_nu
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2193,7 +2193,7 @@ VILL::vpu_return_t VARITH_INT::vdiv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2254,7 +2254,7 @@ VILL::vpu_return_t VARITH_INT::vdivu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2315,7 +2315,7 @@ VILL::vpu_return_t VARITH_INT::vrem_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2376,7 +2376,7 @@ VILL::vpu_return_t VARITH_INT::vremu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                    : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2478,7 +2478,7 @@ VILL::vpu_return_t VARITH_INT::vwmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VD.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = VD.get_vec(dst_vec_reg);
@@ -2570,7 +2570,7 @@ VILL::vpu_return_t VARITH_INT::vmax_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2631,7 +2631,7 @@ VILL::vpu_return_t VARITH_INT::vmaxu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2692,7 +2692,7 @@ VILL::vpu_return_t VARITH_INT::vmin_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2753,7 +2753,7 @@ VILL::vpu_return_t VARITH_INT::vminu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -2804,7 +2804,7 @@ VILL::vpu_return_t VARITH_INT::mv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -2916,7 +2916,7 @@ VILL::vpu_return_t VARITH_INT::vadc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3005,7 +3005,7 @@ VILL::vpu_return_t VARITH_INT::vmadc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -3066,7 +3066,7 @@ VILL::vpu_return_t VARITH_INT::vsbc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3127,7 +3127,7 @@ VILL::vpu_return_t VARITH_INT::vmsbc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -3190,7 +3190,7 @@ VILL::vpu_return_t VARITH_INT::vmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3251,7 +3251,7 @@ VILL::vpu_return_t VARITH_INT::vnmsac_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3312,7 +3312,7 @@ VILL::vpu_return_t VARITH_INT::vmadd_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3373,7 +3373,7 @@ VILL::vpu_return_t VARITH_INT::vnmsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                   : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
@@ -3475,7 +3475,7 @@ VILL::vpu_return_t VARITH_INT::vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     V.init();
     VD.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = VD.get_vec(dst_vec_reg);
@@ -3570,7 +3570,7 @@ VILL::vpu_return_t VARITH_INT::vmerge_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
-    int64_t imm = (scalar_reg_len_bytes > 32) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
+    int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                               : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
 
     vd.m_merge(vs2, imm, V.get_mask_reg(), vec_elem_start);
