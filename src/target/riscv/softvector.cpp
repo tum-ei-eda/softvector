@@ -1861,8 +1861,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::vrem_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        // VARITH_INT::vrem_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                              ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::rem, /* signed_vs2 = */ true,
+                              /* signed_scalar = */ true);
 
         return (0);
     }

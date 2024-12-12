@@ -23,13 +23,233 @@
 #ifndef __RVVHL_ARITH_INTEGER_H__
 #define __RVVHL_ARITH_INTEGER_H__
 
+#include <functional>
+
 #include "stdint.h"
 #include "base/base.hpp"
+#include "vpu/softvector-types.hpp"
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes integer arithmetic helpers
 namespace VARITH_INT
 {
+
+using ArithmeticFunction = std::function<void(uint64_t /* lhs */, uint64_t /* rhs */, SVElement & /* vd */)>;
+using ComparisonFunction =
+    std::function<void(uint64_t /* lhs */, uint64_t /* rhs */, SVRegister & /* vd */, size_t /* index */)>;
+
+/* 11.1. Vector Single-Width Integer Add and Subtract */
+inline ArithmeticFunction add = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs + rhs; };
+
+inline ArithmeticFunction sub = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs - rhs; };
+
+inline ArithmeticFunction rsub = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = rhs - lhs; };
+
+/* 11.5. Vector Bitwise Logical Instructions */
+inline ArithmeticFunction logical_and = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs & rhs; };
+
+inline ArithmeticFunction logical_or = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs | rhs; };
+
+inline ArithmeticFunction logical_xor = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs ^ rhs; };
+
+/* 11.6. Vector Single-Width Shift Instructions */
+inline ArithmeticFunction sll = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    auto shiftamount_mask = vd.width_in_bits_ - 1;
+    vd = lhs << (rhs & shiftamount_mask);
+};
+
+inline ArithmeticFunction srl = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    auto shiftamount_mask = vd.width_in_bits_ - 1;
+    vd = lhs >> (rhs & shiftamount_mask);
+};
+
+inline ArithmeticFunction sra = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    auto shiftamount_mask = vd.width_in_bits_ - 1;
+    vd = static_cast<int64_t>(lhs) >> (rhs & shiftamount_mask);
+};
+
+/* 11.7. Vector Narrowing Integer Right Shift Instructions */
+inline ArithmeticFunction nsrl = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
+    vd = lhs >> (rhs & shiftamount_mask);
+};
+
+inline ArithmeticFunction nsra = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
+    vd = static_cast<int64_t>(lhs) >> (rhs & shiftamount_mask);
+};
+
+/* Vector Integer Compare Instructions */
+inline ComparisonFunction seq = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    lhs == rhs ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sne = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    lhs != rhs ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sltu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    lhs < rhs ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction slt = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    static_cast<int64_t>(lhs) < static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sleu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    lhs <= rhs ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sle = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    static_cast<int64_t>(lhs) <= static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sgtu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    lhs > rhs ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+inline ComparisonFunction sgt = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+    static_cast<int64_t>(lhs) > static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+};
+
+/* 11.9. Vector Integer Min/Max Instructions */
+inline ArithmeticFunction minu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = std::min(lhs, rhs); };
+
+inline ArithmeticFunction min = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = std::min(static_cast<int64_t>(lhs), static_cast<int64_t>(rhs));
+};
+
+inline ArithmeticFunction maxu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = std::max(lhs, rhs); };
+
+inline ArithmeticFunction max = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = std::max(static_cast<int64_t>(lhs), static_cast<int64_t>(rhs));
+};
+
+/* 11.10. Vector Single-Width Integer Multiply Instructions */
+inline ArithmeticFunction mul = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = static_cast<int64_t>(lhs) * static_cast<int64_t>(rhs);
+};
+
+inline ArithmeticFunction mulh = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = (static_cast<int64_t>(lhs) * static_cast<int64_t>(rhs)) >> vd.width_in_bits_;
+};
+
+inline ArithmeticFunction mulhu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = (lhs * rhs) >> vd.width_in_bits_;
+};
+
+inline ArithmeticFunction mulhsu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    vd = (static_cast<int64_t>(lhs) * rhs) >> vd.width_in_bits_;
+};
+
+/* 11.11. Vector Integer Divide Instructions */
+inline ArithmeticFunction divu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    // Divide by zero case
+    if (rhs == 0)
+    {
+        vd = -1;
+        return;
+    }
+    vd = lhs / rhs;
+};
+
+inline ArithmeticFunction div = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    // Divide by zero case
+    if (rhs == 0)
+    {
+        vd = -1;
+        return;
+    }
+    // Overflow case
+    if (lhs == ((uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    {
+        vd = lhs;
+    }
+    vd = static_cast<int64_t>(lhs) / static_cast<int64_t>(rhs);
+};
+
+inline ArithmeticFunction remu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    // Divide by zero case
+    if (rhs == 0)
+    {
+        vd = lhs;
+        return;
+    }
+    vd = lhs % rhs;
+};
+
+inline ArithmeticFunction rem = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+    // Divide by zero case
+    if (rhs == 0)
+    {
+        vd = lhs;
+        return;
+    }
+    // Overflow case
+    if (lhs == ((uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    {
+        vd = 0;
+    }
+    vd = static_cast<int64_t>(lhs) % static_cast<int64_t>(rhs);
+};
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer arithmetic operation vector-vector
+/// \details For all i: vd[i] = vs2[i] op vs1[i]
+VILL::vpu_return_t int_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                             uint64_t emul_num,          //!< Register multiplicity numerator
+                             uint64_t emul_denom,        //!< Register multiplicity denominator
+                             uint16_t sew_bytes,         //!< Element width [bytes]
+                             uint16_t vec_len,           //!< Vector length [elements]
+                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                             uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                             uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                             uint16_t vec_elem_start,    //!< Starting element [index]
+                             bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                             ArithmeticFunction func,    //!< Integer arithmetic function lambda
+                             bool signed_vs2,            //!< Whether vs2 is signed
+                             bool signed_vs1             //!< Whether vs1 is signed
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer arithmetic operation vector-immediate
+/// \details For all i: vd[i] = vs2[i] op sign_extend(imm5)
+VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                             uint64_t emul_num,          //!< Register multiplicity numerator
+                             uint64_t emul_denom,        //!< Register multiplicity denominator
+                             uint16_t sew_bytes,         //!< Element width [bytes]
+                             uint16_t vec_len,           //!< Vector length [elements]
+                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                             uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                             uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
+                             uint16_t vec_elem_start,    //!< Starting element [index]
+                             bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                             ArithmeticFunction func,    //!< Integer arithmetic function lambda
+                             bool signed_vs2,            //!< Whether vs2 is signed
+                             bool signed_imm             //!< Whether the immediate is signed
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer arithmetic operation vector-scalar
+/// \details For all i: vd[i] = vs2[i] op sign_extend(X[rs1])
+VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
+                             uint64_t emul_num,            //!< Register multiplicity numerator
+                             uint64_t emul_denom,          //!< Register multiplicity denominator
+                             uint16_t sew_bytes,           //!< Element width [bytes]
+                             uint16_t vec_len,             //!< Vector length [elements]
+                             uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
+                             uint16_t dst_vec_reg,         //!< Destination vector D [index]
+                             uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                             uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
+                             uint16_t vec_elem_start,      //!< Starting element [index]
+                             bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
+                             uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
+                             ArithmeticFunction func,      //!< Integer arithmetic function lambda
+                             bool signed_vs2,              //!< Whether vs2 is signed
+                             bool signed_scalar            //!< Whether the scalar value is signed
+);
 
 /* rvv spec. 12.1 - Vector Single-Width Add and Substract */
 /* ADD */
@@ -218,9 +438,6 @@ VILL::vpu_return_t wop_wx(uint8_t *vec_reg_mem,        //!< Vector register file
                           bool signed_f,               //!< Signed or unsigned operation type: vaL = true: signed
                           uint8_t scalar_reg_len_bytes //!< Length of scalar [bytes]
 );
-
-/// TODO: vzext.vf{2,4,8}
-/// TODO: vsext.vf{2,4,8}
 
 /* 11.3. Vector Integer Extension */
 //////////////////////////////////////////////////////////////////////////////////////
@@ -1237,18 +1454,19 @@ VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Signed remainder vector-vector
 /// \details For all i: D[i] = L[i] % sign_extend(X[rs1])
-VILL::vpu_return_t vrem_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
-                           uint16_t sew_bytes,          //!< Element width [bytes]
-                           uint16_t vec_len,            //!< Vector length [elements]
-                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
-                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
-                           uint16_t vec_elem_start,     //!< Starting element [index]
-                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
-                           uint8_t scalar_reg_len_bytes //!< Length of scalar [bytes]
+[[deprecated]] VILL::vpu_return_t vrem_vx(
+    uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
+    uint64_t emul_num,           //!< Register multiplicity numerator
+    uint64_t emul_denom,         //!< Register multiplicity denominator
+    uint16_t sew_bytes,          //!< Element width [bytes]
+    uint16_t vec_len,            //!< Vector length [elements]
+    uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
+    uint16_t dst_vec_reg,        //!< Destination vector D [index]
+    uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+    uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
+    uint16_t vec_elem_start,     //!< Starting element [index]
+    bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
+    uint8_t scalar_reg_len_bytes //!< Length of scalar [bytes]
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
