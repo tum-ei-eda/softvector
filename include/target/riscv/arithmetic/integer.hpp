@@ -251,6 +251,64 @@ VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,         //!< Vector register 
                              bool signed_scalar            //!< Whether the scalar value is signed
 );
 
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer comparison operation vector-vector
+/// \details For all i: vd.mask[i] = vs2[i] cmp_op vs1[i]
+VILL::vpu_return_t int_compare_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                     uint64_t emul_num,          //!< Register multiplicity numerator
+                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     uint16_t sew_bytes,         //!< Element width [bytes]
+                                     uint16_t vec_len,           //!< Vector length [elements]
+                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                     uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                     uint16_t vec_elem_start,    //!< Starting element [index]
+                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                                     ComparisonFunction func,    //!< Integer comparison function lambda
+                                     bool signed_vs2,            //!< Whether vs2 is signed
+                                     bool signed_vs1             //!< Whether vs1 is signed
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer comparison operation vector-immediate
+/// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(imm5)
+VILL::vpu_return_t int_compare_op_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                     uint64_t emul_num,          //!< Register multiplicity numerator
+                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     uint16_t sew_bytes,         //!< Element width [bytes]
+                                     uint16_t vec_len,           //!< Vector length [elements]
+                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                     uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
+                                     uint16_t vec_elem_start,    //!< Starting element [index]
+                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
+                                     ComparisonFunction func,    //!< Integer comparison function lambda
+                                     bool signed_vs2,            //!< Whether vs2 is signed
+                                     bool signed_imm             //!< Whether the immediate is signed
+);
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Regular vector integer comparison operation vector-scalar
+/// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(X[rs1])
+VILL::vpu_return_t int_compare_op_vx(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
+                                     uint64_t emul_num,          //!< Register multiplicity numerator
+                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     uint16_t sew_bytes,         //!< Element width [bytes]
+                                     uint16_t vec_len,           //!< Vector length [elements]
+                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
+                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                                     uint8_t *scalar_reg_mem, //!< Memory space holding scalar data (min. _xlenb bytes)
+                                     uint16_t vec_elem_start, //!< Starting element [index]
+                                     bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
+                                     uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
+                                     ComparisonFunction func,      //!< Integer comparison function lambda
+                                     bool signed_vs2,              //!< Whether vs2 is signed
+                                     bool signed_scalar            //!< Whether the scalar value is signed
+);
+
 /* rvv spec. 12.1 - Vector Single-Width Add and Substract */
 /* ADD */
 //////////////////////////////////////////////////////////////////////////////////////
