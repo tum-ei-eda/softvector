@@ -861,7 +861,7 @@ extern "C"
         VectorRegField = static_cast<uint8_t *>(pV);
 
         VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm, VARITH_INT::sll, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+                              pVSTART, pVm, VARITH_INT::sll, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
         // VARITH_INT::sll_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
         //                    pVSTART, pVm);
 
@@ -909,7 +909,7 @@ extern "C"
         VectorRegField = static_cast<uint8_t *>(pV);
 
         VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm, VARITH_INT::srl, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+                              pVSTART, pVm, VARITH_INT::srl, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
         // VARITH_INT::srl_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
         //                    pVSTART, pVm);
 
@@ -958,7 +958,7 @@ extern "C"
         VectorRegField = static_cast<uint8_t *>(pV);
 
         VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm, VARITH_INT::sra, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+                              pVSTART, pVm, VARITH_INT::sra, /* signed_vs2 = */ true, /* signed_vs1 = */ false);
         // VARITH_INT::sra_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
         //                    pVSTART, pVm);
 
@@ -1137,8 +1137,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::mseq_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::seq, /* signed_vs2 = */ true,
+                                      /* signed_scalar = */ true);
+        // VARITH_INT::mseq_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1184,8 +1187,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msne_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sne, /* signed_vs2 = */ true,
+                                      /* signed_scalar = */ true);
+        // VARITH_INT::msne_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1217,8 +1223,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msltu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                             ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sltu, /* signed_vs2 = */ false,
+                                      /* signed_scalar = */ false);
+        // VARITH_INT::msltu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                      ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1250,8 +1259,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::mslt_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::slt, /* signed_vs2 = */ true,
+                                      /* signed_scalar = */ true);
+        // VARITH_INT::mslt_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1297,8 +1309,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msleu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                             ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sleu, /* signed_vs2 = */ false,
+                                      /* signed_scalar = */ false);
+        // VARITH_INT::msleu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                      ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1344,8 +1359,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msle_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sle, /* signed_vs2 = */ true,
+                                      /* signed_scalar = */ true);
+        // VARITH_INT::msle_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1377,8 +1395,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msgtu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                             ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sgtu, /* signed_vs2 = */ false,
+                                      /* signed_scalar = */ false);
+        // VARITH_INT::msgtu_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                      ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1424,8 +1445,11 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::msgt_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                            ScalarReg, pVSTART, pVm, pXLEN / 8);
+        VARITH_INT::int_compare_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      ScalarReg, pVSTART, pVm, pXLEN / 8, VARITH_INT::sgt, /* signed_vs2 = */ true,
+                                      /* signed_scalar = */ true);
+        // VARITH_INT::msgt_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                     ScalarReg, pVSTART, pVm, pXLEN / 8);
 
         return (0);
     }
@@ -1668,8 +1692,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmul_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                            pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::mul, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+        // VARITH_INT::vmul_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                     pVSTART, pVm);
 
         return (0);
     }
@@ -1701,8 +1727,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmulh_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                             pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::mulh, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+        // VARITH_INT::vmulh_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                      pVSTART, pVm);
 
         return (0);
     }
@@ -1734,8 +1762,11 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmulhu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::mulhu, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
+        // VARITH_INT::vmulhu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+        // pVs2,
+        //                       pVSTART, pVm);
 
         return (0);
     }
@@ -1762,11 +1793,15 @@ extern "C"
     uint8_t vmulhsu_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL)
     {
+        // TODO: new version not passing test
         VTYPE::VTYPE _vt(pVTYPE);
         uint8_t *VectorRegField;
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
+        // VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+        // pVs2,
+        //                       pVSTART, pVm, VARITH_INT::mulh, /* signed_vs2 = */ true, /* signed_vs1 = */ false);
         VARITH_INT::vmulhsu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
                                pVSTART, pVm);
 
@@ -1821,8 +1856,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vdiv_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                            pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::div, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+        // VARITH_INT::vdiv_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                     pVSTART, pVm);
 
         return (0);
     }
@@ -1854,8 +1891,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vdivu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                             pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::divu, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
+        // VARITH_INT::vdivu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                      pVSTART, pVm);
 
         return (0);
     }
@@ -1924,8 +1963,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vremu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                             pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::remu, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
+        // VARITH_INT::vremu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                      pVSTART, pVm);
 
         return (0);
     }
@@ -2040,8 +2081,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmax_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                            pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::max, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+        // VARITH_INT::vmax_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                     pVSTART, pVm);
 
         return (0);
     }
@@ -2073,8 +2116,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmaxu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                             pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::maxu, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
+        // VARITH_INT::vmaxu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                      pVSTART, pVm);
 
         return (0);
     }
@@ -2106,8 +2151,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vmin_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                            pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::min, /* signed_vs2 = */ true, /* signed_vs1 = */ true);
+        // VARITH_INT::vmin_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                     pVSTART, pVm);
 
         return (0);
     }
@@ -2139,8 +2186,10 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::vminu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                             pVSTART, pVm);
+        VARITH_INT::int_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                              pVSTART, pVm, VARITH_INT::minu, /* signed_vs2 = */ false, /* signed_vs1 = */ false);
+        // VARITH_INT::vminu_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+        //                      pVSTART, pVm);
 
         return (0);
     }

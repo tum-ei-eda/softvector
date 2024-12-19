@@ -131,9 +131,10 @@ inline ArithmeticFunction mul = [](uint64_t lhs, uint64_t rhs, SVElement &vd) ->
 };
 
 inline ArithmeticFunction mulh = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = (static_cast<int64_t>(lhs) * static_cast<int64_t>(rhs)) >> vd.width_in_bits_;
+    vd = (lhs * rhs) >> vd.width_in_bits_;
 };
 
+// TODO: mulhu, mulhsu -> check if needed or already handled by signed_vs*
 inline ArithmeticFunction mulhu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
     vd = (lhs * rhs) >> vd.width_in_bits_;
 };

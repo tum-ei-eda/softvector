@@ -24,11 +24,17 @@
 #include "vpu/softvector-types.hpp"
 #include "base/softvector-platform-types.hpp"
 
+// Private globals
+
+constexpr auto xlen_32_bytes = 4;
+
 // Private function declarations
 
 inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t;
 
 inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_scalar) -> uint64_t;
+
+inline auto msb_is_set(uint64_t value, size_t sew) -> bool;
 
 auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1) -> void;
@@ -40,12 +46,8 @@ auto iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRe
 
 inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t
 {
-    // Use least significant SEW bits
-    bool msb = value & ((uint64_t)1 << (sew - 1));
-
-    // Branchless wohoo
     uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
-    uint64_t ext_mask = msb * (~sew_mask);
+    uint64_t ext_mask = msb_is_set(value, sew) * (~sew_mask);
     return value | ext_mask;
 }
 
@@ -60,18 +62,14 @@ inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_
     uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
     value &= sew_mask;
 
-    bool sign_extend = signed_scalar && (value & (1 << (sew - 1)));
+    bool sign_extend = signed_scalar && msb_is_set(value, sew);
     return value | (sign_extend * (~sew_mask));
-
-    // For signed scalars, sign extend
-    // if (signed_scalar && (value & (1 << (sew - 1))))
-    // {
-    //     uint64_t ext_mask = ~sew_mask;
-    //     value |= ext_mask;
-    // }
-
-    return value;
 };
+
+inline auto msb_is_set(uint64_t value, size_t sew) -> bool
+{
+    return value & ((uint64_t)1 << (sew - 1));
+}
 
 void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1)
@@ -96,6 +94,19 @@ void iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRe
         {
             uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
             func(lhs, scalar, vd[i_element]);
+        }
+    }
+}
+
+void iterate_vector_comparison(const SVector &vs2, uint64_t scalar, SVRegister &vd, const SVRegister &vm, bool mask,
+                    VARITH_INT::ComparisonFunction func, size_t start_index, bool signed_vs2)
+{
+    for (size_t i_element = start_index; i_element < vs2.length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            func(lhs, scalar, vd, i_element);
         }
     }
 }
@@ -158,6 +169,8 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num
     static constexpr uint64_t imm_width_mask = 0x1F;
     static constexpr uint64_t imm_ext_mask = ~imm_width_mask;
 
+    // If immediate is signed and msb set: mask and sign-extend, otherwise just mask
+    // Could use mask_and_sign_extend_scalar(imm, 5, signed_imm)
     uint64_t imm = signed_imm && (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
@@ -186,7 +199,6 @@ VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num
 
     V.init();
 
-    static constexpr auto xlen_32_bytes = 4;
     uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
                                                           : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
     imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_scalar);
@@ -198,6 +210,38 @@ VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
+VILL::vpu_return_t VARITH_INT::int_compare_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
+                                                 uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                                                 uint8_t scalar_reg_len_bytes, ComparisonFunction func, bool signed_vs2,
+                                                 bool signed_scalar)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                          : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_scalar);
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+
+    iterate_vector_comparison(vs2, imm, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, signed_vs2);
+
+    return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+/*
 VILL::vpu_return_t VARITH_INT::add_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
@@ -402,7 +446,7 @@ VILL::vpu_return_t VARITH_INT::rsub_vi(uint8_t *vec_reg_mem, uint64_t emul_num, 
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
-
+*/
 VILL::vpu_return_t VARITH_INT::wop_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
@@ -489,6 +533,7 @@ VILL::vpu_return_t VARITH_INT::wop_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
 
         int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
                                                  : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
+        imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_f);
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = VD.get_vec(dst_vec_reg);
 
