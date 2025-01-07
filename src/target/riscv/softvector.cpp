@@ -1290,8 +1290,11 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_INT::msleu_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
-                             pVSTART, pVm);
+        VARITH_INT::int_compare_op_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                      pVimm, pVSTART, pVm, VARITH_INT::sleu, /* signed_vs2 = */ false);
+        // VARITH_INT::msleu_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        // pVimm,
+        //                      pVSTART, pVm);
 
         return (0);
     }
@@ -2899,7 +2902,7 @@ extern "C"
         VectorRegField = static_cast<uint8_t *>(pV);
 
         VARITH_FIXP::vaadd_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm, true, pRm);
+                              pVSTART, pVm, false, pRm);
 
         return (0);
     }
@@ -2917,8 +2920,10 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vaadd_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                              ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
+        VARITH_FIXP::fixp_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                ScalarReg, pVSTART, pVm, false, pXLEN / 8, pRm, VARITH_FIXP::aaddu);
+        // VARITH_FIXP::vaadd_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                       ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
 
         return (0);
     }
@@ -2950,8 +2955,10 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vaadd_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                              ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
+        VARITH_FIXP::fixp_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm, VARITH_FIXP::aadd);
+        // VARITH_FIXP::vaadd_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                       ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
 
         return (0);
     }
@@ -2964,8 +2971,12 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::vasub_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                              pVSTART, pVm, true, pRm);
+        VARITH_FIXP::fixp_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
+                                pVSTART, pVm, false, pRm, VARITH_FIXP::asubu);
+
+        // VARITH_FIXP::vasub_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
+        // pVs2,
+        //                       pVSTART, pVm, false, pRm);
 
         return (0);
     }
@@ -2983,8 +2994,10 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_FIXP::vasub_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
-                              ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
+        VARITH_FIXP::fixp_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                ScalarReg, pVSTART, pVm, false, pXLEN / 8, pRm, VARITH_FIXP::asubu);
+        // VARITH_FIXP::vasub_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        //                       ScalarReg, pVSTART, pVm, false, pXLEN / 8, pRm);
 
         return (0);
     }
@@ -3016,10 +3029,12 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        auto ret = VARITH_FIXP::vasub_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
+        VARITH_FIXP::fixp_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+                                ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm, VARITH_FIXP::asub);
+        // VARITH_FIXP::vasub_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+        //                                  pVs2, ScalarReg, pVSTART, pVm, true, pXLEN / 8, pRm);
 
-        return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
+        return (0);
     }
     /* End 12.2. */
 

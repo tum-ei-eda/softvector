@@ -23,6 +23,7 @@
 #define __RVVHL_BASE_H__
 
 #include "stdint.h"
+#include "stddef.h"
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief This space concludes basic helpers for Illegal-Instruction-related stuff.
@@ -200,5 +201,42 @@ enum class FP_ROUNDING_MODE : uint8_t
     rdn = 2, // round-down (truncate), r = 0
     rod = 3  // round-to-odd (OR bits into LSB, aka "jam"), r = !v[d] & v[d-1:0] != 0
 };
+
+// General helper constants and functions
+
+inline constexpr auto xlen_32_bytes = 4;
+
+inline auto get_sew_mask(size_t sew) -> uint64_t
+{
+    return ((uint64_t)1U << (sew)) - 1;
+}
+
+inline auto msb_is_set(uint64_t value, size_t sew) -> bool
+{
+    return value & ((uint64_t)1 << (sew - 1));
+}
+
+inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t
+{
+    uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
+    uint64_t ext_mask = msb_is_set(value, sew) * (~sew_mask);
+    return value | ext_mask;
+}
+
+inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_scalar) -> uint64_t
+{
+    if (sew == 64)
+    {
+        return value;
+    }
+
+    // Use least significant SEW bits
+    uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
+    value &= sew_mask;
+
+    bool sign_extend = signed_scalar && msb_is_set(value, sew);
+    return value | (sign_extend * (~sew_mask));
+};
+
 
 #endif /* __RVVHL_BASE_H__ */

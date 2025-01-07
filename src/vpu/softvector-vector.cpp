@@ -22,6 +22,9 @@
 #include "vpu/softvector-types.hpp"
 #include <cassert>
 
+namespace Deprecated
+{
+
 auto roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> uint64_t;
 
 auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t;
@@ -119,6 +122,7 @@ auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode
 
     return (value >> rounding_bits) + rounding_increment;
 }
+} // namespace Deprecated
 
 void SVector::assign(const SVector &vin, size_t start_index)
 {
@@ -1839,7 +1843,7 @@ SVector &SVector::m_avg_addu(const SVector &opL, const SVector &rhs, const SVReg
         {
             auto opL_u64 = opL[i_element].to_u64();
             auto rhs_u64 = rhs[i_element].to_u64();
-            (*this)[i_element] = roundoff_unsigned(opL_u64 + rhs_u64, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL_u64 + rhs_u64, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1854,7 +1858,7 @@ SVector &SVector::m_avg_addu(const SVector &opL, const uint64_t rhs, const SVReg
         if (!mask || vm.get_bit(i_element))
         {
             auto opL_u64 = opL[i_element].to_u64();
-            (*this)[i_element] = roundoff_unsigned(opL_u64 + rhs, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL_u64 + rhs, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1870,7 +1874,7 @@ SVector &SVector::m_avg_add(const SVector &opL, const SVector &rhs, const SVRegi
         {
             auto opL_i64 = opL[i_element].to_i64();
             auto rhs_i64 = rhs[i_element].to_i64();
-            (*this)[i_element] = roundoff_signed(opL_i64 + rhs_i64, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_signed(opL_i64 + rhs_i64, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1885,7 +1889,7 @@ SVector &SVector::m_avg_add(const SVector &opL, const int64_t rhs, const SVRegis
         if (!mask || vm.get_bit(i_element))
         {
             auto opL_i64 = opL[i_element].to_i64();
-            (*this)[i_element] = roundoff_signed(opL_i64 + rhs, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_signed(opL_i64 + rhs, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1901,7 +1905,7 @@ SVector &SVector::m_avg_subu(const SVector &opL, const SVector &rhs, const SVReg
         {
             auto opL_u64 = opL[i_element].to_u64();
             auto rhs_u64 = rhs[i_element].to_u64();
-            (*this)[i_element] = roundoff_unsigned(opL_u64 + rhs_u64, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL_u64 + rhs_u64, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1916,7 +1920,7 @@ SVector &SVector::m_avg_subu(const SVector &opL, const uint64_t rhs, const SVReg
         if (!mask || vm.get_bit(i_element))
         {
             auto opL_u64 = opL[i_element].to_u64();
-            (*this)[i_element] = roundoff_unsigned(opL_u64 + rhs, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL_u64 + rhs, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1932,7 +1936,7 @@ SVector &SVector::m_avg_sub(const SVector &opL, const SVector &rhs, const SVRegi
         {
             auto opL_i64 = opL[i_element].to_i64();
             auto rhs_i64 = rhs[i_element].to_i64();
-            (*this)[i_element] = roundoff_signed(opL_i64 - rhs_i64, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_signed(opL_i64 - rhs_i64, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1947,7 +1951,7 @@ SVector &SVector::m_avg_sub(const SVector &opL, const int64_t rhs, const SVRegis
         if (!mask || vm.get_bit(i_element))
         {
             auto opL_i64 = opL[i_element].to_i64();
-            (*this)[i_element] = roundoff_signed(opL_i64 - rhs, rounding_bits, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_signed(opL_i64 - rhs, rounding_bits, rounding_mode);
         }
     }
     return (*this);
@@ -1967,7 +1971,7 @@ SVector &SVector::m_round_sat_mul(const SVector &opL, const SVector &rhs, const 
             auto rounding_bits = opL[i_element].width_in_bits_ - 1;
             auto opL_i64 = opL[i_element].to_i64();
             auto rhs_i64 = rhs[i_element].to_i64();
-            auto result = roundoff_signed(opL_i64 * rhs_i64, rounding_bits, rounding_mode);
+            auto result = Deprecated::roundoff_signed(opL_i64 * rhs_i64, rounding_bits, rounding_mode);
 
             int64_t msb = static_cast<int64_t>(1U) << (opL[i_element].width_in_bits_ - 1);
             bool msb_opL = opL_i64 & msb;
@@ -2007,7 +2011,7 @@ SVector &SVector::m_round_sat_mul(const SVector &opL, const int64_t rhs, const S
             // vsmul.vx vd, vs2, rs1, vm  # vd[i] = clip(roundoff_signed(vs2[i]*x[rs1], SEW-1))
             auto rounding_bits = opL[i_element].width_in_bits_ - 1;
             auto opL_i64 = opL[i_element].to_i64();
-            auto result = roundoff_signed(opL_i64 * rhs, rounding_bits, rounding_mode);
+            auto result = Deprecated::roundoff_signed(opL_i64 * rhs, rounding_bits, rounding_mode);
 
             int64_t msb = static_cast<int64_t>(1U) << (opL[i_element].width_in_bits_ - 1);
             bool msb_opL = opL_i64 & msb;
@@ -2047,7 +2051,7 @@ SVector &SVector::m_scaling_srl(const SVector &opL, const SVector &rhs, const SV
         {
             auto bitmask = opL[i_element].width_in_bits_ - 1;
             (*this)[i_element] =
-                roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+                Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -2061,7 +2065,7 @@ SVector &SVector::m_scaling_srl(const SVector &opL, const uint64_t rhs, const SV
         if (!mask || vm.get_bit(i_element))
         {
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            (*this)[i_element] = roundoff_unsigned(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -2076,7 +2080,7 @@ SVector &SVector::m_scaling_sra(const SVector &opL, const SVector &rhs, const SV
         {
             auto bitmask = opL[i_element].width_in_bits_ - 1;
             (*this)[i_element] =
-                roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+                Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -2090,7 +2094,7 @@ SVector &SVector::m_scaling_sra(const SVector &opL, const uint64_t rhs, const SV
         if (!mask || vm.get_bit(i_element))
         {
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            (*this)[i_element] = roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -2107,7 +2111,7 @@ SVector &SVector::m_narrowing_clipu(const SVector &opL, const SVector &rhs, cons
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            auto result = Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
             if (result > (*this)[i_element].get_max_unsigned())
             {
                 // Overflow
@@ -2128,7 +2132,7 @@ SVector &SVector::m_narrowing_clipu(const SVector &opL, const uint64_t rhs, cons
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = roundoff_signed(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
+            auto result = Deprecated::roundoff_signed(opL[i_element].to_u64(), rhs & bitmask, rounding_mode);
             if (result > (*this)[i_element].get_max_unsigned())
             {
                 // Overflow
@@ -2149,7 +2153,7 @@ SVector &SVector::m_narrowing_clip(const SVector &opL, const SVector &rhs, const
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            auto result = Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
             if (result > (*this)[i_element].get_max_signed())
             {
                 // Overflow
@@ -2170,7 +2174,7 @@ SVector &SVector::m_narrowing_clip(const SVector &opL, const uint64_t rhs, const
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
+            auto result = Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs & bitmask, rounding_mode);
             if (result > (*this)[i_element].get_max_signed())
             {
                 // Overflow

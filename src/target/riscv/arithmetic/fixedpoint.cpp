@@ -5,37 +5,208 @@
 #include "vpu/softvector-types.hpp"
 #include "base/softvector-platform-types.hpp"
 
-// TODO
-// VILL::vpu_return_t VARITH_FIXP::op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t
-// sew_bytes,
-//                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-//                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-//                                       bool mask_f, Kernel kernel)
-// {
-//     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+// Private function declarations
 
-//     if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
-//     {
-//         return (VILL::VPU_RETURN::SRC1_VEC_ILL);
-//     }
-//     if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-//     {
-//         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-//     }
-//     if (!V.vec_reg_is_aligned(dst_vec_reg))
-//     {
-//         return (VILL::VPU_RETURN::DST_VEC_ILL);
-//     }
+auto iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FIXP::FixpointFunction func, size_t start_index, bool signed_vs2, bool signed_vs1,
+                    size_t sew, uint8_t rounding_mode) -> void;
 
-//     V.init();
+auto iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FIXP::FixpointFunction func, size_t start_index, bool signed_vs2, size_t sew,
+                    uint8_t rounding_mode) -> void;
 
-//     RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-//     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-//     RVVector &vd = V.get_vec(dst_vec_reg);
-//     auto sat = false;
+// Private function definitions
 
-//     return sat ? VILL::VPU_RETURN::NO_EXCEPT_FP_SAT : VILL::VPU_RETURN::NO_EXCEPT;
-// }
+void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FIXP::FixpointFunction func, size_t start_index, bool signed_vs2, bool signed_vs1,
+                    size_t sew, uint8_t rounding_mode)
+{
+    for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            uint64_t rhs = signed_vs1 ? vs1[i_element].to_i64() : vs1[i_element].to_u64();
+            func(lhs, rhs, vd[i_element], sew, rounding_mode);
+        }
+    }
+}
+
+void iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FIXP::FixpointFunction func, size_t start_index, bool signed_vs2, size_t sew,
+                    uint8_t rounding_mode)
+{
+    for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
+    {
+        if (!mask || vm.get_bit(i_element))
+        {
+            uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            func(lhs, scalar, vd[i_element], sew, rounding_mode);
+        }
+    }
+}
+
+// Public function definitions
+
+auto VARITH_FIXP::roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> uint64_t
+{
+    // Only lower 2 bits are used
+    rounding_mode &= 0b11;
+
+    if (rounding_bits == 0)
+    {
+        return value;
+    }
+    auto rounding_increment = false;
+    auto range_zero_check = false;
+    auto bitmask = 0U;
+
+    switch (rounding_mode)
+    {
+    case 0:
+        rounding_increment = static_cast<bool>(value & (1U << (rounding_bits - 1)));
+        break;
+    case 1:
+        // Needs check v[d-2:0] != 0
+        if (rounding_bits >= 2)
+        {
+            // Bitmask for v[d-2 : 0]
+            bitmask = (1 << (rounding_bits - 1)) - 1;
+            range_zero_check = value & bitmask;
+        }
+        rounding_increment = (value & (1U << (rounding_bits - 1))) &
+                             static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
+        break;
+    case 2:
+        // rounding_increment = 0;
+        break;
+    case 3:
+        // Bitmask for v[d-1 : 0]
+        bitmask = (1 << (rounding_bits)) - 1;
+        // Needs check v[d-1:0] != 0
+        range_zero_check = value & bitmask;
+        rounding_increment = !static_cast<bool>(value & (1 << rounding_bits)) && range_zero_check;
+        break;
+    default:
+        // Illegal!
+        break;
+    }
+
+    return (value >> rounding_bits) + rounding_increment;
+}
+
+auto VARITH_FIXP::roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t
+{
+    if (rounding_bits == 0)
+    {
+        return value;
+    }
+
+    // Only lower 2 bits are used
+    rounding_mode &= 0b11;
+    auto range_zero_check = false;
+    auto bitmask = 0U;
+
+    auto rounding_increment = false;
+    switch (rounding_mode)
+    {
+    case 0:
+        rounding_increment = static_cast<bool>(value & (1U << (rounding_bits - 1)));
+        break;
+    case 1:
+        // Needs check v[d-2:0] != 0
+        if (rounding_bits >= 2)
+        {
+            // Bitmask for v[d-2 : 0]
+            bitmask = (1 << (rounding_bits - 1)) - 1;
+            range_zero_check = value & bitmask;
+        }
+        rounding_increment = (value & (1U << (rounding_bits - 1))) &
+                             static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
+        break;
+    case 2:
+        // rounding_increment = 0;
+        break;
+    case 3:
+        // Bitmask for v[d-1 : 0]
+        bitmask = (1 << (rounding_bits)) - 1;
+        // Needs check v[d-1:0] != 0
+        range_zero_check = value & bitmask;
+        rounding_increment = !static_cast<bool>(value & (1 << rounding_bits)) && range_zero_check;
+        break;
+    default:
+        // Illegal!
+        break;
+    }
+
+    return (value >> rounding_bits) + rounding_increment;
+}
+
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
+                                           uint16_t vec_elem_start, bool mask_f, bool is_signed, uint8_t rounding_mode,
+                                           FixpointFunction func)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    iterate_vector(vs2, vs1, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, is_signed, is_signed, sew_bytes * 8,
+                   rounding_mode);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
+                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
+                                           uint16_t vec_elem_start, bool mask_f, bool is_signed,
+                                           uint8_t scalar_reg_len_bytes, uint8_t rounding_mode, FixpointFunction func)
+{
+    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    V.init();
+
+    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
+    RVVector &vd = V.get_vec(dst_vec_reg);
+
+    uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                          : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, is_signed);
+
+    iterate_vector(vs2, imm, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, is_signed, sew_bytes * 8,
+                   rounding_mode);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
 
 /* 12.1. Vector Single-Width Saturating Add and Subtract */
 VILL::vpu_return_t VARITH_FIXP::vsadd_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
@@ -623,9 +794,9 @@ VILL::vpu_return_t VARITH_FIXP::vssra_vx(uint8_t *vec_reg_mem, uint64_t emul_num
 
 /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
 VILL::vpu_return_t VARITH_FIXP::vnclipu_wv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
+                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
+                                           uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -654,9 +825,9 @@ VILL::vpu_return_t VARITH_FIXP::vnclipu_wv(uint8_t *vec_reg_mem, uint64_t emul_n
 }
 
 VILL::vpu_return_t VARITH_FIXP::vnclipu_wi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
+                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm,
+                                           uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -682,10 +853,10 @@ VILL::vpu_return_t VARITH_FIXP::vnclipu_wi(uint8_t *vec_reg_mem, uint64_t emul_n
 }
 
 VILL::vpu_return_t VARITH_FIXP::vnclipu_wx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
-                                         uint8_t rounding_mode)
+                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
+                                           uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
+                                           uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -713,9 +884,9 @@ VILL::vpu_return_t VARITH_FIXP::vnclipu_wx(uint8_t *vec_reg_mem, uint64_t emul_n
 }
 
 VILL::vpu_return_t VARITH_FIXP::vnclip_wv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
+                                          uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -745,9 +916,9 @@ VILL::vpu_return_t VARITH_FIXP::vnclip_wv(uint8_t *vec_reg_mem, uint64_t emul_nu
 }
 
 VILL::vpu_return_t VARITH_FIXP::vnclip_wi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm,
+                                          uint16_t vec_elem_start, bool mask_f, uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -773,10 +944,10 @@ VILL::vpu_return_t VARITH_FIXP::vnclip_wi(uint8_t *vec_reg_mem, uint64_t emul_nu
 }
 
 VILL::vpu_return_t VARITH_FIXP::vnclip_wx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
-                                         uint8_t rounding_mode)
+                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
+                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
+                                          uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
+                                          uint8_t rounding_mode)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 

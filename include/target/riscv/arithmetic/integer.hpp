@@ -208,7 +208,7 @@ VILL::vpu_return_t int_op_vv(uint8_t *vec_reg_mem,       //!< Vector register fi
                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
                              uint16_t vec_elem_start,    //!< Starting element [index]
                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                             ArithmeticFunction func,    //!< Integer arithmetic function lambda
+                             ArithmeticFunction func,    //!< Integer arithmetic function
                              bool signed_vs2,            //!< Whether vs2 is signed
                              bool signed_vs1             //!< Whether vs1 is signed
 );
@@ -227,7 +227,7 @@ VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,       //!< Vector register fi
                              uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
                              uint16_t vec_elem_start,    //!< Starting element [index]
                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                             ArithmeticFunction func,    //!< Integer arithmetic function lambda
+                             ArithmeticFunction func,    //!< Integer arithmetic function
                              bool signed_vs2,            //!< Whether vs2 is signed
                              bool signed_imm             //!< Whether the immediate is signed
 );
@@ -247,7 +247,7 @@ VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,         //!< Vector register 
                              uint16_t vec_elem_start,      //!< Starting element [index]
                              bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
                              uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
-                             ArithmeticFunction func,      //!< Integer arithmetic function lambda
+                             ArithmeticFunction func,      //!< Integer arithmetic function
                              bool signed_vs2,              //!< Whether vs2 is signed
                              bool signed_scalar            //!< Whether the scalar value is signed
 );
@@ -266,7 +266,7 @@ VILL::vpu_return_t int_compare_op_vv(uint8_t *vec_reg_mem,       //!< Vector reg
                                      uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
                                      uint16_t vec_elem_start,    //!< Starting element [index]
                                      bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                     ComparisonFunction func,    //!< Integer comparison function lambda
+                                     ComparisonFunction func,    //!< Integer comparison function
                                      bool signed_vs2,            //!< Whether vs2 is signed
                                      bool signed_vs1             //!< Whether vs1 is signed
 );
@@ -285,9 +285,8 @@ VILL::vpu_return_t int_compare_op_vi(uint8_t *vec_reg_mem,       //!< Vector reg
                                      uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
                                      uint16_t vec_elem_start,    //!< Starting element [index]
                                      bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                     ComparisonFunction func,    //!< Integer comparison function lambda
-                                     bool signed_vs2,            //!< Whether vs2 is signed
-                                     bool signed_imm             //!< Whether the immediate is signed
+                                     ComparisonFunction func,    //!< Integer comparison function
+                                     bool signed_vs2             //!< Whether vs2 is signed
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -305,7 +304,7 @@ VILL::vpu_return_t int_compare_op_vx(uint8_t *vec_reg_mem,       //!< Vector reg
                                      uint16_t vec_elem_start, //!< Starting element [index]
                                      bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
                                      uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
-                                     ComparisonFunction func,      //!< Integer comparison function lambda
+                                     ComparisonFunction func,      //!< Integer comparison function
                                      bool signed_vs2,              //!< Whether vs2 is signed
                                      bool signed_scalar            //!< Whether the scalar value is signed
 );
