@@ -206,20 +206,36 @@ enum class FP_ROUNDING_MODE : uint8_t
 
 struct v_instr_info_t
 {
-    uint64_t emul_num = 1U;          //!< EMUL numerator
-    uint64_t emul_denom = 1U;        //!< EMUL denominator
-    uint32_t sew = 8U;               //!< Selected element width (bit)
-    uint16_t vector_length;          //!< Vector length (elements)
-    uint16_t vector_register_length; //!< Length of a vector register (bit)
-    bool masked;                     //!< True if masked instruction, false otherwise
-    uint16_t start_element;          //!< First element to be processed (index)
+    uint64_t emul_num = 1U;               //!< EMUL numerator
+    uint64_t emul_denom = 1U;             //!< EMUL denominator
+    uint32_t sew = 8U;                    //!< Selected element width (bit)
+    uint16_t vector_length = 0U;          //!< Vector length (elements)
+    uint16_t vector_register_length = 0U; //!< Length of a vector register (bit)
+    bool masked = false;                  //!< True if masked instruction, false otherwise
+    uint16_t start_element = 0U;          //!< First element to be processed (index)
+    bool signed_op = false;               //!< True if the operation is signed, false otherwise
 };
 
 inline constexpr auto xlen_32_bytes = 4;
 
-inline auto get_sew_mask(size_t sew) -> uint64_t
+// Masks for 5 bit immediate
+inline constexpr uint64_t imm_msb_mask = 0x10;
+inline constexpr uint64_t imm_width_mask = 0x1F;
+inline constexpr uint64_t imm_ext_mask = ~imm_width_mask;
+
+inline auto sign_extend_immediate(uint8_t imm5) -> uint64_t
 {
-    return ((uint64_t)1U << (sew)) - 1;
+    return (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
+}
+
+inline auto zero_extend_immediate(uint8_t imm5) -> uint64_t
+{
+    return imm5 & imm_width_mask;
+}
+
+inline auto get_n_bit_mask(size_t n_bits) -> uint64_t
+{
+    return ((uint64_t)1U << (n_bits)) - 1;
 }
 
 inline auto msb_is_set(uint64_t value, size_t sew) -> bool

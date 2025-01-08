@@ -229,11 +229,6 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vi(uint8_t *vec_reg_mem, uint64_t 
 
     V.init();
 
-    // Mask for 5 bit immediate
-    static constexpr uint64_t imm_msb_mask = 0x10;
-    static constexpr uint64_t imm_width_mask = 0x1F;
-    static constexpr uint64_t imm_ext_mask = ~imm_width_mask;
-
     // If msb set: mask and sign-extend, otherwise just mask
     // Could use mask_and_sign_extend_scalar(imm, 5, true)
     uint64_t imm = (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
