@@ -69,23 +69,21 @@ inline FixpointFunction asubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
     vd = roundoff_unsigned(res, rounding_bits, rounding_mode);
 };
 
+inline FixpointFunction clip = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                  uint8_t rounding_mode) -> void {};
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-vector
 /// \details For all i: D[i] = L[i] op R[i]
-VILL::vpu_return_t fixp_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                              uint64_t emul_num,          //!< Register multiplicity numerator
-                              uint64_t emul_denom,        //!< Register multiplicity denominator
-                              uint16_t sew_bytes,         //!< Element width [bytes]
-                              uint16_t vec_len,           //!< Vector length [elements]
-                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                              uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                              uint16_t vec_elem_start,    //!< Starting element [index]
-                              bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                              bool is_signed,             //!< Signed or unsigned operation
-                              uint8_t rounding_mode,      //!< Fixed-point rounding mode
-                              FixpointFunction func       //!< The inner function
+VILL::vpu_return_t fixp_op_vv(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
+                              const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
+                              uint16_t reg_vd,                    //!< Destination vector D [index]
+                              uint16_t reg_vs1,                   //!< Source vector R [index]
+                              uint16_t reg_vs2,                   //!< Source vector L [index]
+                              bool is_signed,                     //!< Signed or unsigned operation
+                              uint8_t rounding_mode,              //!< Fixed-point rounding mode
+                              FixpointFunction func,              //!< The inner function
+                              bool narrowing = false              //!< Narrowing (vnclip(u)) operation
 );
 
 //////////////////////////////////////////////////////////////////////////////////////

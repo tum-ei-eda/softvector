@@ -202,7 +202,18 @@ enum class FP_ROUNDING_MODE : uint8_t
     rod = 3  // round-to-odd (OR bits into LSB, aka "jam"), r = !v[d] & v[d-1:0] != 0
 };
 
-// General helper constants and functions
+// General helper constants, functions, and structs
+
+struct v_instr_info_t
+{
+    uint64_t emul_num = 1U;          //!< EMUL numerator
+    uint64_t emul_denom = 1U;        //!< EMUL denominator
+    uint32_t sew = 8U;               //!< Selected element width (bit)
+    uint16_t vector_length;          //!< Vector length (elements)
+    uint16_t vector_register_length; //!< Length of a vector register (bit)
+    bool masked;                     //!< True if masked instruction, false otherwise
+    uint16_t start_element;          //!< First element to be processed (index)
+};
 
 inline constexpr auto xlen_32_bytes = 4;
 
@@ -237,6 +248,5 @@ inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_
     bool sign_extend = signed_scalar && msb_is_set(value, sew);
     return value | (sign_extend * (~sew_mask));
 };
-
 
 #endif /* __RVVHL_BASE_H__ */

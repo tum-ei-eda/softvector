@@ -142,35 +142,41 @@ auto VARITH_FIXP::roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t 
     return (value >> rounding_bits) + rounding_increment;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                           uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                           uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                           uint16_t vec_elem_start, bool mask_f, bool is_signed, uint8_t rounding_mode,
-                                           FixpointFunction func)
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info, uint16_t reg_vd,
+                                           uint16_t reg_vs1, uint16_t reg_vs2, bool is_signed, uint8_t rounding_mode,
+                                           FixpointFunction func, bool narrowing)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew * 2,
+                       SVMul(v_instr_info.emul_num * 2, v_instr_info.emul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(reg_vs1))
     {
         return (VILL::VPU_RETURN::SRC1_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if ((!narrowing && !V.vec_reg_is_aligned(reg_vs2)) || (narrowing && !V_wide.vec_reg_is_aligned(reg_vs2)))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
+    if (narrowing)
+    {
+        V_wide.init();
+    }
 
-    RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    RVVector &vs1 = V.get_vec(reg_vs1);
+    RVVector &vs2 = narrowing ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vd = V.get_vec(reg_vd);
 
-    iterate_vector(vs2, vs1, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, is_signed, is_signed, sew_bytes * 8,
-                   rounding_mode);
+    iterate_vector(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element, is_signed,
+                   is_signed, v_instr_info.sew, rounding_mode);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }

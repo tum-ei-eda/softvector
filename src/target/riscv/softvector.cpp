@@ -2971,8 +2971,15 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        VARITH_FIXP::fixp_op_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1, pVs2,
-                                pVSTART, pVm, false, pRm, VARITH_FIXP::asubu);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_num = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART };
+
+        VARITH_FIXP::fixp_op_vv(VectorRegField, v_instr_info, pVd, pVs1, pVs2, false, pRm, VARITH_FIXP::asubu);
 
         // VARITH_FIXP::vasub_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs1,
         // pVs2,
