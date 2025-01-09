@@ -77,8 +77,12 @@ auto VARITH_FIXP::roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8
             bitmask = (1 << (rounding_bits - 1)) - 1;
             range_zero_check = value & bitmask;
         }
-        rounding_increment = (value & (1U << (rounding_bits - 1))) &
-                             static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
+        // v[d-1] & (v[d-2:0] != 0 | v[d])
+        bool condition_1 = (value & (1 << (rounding_bits - 1)));
+        bool condition_2 = static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
+        rounding_increment = condition_1 && condition_2;
+        // rounding_increment = (value & (1U << (rounding_bits - 1))) &
+        //                      static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
         break;
     }
     case 2:
@@ -92,10 +96,7 @@ auto VARITH_FIXP::roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8
         bitmask = (1 << (rounding_bits)) - 1;
         // Needs check v[d-1:0] != 0
         range_zero_check = value & bitmask;
-        bool condition_1 = (value & (1 << (rounding_bits - 1)));
-        bool condition_2 = static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
-        rounding_increment = condition_1 && condition_2;
-        // rounding_increment = !static_cast<bool>(value & (1 << rounding_bits)) && range_zero_check;
+        rounding_increment = !static_cast<bool>(value & (1 << rounding_bits)) && range_zero_check;
         break;
     }
     default:
@@ -169,9 +170,9 @@ auto VARITH_FIXP::roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t 
     return (value >> rounding_bits) + rounding_increment;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info, uint16_t reg_vd,
-                                           uint16_t reg_vs1, uint16_t reg_vs2, uint8_t rounding_mode,
-                                           FixpointFunction func, bool narrowing)
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
+                                           const fixedpoint_info_t &fixedpoint_info, uint16_t reg_vd, uint16_t reg_vs1,
+                                           uint16_t reg_vs2, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
@@ -183,7 +184,8 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, const v_instr_i
     {
         return (VILL::VPU_RETURN::SRC1_VEC_ILL);
     }
-    if ((!narrowing && !V.vec_reg_is_aligned(reg_vs2)) || (narrowing && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    if ((!fixedpoint_info.narrowing_op && !V.vec_reg_is_aligned(reg_vs2)) ||
+        (fixedpoint_info.narrowing_op && !V_wide.vec_reg_is_aligned(reg_vs2)))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
@@ -193,26 +195,27 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(uint8_t *vec_reg_mem, const v_instr_i
     }
 
     V.init();
-    if (narrowing)
+    if (fixedpoint_info.narrowing_op)
     {
         V_wide.init();
     }
 
     RVVector &vs1 = V.get_vec(reg_vs1);
-    RVVector &vs2 = narrowing ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vs2 = fixedpoint_info.narrowing_op ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
     RVVector &vd = V.get_vec(reg_vd);
 
     auto sat = false;
 
     iterate_vector(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
-                   v_instr_info.signed_op, v_instr_info.sew, rounding_mode, &sat);
+                   v_instr_info.signed_op, v_instr_info.sew, fixedpoint_info.rounding_mode, &sat);
 
     return sat ? VILL::VPU_RETURN::NO_EXCEPT_FP_SAT : VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info, uint16_t reg_vd,
-                                           uint16_t reg_vs2, uint8_t *scalar_reg_mem, uint8_t scalar_register_length,
-                                           uint8_t rounding_mode, FixpointFunction func, bool narrowing)
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
+                                           const fixedpoint_info_t &fixedpoint_info, uint16_t reg_vd, uint16_t reg_vs2,
+                                           uint8_t *scalar_reg_mem, uint8_t scalar_register_length,
+                                           FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
@@ -220,7 +223,8 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, const v_instr_i
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew * 2,
                        SVMul(v_instr_info.emul_num * 2, v_instr_info.emul_denom), vec_reg_mem);
 
-    if ((!narrowing && !V.vec_reg_is_aligned(reg_vs2)) || (narrowing && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    if ((!fixedpoint_info.narrowing_op && !V.vec_reg_is_aligned(reg_vs2)) ||
+        (fixedpoint_info.narrowing_op && !V_wide.vec_reg_is_aligned(reg_vs2)))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
@@ -230,8 +234,12 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, const v_instr_i
     }
 
     V.init();
+    if (fixedpoint_info.narrowing_op)
+    {
+        V_wide.init();
+    }
 
-    RVVector &vs2 = narrowing ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vs2 = fixedpoint_info.narrowing_op ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
     RVVector &vd = V.get_vec(reg_vd);
 
     uint64_t imm = (scalar_register_length > 32) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
@@ -242,7 +250,7 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(uint8_t *vec_reg_mem, const v_instr_i
     auto sat = false;
 
     iterate_vector(vs2, imm, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
-                   v_instr_info.signed_op, v_instr_info.sew, rounding_mode, &sat);
+                   v_instr_info.signed_op, v_instr_info.sew, fixedpoint_info.rounding_mode, &sat);
 
     return sat ? VILL::VPU_RETURN::NO_EXCEPT_FP_SAT : VILL::VPU_RETURN::NO_EXCEPT;
 }

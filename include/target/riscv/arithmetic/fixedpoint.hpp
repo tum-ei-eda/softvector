@@ -110,28 +110,28 @@ inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-vector
 /// \details For all i: D[i] = L[i] op R[i]
-VILL::vpu_return_t fixp_op_vv(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
-                              const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
-                              uint16_t reg_vd,                    //!< Destination vector D [index]
-                              uint16_t reg_vs1,                   //!< Source vector R [index]
-                              uint16_t reg_vs2,                   //!< Source vector L [index]
-                              uint8_t rounding_mode,              //!< Fixed-point rounding mode
-                              FixpointFunction func,              //!< The inner function
-                              bool narrowing = false              //!< Narrowing (vnclip(u)) operation
+VILL::vpu_return_t fixp_op_vv(
+    uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
+    const v_instr_info_t &v_instr_info,       //!< Struct containing vector instruction information
+    const fixedpoint_info_t &fixedpoint_info, //!< Struct containing fixed-point op information
+    uint16_t reg_vd,                          //!< Destination vector D [index]
+    uint16_t reg_vs1,                         //!< Source vector R [index]
+    uint16_t reg_vs2,                         //!< Source vector L [index]
+    FixpointFunction func                     //!< The inner function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-scalar
 /// \details For all i: D[i] = L[i] op (signed ? sign_extend(X[rs1]) : X[rs1])
-VILL::vpu_return_t fixp_op_vx(uint8_t *vec_reg_mem, //!< Vector register file memory space. One dimensional
-                              const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
-                              uint16_t reg_vd,                    //!< Destination vector D [index]
-                              uint16_t reg_vs2,                   //!< Source vector L [index]
-                              uint8_t *scalar_reg_mem,        //!< Memory space holding scalar data (min. _xlenb bytes)
-                              uint8_t scalar_register_length, //!< Length of scalar (XLEN) [bit]
-                              uint8_t rounding_mode,          //!< Fixed-point rounding mode
-                              FixpointFunction func,          //!< The inner function
-                              bool narrowing = false          //!< Narrowing (vnclip(u)) operation
+VILL::vpu_return_t fixp_op_vx(
+    uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
+    const v_instr_info_t &v_instr_info,       //!< Struct containing vector instruction information
+    const fixedpoint_info_t &fixedpoint_info, //!< Struct containing fixed-point op information
+    uint16_t reg_vd,                          //!< Destination vector D [index]
+    uint16_t reg_vs2,                         //!< Source vector L [index]
+    uint8_t *scalar_reg_mem,                  //!< Memory space holding scalar data (min. _xlenb bytes)
+    uint8_t scalar_register_length,           //!< Length of scalar (XLEN) [bit]
+    FixpointFunction func                     //!< The inner function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
