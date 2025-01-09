@@ -45,9 +45,92 @@ struct fixedpoint_info_t
     bool narrowing_op = false;
 };
 
+/**
+ * @brief Saturates a value to the nearest sew bit boundary
+ */
+inline auto saturate_boundary_signed(int64_t value, size_t sew) -> int64_t
+{
+    // E.g. 8 bit:
+    // Upper bound = 0111 1111
+    // Lower bound = 1000 0000
+    // Lower bound is extended to 64 bit, so just AND -1 with the inverted upper bound
+    int64_t upper_bound = get_n_bit_mask(sew - 1);
+    int64_t lower_bound = -1 & (~upper_bound);
+    return std::clamp(value, lower_bound, upper_bound);
+}
+
+/**
+ * @brief Saturates a value to the unsigned sew bit boundary
+ */
+inline auto saturate_boundary_unsigned(uint64_t value, size_t sew) -> uint64_t
+{
+    auto upper_bound = get_n_bit_mask(sew);
+    return (value <= upper_bound) ? value : upper_bound;
+}
+
 auto roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> uint64_t;
 
 auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t;
+
+/* 12.1. Vector Single-Width Saturating Add and Subtract */
+
+inline FixpointFunction sadd = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                  uint8_t rounding_mode) -> bool {
+    auto res = static_cast<int64_t>(lhs) + static_cast<int64_t>(rhs);
+    auto msb_lhs = msb_is_set(lhs, sew);
+    auto msb_rhs = msb_is_set(rhs, sew);
+    auto msb_res = msb_is_set(res, sew);
+
+    if (msb_lhs && msb_rhs && !msb_res)
+    {
+        // Negative overflow
+        vd = get_min_signed(sew);
+        return true;
+    }
+
+    if (!msb_lhs && !msb_rhs && msb_res)
+    {
+        // Positive overflow
+        vd = get_n_bit_mask(sew - 1);
+        return true;
+    }
+
+    vd = res;
+    return false;
+};
+
+inline FixpointFunction saddu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                   uint8_t rounding_mode) -> bool {
+    auto sew_mask = get_n_bit_mask(sew);
+    auto res = (lhs + rhs) & sew_mask;
+    auto sat = false;
+    if (res < lhs)
+    {
+        // Overflow
+        res = sew_mask;
+        sat = true;
+    }
+    vd = res;
+    return sat;
+};
+
+inline FixpointFunction ssub = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                  uint8_t rounding_mode) -> bool {
+    auto res = static_cast<int64_t>(lhs) - static_cast<int64_t>(rhs);
+    auto clamped_res = saturate_boundary_signed(res, sew);
+    vd = clamped_res;
+    return res != clamped_res;
+};
+
+inline FixpointFunction ssubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                   uint8_t rounding_mode) -> bool {
+    auto res = lhs - rhs;
+    auto clamped_res = saturate_boundary_unsigned(res, sew);
+    vd = clamped_res;
+    return res != clamped_res;
+};
+
+/* 12.2. Vector Single-Width Averaging Add and Subtract */
 
 inline FixpointFunction aadd = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                   uint8_t rounding_mode) -> bool {
@@ -86,13 +169,7 @@ inline FixpointFunction clip = [](uint64_t lhs, uint64_t rhs, SVElement &vd, siz
     // Masking with (sew << 1) - 1 will provide a bitmask that only uses the lower lg2(2*SEW) bits.
     auto shiftamount = rhs & ((sew << 1) - 1);
     auto res = roundoff_signed(sign_extend(lhs, 2 * sew), shiftamount, rounding_mode);
-    // E.g. 8 bit:
-    // Upper bound = 0111 1111
-    // Lower bound = 1000 0000
-    // Lower bound is extended to 64 bit, so just AND -1 with the inverted upper bound
-    int64_t upper_bound = get_n_bit_mask(sew - 1);
-    int64_t lower_bound = -1 & (~upper_bound);
-    auto clamped_res = std::clamp(res, lower_bound, upper_bound);
+    auto clamped_res = saturate_boundary_signed(res, sew);
     vd = clamped_res;
     return clamped_res != res;
 };
@@ -101,8 +178,7 @@ inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
                                    uint8_t rounding_mode) -> bool {
     auto shiftamount = rhs & ((sew << 1) - 1);
     auto res = roundoff_unsigned(lhs, shiftamount, rounding_mode);
-    auto upper_bound = get_n_bit_mask(sew);
-    auto clamped_res = (res <= upper_bound) ? res : upper_bound;
+    auto clamped_res = saturate_boundary_unsigned(res, sew);
     vd = clamped_res;
     return clamped_res != res;
 };

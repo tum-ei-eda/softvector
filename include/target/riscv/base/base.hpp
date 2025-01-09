@@ -214,6 +214,7 @@ struct v_instr_info_t
     bool masked = false;                  //!< True if masked instruction, false otherwise
     uint16_t start_element = 0U;          //!< First element to be processed (index)
     bool signed_op = false;               //!< True if the operation is signed, false otherwise
+    bool zero_extend_immediate = false;   //!< True if the immediate is to be explicitly zero extended
 };
 
 inline constexpr auto xlen_32_bytes = 4;
@@ -236,6 +237,11 @@ inline auto zero_extend_immediate(uint8_t imm5) -> uint64_t
 inline auto get_n_bit_mask(size_t n_bits) -> uint64_t
 {
     return ((uint64_t)1U << (n_bits)) - 1;
+}
+
+inline auto get_min_signed(size_t sew) -> int64_t
+{
+    return -1 & get_n_bit_mask(sew - 1);
 }
 
 inline auto msb_is_set(uint64_t value, size_t sew) -> bool

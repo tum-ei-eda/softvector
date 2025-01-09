@@ -2738,8 +2738,22 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        auto ret = VARITH_FIXP::vsadd_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, false);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = false };
+
+        VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
+
+        auto ret =
+            VARITH_FIXP::fixp_op_vv(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs1, pVs2, VARITH_FIXP::saddu);
+
+        // auto ret = VARITH_FIXP::vsadd_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+        //                                  pVs1, pVs2, pVSTART, pVm, false);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }
@@ -2752,8 +2766,23 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        auto ret = VARITH_FIXP::vsadd_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, pVimm, pVSTART, pVm, false);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = false,
+                                     .zero_extend_immediate = false };
+
+        VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
+
+        auto ret = VARITH_FIXP::fixp_op_vi(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs2, pVimm,
+                                           VARITH_FIXP::saddu);
+
+        // auto ret = VARITH_FIXP::vsadd_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+        //                                  pVs2, pVimm, pVSTART, pVm, false);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }
@@ -2771,8 +2800,19 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        auto ret = VARITH_FIXP::vsadd_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, false, pXLEN / 8);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = false };
+
+        VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
+
+        auto ret = VARITH_FIXP::fixp_op_vx(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs2, ScalarReg, pXLEN,
+                                           VARITH_FIXP::saddu);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }
@@ -3254,16 +3294,13 @@ extern "C"
                                      .vector_register_length = pVLEN,
                                      .masked = !pVm,
                                      .start_element = pVSTART,
-                                     .signed_op = false };
+                                     .signed_op = false,
+                                     .zero_extend_immediate = true };
 
         VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
         auto ret = VARITH_FIXP::fixp_op_vi(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs2, pVimm,
                                            VARITH_FIXP::clipu);
-
-        // VARITH_FIXP::vnclipu_wi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN
-        // / 8, pVd, pVs2,
-        //                         pVimm, pVSTART, pVm, pRm);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }
@@ -3347,7 +3384,8 @@ extern "C"
                                      .vector_register_length = pVLEN,
                                      .masked = !pVm,
                                      .start_element = pVSTART,
-                                     .signed_op = false };
+                                     .signed_op = false,
+                                     .zero_extend_immediate = true };
 
         VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 

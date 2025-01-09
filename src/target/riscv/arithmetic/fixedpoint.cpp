@@ -286,7 +286,11 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vi(uint8_t *vec_reg_mem, const v_instr_i
     RVVector &vd = V.get_vec(reg_vd);
     auto sat = false;
 
-    uint64_t imm = v_instr_info.signed_op ? sign_extend_immediate(imm5) : zero_extend_immediate(imm5);
+    // For instruction with specific uimm, just zero extend, otherwise sign extend
+    uint64_t imm = v_instr_info.zero_extend_immediate ? zero_extend_immediate(imm5) : sign_extend_immediate(imm5);
+
+    // However, if the instruction is unsigned, we must zero out the upper 64 - SEW bits!
+    imm = v_instr_info.signed_op ? imm : imm & get_n_bit_mask(v_instr_info.sew);
 
     iterate_vector(vs2, imm, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
                    v_instr_info.signed_op, v_instr_info.sew, fixedpoint_info.rounding_mode, &sat);
