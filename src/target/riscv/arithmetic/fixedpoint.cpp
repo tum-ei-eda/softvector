@@ -81,8 +81,6 @@ auto VARITH_FIXP::roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8
         bool condition_1 = (value & (1 << (rounding_bits - 1)));
         bool condition_2 = static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
         rounding_increment = condition_1 && condition_2;
-        // rounding_increment = (value & (1U << (rounding_bits - 1))) &
-        //                      static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
         break;
     }
     case 2:
@@ -142,8 +140,6 @@ auto VARITH_FIXP::roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t 
         bool condition_1 = (value & (1 << (rounding_bits - 1)));
         bool condition_2 = static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
         rounding_increment = condition_1 && condition_2;
-        // rounding_increment = (value & (1U << (rounding_bits - 1))) &
-        //                      static_cast<bool>(range_zero_check || (value & (1 << rounding_bits)));
         break;
     }
     case 2:

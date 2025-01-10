@@ -164,6 +164,19 @@ inline FixpointFunction asubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
     return false;
 };
 
+/* 12.4. Vector Single-Width Scaling Shift Instructions */
+
+inline FixpointFunction ssrl = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                  uint8_t rounding_mode) -> bool {
+    // Masking with sew - 1 will provide a bitmask that only uses the lower lg2(SEW) bits.
+    auto shiftamount = rhs & (sew - 1);
+    auto res = roundoff_signed(lhs, shiftamount, rounding_mode);
+    vd = res;
+    return false;
+};
+
+/* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
+
 inline FixpointFunction clip = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                   uint8_t rounding_mode) -> bool {
     // Masking with (sew << 1) - 1 will provide a bitmask that only uses the lower lg2(2*SEW) bits.
@@ -173,6 +186,7 @@ inline FixpointFunction clip = [](uint64_t lhs, uint64_t rhs, SVElement &vd, siz
     vd = clamped_res;
     return clamped_res != res;
 };
+
 
 inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                    uint8_t rounding_mode) -> bool {

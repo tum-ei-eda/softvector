@@ -235,21 +235,13 @@ VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,       //!< Vector register fi
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Regular vector integer arithmetic operation vector-scalar
 /// \details For all i: vd[i] = vs2[i] op sign_extend(X[rs1])
-VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,            //!< Register multiplicity numerator
-                             uint64_t emul_denom,          //!< Register multiplicity denominator
-                             uint16_t sew_bytes,           //!< Element width [bytes]
-                             uint16_t vec_len,             //!< Vector length [elements]
-                             uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,         //!< Destination vector D [index]
-                             uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+                             const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
+                             uint16_t reg_vd,                    //!< Destination vector D [index]
+                             uint16_t reg_vs2,                   //!< Source vector L [index]
                              uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
-                             uint16_t vec_elem_start,      //!< Starting element [index]
-                             bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
                              uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
-                             ArithmeticFunction func,      //!< Integer arithmetic function
-                             bool signed_vs2,              //!< Whether vs2 is signed
-                             bool signed_scalar            //!< Whether the scalar value is signed
+                             ArithmeticFunction func       //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////

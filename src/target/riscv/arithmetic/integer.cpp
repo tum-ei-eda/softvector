@@ -24,17 +24,7 @@
 #include "vpu/softvector-types.hpp"
 #include "base/softvector-platform-types.hpp"
 
-// Private globals
-
-// constexpr auto xlen_32_bytes = 4;
-
 // Private function declarations
-
-// inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t;
-
-// inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_scalar) -> uint64_t;
-
-// inline auto msb_is_set(uint64_t value, size_t sew) -> bool;
 
 auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1) -> void;
@@ -43,33 +33,6 @@ auto iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRe
                     VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2) -> void;
 
 // Private function definitions
-
-// inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t
-// {
-//     uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
-//     uint64_t ext_mask = msb_is_set(value, sew) * (~sew_mask);
-//     return value | ext_mask;
-// }
-
-// inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_scalar) -> uint64_t
-// {
-//     if (sew == 64)
-//     {
-//         return value;
-//     }
-
-//     // Use least significant SEW bits
-//     uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
-//     value &= sew_mask;
-
-//     bool sign_extend = signed_scalar && msb_is_set(value, sew);
-//     return value | (sign_extend * (~sew_mask));
-// };
-
-// inline auto msb_is_set(uint64_t value, size_t sew) -> bool
-// {
-//     return value & ((uint64_t)1 << (sew - 1));
-// }
 
 void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1)
@@ -180,32 +143,32 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
-                                         ArithmeticFunction func, bool signed_vs2, bool signed_scalar)
+VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info, uint16_t reg_vd,
+                                         uint16_t reg_vs2, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
+                                         ArithmeticFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                          : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
-    imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_scalar);
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    uint64_t scalar = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                             : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    scalar = mask_and_sign_extend_scalar(scalar, v_instr_info.sew, v_instr_info.signed_op);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    RVVector &vd = V.get_vec(reg_vd);
 
-    iterate_vector(vs2, imm, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, signed_vs2);
+    iterate_vector(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
+                   v_instr_info.signed_op);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
