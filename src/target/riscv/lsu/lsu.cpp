@@ -35,21 +35,20 @@ VILL::vpu_return_t VLSU::load_eew(std::function<void(size_t, uint8_t *, size_t)>
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
-    else
-    {
-        V.init();
 
-        RVVector &vd = V.get_vec(dst_vec_reg);
-        size_t memOffset = src_mem_start;
-        for (size_t iElement = 0; iElement < vec_len; ++iElement)
+    V.init();
+
+    RVVector &vd = V.get_vec(dst_vec_reg);
+    size_t memOffset = src_mem_start;
+    for (size_t iElement = 0; iElement < vec_len; ++iElement)
+    {
+        if (iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement)))
         {
-            if (iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement)))
-            {
-                func_read_mem(memOffset, vd[iElement].mem_, eew_bytes);
-            }
-            memOffset += (eew_bytes + stride_bytes);
+            func_read_mem(memOffset, vd[iElement].mem_, eew_bytes);
         }
+        memOffset += stride_bytes;
     }
+
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
@@ -64,20 +63,19 @@ VILL::vpu_return_t VLSU::store_eew(std::function<void(size_t, uint8_t *, size_t)
     {
         return (VILL::VPU_RETURN::SRC3_VEC_ILL);
     }
-    else
-    {
-        V.init();
 
-        RVVector &vs3 = V.get_vec(src_vec_reg);
-        size_t memOffset = dst_mem_start;
-        for (size_t iElement = 0; iElement < vec_len; ++iElement)
+    V.init();
+
+    RVVector &vs3 = V.get_vec(src_vec_reg);
+    size_t memOffset = dst_mem_start;
+    for (size_t iElement = 0; iElement < vec_len; ++iElement)
+    {
+        if (iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement)))
         {
-            if (iElement >= vec_elem_start && (mask_f || V.get_mask_reg().get_bit(iElement)))
-            {
-                func_write_mem(memOffset, vs3[iElement].mem_, eew_bytes);
-            }
-            memOffset += (eew_bytes + stride_bytes);
+            func_write_mem(memOffset, vs3[iElement].mem_, eew_bytes);
         }
+        memOffset += stride_bytes;
     }
+
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
