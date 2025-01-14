@@ -717,8 +717,22 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                           pVSTART, pVm, false, true, pXLEN / 8);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = true,
+                                     .wide_vd = true,
+                                     .wide_vs2 = true };
+
+        VARITH_INT::int_op_vx(VectorRegField, v_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::sub);
+
+        // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        // ScalarReg,
+        //                    pVSTART, pVm, false, true, pXLEN / 8);
 
         return (0);
     }
@@ -3193,8 +3207,20 @@ extern "C"
 
         VectorRegField = static_cast<uint8_t *>(pV);
 
-        auto ret = VARITH_FIXP::vsmul_vv(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs1, pVs2, pVSTART, pVm, pRm);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = true,
+                                     .zero_extend_immediate = false };
+
+        VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
+
+        auto ret =
+            VARITH_FIXP::fixp_op_vv(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs1, pVs2, VARITH_FIXP::smul);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }
@@ -3212,8 +3238,22 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        auto ret = VARITH_FIXP::vsmul_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
-                                         pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .masked = !pVm,
+                                     .start_element = pVSTART,
+                                     .signed_op = true };
+
+        VARITH_FIXP::fixedpoint_info_t fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
+
+        auto ret = VARITH_FIXP::fixp_op_vx(VectorRegField, v_instr_info, fixedpoint_info, pVd, pVs2, ScalarReg, pXLEN,
+                                           VARITH_FIXP::smul);
+
+        // auto ret = VARITH_FIXP::vsmul_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd,
+        //                                  pVs2, ScalarReg, pVSTART, pVm, pXLEN / 8, pRm);
 
         return ret == VILL::VPU_RETURN::NO_EXCEPT_FP_SAT ? 1 : 0;
     }

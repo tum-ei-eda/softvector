@@ -19,6 +19,9 @@
 /// \date 06/23/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
+#include <cstdint>
+#include <cstddef>
+
 #include "arithmetic/integer.hpp"
 #include "base/base.hpp"
 #include "vpu/softvector-types.hpp"
@@ -26,18 +29,62 @@
 
 // Private function declarations
 
-auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1) -> void;
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2, bool wide_vs1)
+    -> VILL::vpu_return_t;
 
-auto iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2) -> void;
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t;
+
+auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1)
+    -> void;
+
+auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2) -> void;
 
 // Private function definitions
 
-void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2, bool signed_vs1)
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2, bool wide_vs1)
+    -> VILL::vpu_return_t
 {
-    for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
+
+    if ((!wide_vs1 && !V.vec_reg_is_aligned(reg_vs1)) || wide_vs1 && !V_wide.vec_reg_is_aligned(reg_vs1))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || wide_vd && !V_wide.vec_reg_is_aligned(reg_vd))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t
+{
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || wide_vd && !V_wide.vec_reg_is_aligned(reg_vd))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1)
+{
+    for (std::size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
@@ -48,27 +95,27 @@ void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const S
     }
 }
 
-void iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, size_t start_index, bool signed_vs2)
+void iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2)
 {
-    for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
+    for (std::size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            std::uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
             func(lhs, scalar, vd[i_element]);
         }
     }
 }
 
-void iterate_vector_comparison(const SVector &vs2, uint64_t scalar, SVRegister &vd, const SVRegister &vm, bool mask,
-                               VARITH_INT::ComparisonFunction func, size_t start_index, bool signed_vs2)
+void iterate_vector_comparison(const SVector &vs2, std::uint64_t scalar, SVRegister &vd, const SVRegister &vm,
+                               bool mask, VARITH_INT::ComparisonFunction func, std::size_t start_index, bool signed_vs2)
 {
-    for (size_t i_element = start_index; i_element < vs2.length_; ++i_element)
+    for (std::size_t i_element = start_index; i_element < vs2.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            std::uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
             func(lhs, scalar, vd, i_element);
         }
     }
@@ -76,11 +123,12 @@ void iterate_vector_comparison(const SVector &vs2, uint64_t scalar, SVRegister &
 
 // Public function definitions
 
-VILL::vpu_return_t VARITH_INT::int_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f, ArithmeticFunction func, bool signed_vs2,
-                                         bool signed_vs1)
+VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start, bool mask_f, ArithmeticFunction func,
+                                         bool signed_vs2, bool signed_vs1)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -108,11 +156,11 @@ VILL::vpu_return_t VARITH_INT::int_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm5,
-                                         uint16_t vec_elem_start, bool mask_f, ArithmeticFunction func, bool signed_vs2,
-                                         bool signed_imm)
+VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t imm5, std::uint16_t vec_elem_start,
+                                         bool mask_f, ArithmeticFunction func, bool signed_vs2, bool signed_imm)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -128,13 +176,13 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num
     V.init();
 
     // Mask for 5 bit immediate
-    static constexpr uint64_t imm_msb_mask = 0x10;
-    static constexpr uint64_t imm_width_mask = 0x1F;
-    static constexpr uint64_t imm_ext_mask = ~imm_width_mask;
+    static constexpr std::uint64_t imm_msb_mask = 0x10;
+    static constexpr std::uint64_t imm_width_mask = 0x1F;
+    static constexpr std::uint64_t imm_ext_mask = ~imm_width_mask;
 
     // If immediate is signed and msb set: mask and sign-extend, otherwise just mask
     // Could use mask_and_sign_extend_scalar(imm, 5, signed_imm)
-    uint64_t imm = signed_imm && (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
+    std::uint64_t imm = signed_imm && (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -143,29 +191,36 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info, uint16_t reg_vd,
-                                         uint16_t reg_vs2, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
-                                         ArithmeticFunction func)
+VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
+                                         std::uint16_t reg_vd, std::uint16_t reg_vs2, std::uint8_t *scalar_reg_mem,
+                                         std::uint8_t scalar_reg_len_bytes, ArithmeticFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(reg_vs2))
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                       SVMul(2 * v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+
+    auto alignment_exception = check_alignment(V, V_wide, reg_vd, reg_vs2, v_instr_info.wide_vd, v_instr_info.wide_vs2);
+    if (alignment_exception != VILL::vpu_return_t::NO_EXCEPT)
     {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if (!V.vec_reg_is_aligned(reg_vd))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
+        return alignment_exception;
     }
 
     V.init();
+    if (v_instr_info.wide_vd || v_instr_info.wide_vs2)
+    {
+        V_wide.init();
+    }
 
-    uint64_t scalar = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                             : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t scalar = (scalar_reg_len_bytes > xlen_32_bytes)
+                               ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                               : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
+
     scalar = mask_and_sign_extend_scalar(scalar, v_instr_info.sew, v_instr_info.signed_op);
-    RVVector &vs2 = V.get_vec(reg_vs2);
-    RVVector &vd = V.get_vec(reg_vd);
+
+    RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
 
     iterate_vector(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
                    v_instr_info.signed_op);
@@ -173,11 +228,12 @@ VILL::vpu_return_t VARITH_INT::int_op_vx(uint8_t *vec_reg_mem, const v_instr_inf
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_compare_op_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t imm5,
-                                                 uint16_t vec_elem_start, bool mask_f, ComparisonFunction func,
-                                                 bool signed_vs2)
+VILL::vpu_return_t VARITH_INT::int_compare_op_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num,
+                                                 std::uint64_t emul_denom, std::uint16_t sew_bytes,
+                                                 std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                                 std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                                 std::uint8_t imm5, std::uint16_t vec_elem_start, bool mask_f,
+                                                 ComparisonFunction func, bool signed_vs2)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -194,7 +250,7 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vi(uint8_t *vec_reg_mem, uint64_t 
 
     // If msb set: mask and sign-extend, otherwise just mask
     // Could use mask_and_sign_extend_scalar(imm, 5, true)
-    uint64_t imm = (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
+    std::uint64_t imm = (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -203,12 +259,13 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vi(uint8_t *vec_reg_mem, uint64_t 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_compare_op_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                                                 uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
-                                                 uint8_t scalar_reg_len_bytes, ComparisonFunction func, bool signed_vs2,
-                                                 bool signed_scalar)
+VILL::vpu_return_t VARITH_INT::int_compare_op_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num,
+                                                 std::uint64_t emul_denom, std::uint16_t sew_bytes,
+                                                 std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                                 std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                                 std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start,
+                                                 bool mask_f, std::uint8_t scalar_reg_len_bytes,
+                                                 ComparisonFunction func, bool signed_vs2, bool signed_scalar)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -223,8 +280,8 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vx(uint8_t *vec_reg_mem, uint64_t 
 
     V.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                          : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                               : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
     imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_scalar);
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     SVRegister &vd = V.get_vecreg(dst_vec_reg);
@@ -234,216 +291,11 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vx(uint8_t *vec_reg_mem, uint64_t 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-/*
-VILL::vpu_return_t VARITH_INT::add_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
-    {
-        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-        RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_add(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::add_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        int64_t imm = static_cast<int64_t>(s_imm & 0x10 ? s_imm | ~0x1F : s_imm);
-        RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_add(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::add_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
-        RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_add(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::sub_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
-    {
-        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-        RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_sub(vs2, vs1, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::sub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
-        RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_sub(vs2, imm, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::rsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<int64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<int32_t *>(scalar_reg_mem));
-        RVVector &vs2 = V.get_vec(src_vec_reg_rhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_rsub(imm, vs2, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-
-VILL::vpu_return_t VARITH_INT::rsub_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    else if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-    else
-    {
-        V.init();
-
-        int64_t imm = static_cast<int64_t>(s_imm & 0x10 ? s_imm | ~0x1F : s_imm);
-        RVVector &vs2 = V.get_vec(src_vec_reg_rhs);
-        RVVector &vd = V.get_vec(dst_vec_reg);
-
-        vd.m_rsub(imm, vs2, V.get_mask_reg(), !mask_f, vec_elem_start);
-    }
-    return (VILL::VPU_RETURN::NO_EXCEPT);
-}
-*/
-VILL::vpu_return_t VARITH_INT::wop_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f, bool dir_f, bool signed_f)
+VILL::vpu_return_t VARITH_INT::wop_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f,
+                                      bool dir_f, bool signed_f)
 {
     // TODO: Remove nesting for returning branches
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
@@ -500,10 +352,11 @@ VILL::vpu_return_t VARITH_INT::wop_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::wop_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, bool dir_f, bool signed_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::wop_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      bool dir_f, bool signed_f, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -553,10 +406,11 @@ VILL::vpu_return_t VARITH_INT::wop_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::wop_wv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f, bool dir_f, bool signed_f)
+VILL::vpu_return_t VARITH_INT::wop_wv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f,
+                                      bool dir_f, bool signed_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -612,10 +466,11 @@ VILL::vpu_return_t VARITH_INT::wop_wv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::wop_wx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, bool dir_f, bool signed_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::wop_wx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      bool dir_f, bool signed_f, std::uint8_t scalar_reg_len_bytes)
 {
 
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
@@ -663,10 +518,10 @@ VILL::vpu_return_t VARITH_INT::wop_wx(uint8_t *vec_reg_mem, uint64_t emul_num, u
 /* End 11.2. */
 
 /* 11.3. Vector Integer Extension */
-VILL::vpu_return_t VARITH_INT::vext_vf(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint16_t extension_encoding, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vext_vf(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint16_t extension_encoding, std::uint16_t vec_elem_start, bool mask_f)
 {
     int divider = 0;
     bool sign = extension_encoding & 1;
@@ -722,10 +577,10 @@ VILL::vpu_return_t VARITH_INT::vext_vf(uint8_t *vec_reg_mem, uint64_t emul_num, 
 }
 /* End 11.3. */
 
-VILL::vpu_return_t VARITH_INT::and_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
+VILL::vpu_return_t VARITH_INT::and_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -754,9 +609,10 @@ VILL::vpu_return_t VARITH_INT::and_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::and_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::and_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                      std::uint16_t vec_elem_start, bool mask_f)
 {
 
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
@@ -782,10 +638,11 @@ VILL::vpu_return_t VARITH_INT::and_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::and_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::and_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -811,10 +668,10 @@ VILL::vpu_return_t VARITH_INT::and_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::or_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                     uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                     bool mask_f)
+VILL::vpu_return_t VARITH_INT::or_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                     std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -843,9 +700,10 @@ VILL::vpu_return_t VARITH_INT::or_vv(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::or_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                     uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::or_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                     std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -870,10 +728,11 @@ VILL::vpu_return_t VARITH_INT::or_vi(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::or_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                     uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                     bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::or_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                     std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                     std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -899,10 +758,10 @@ VILL::vpu_return_t VARITH_INT::or_vx(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::xor_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
+VILL::vpu_return_t VARITH_INT::xor_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -931,9 +790,10 @@ VILL::vpu_return_t VARITH_INT::xor_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::xor_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::xor_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                      std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -958,10 +818,11 @@ VILL::vpu_return_t VARITH_INT::xor_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::xor_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::xor_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -988,10 +849,10 @@ VILL::vpu_return_t VARITH_INT::xor_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
 }
 
 /* 11.6. Vector Single-Width Shift Instructions */
-VILL::vpu_return_t VARITH_INT::sll_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
+VILL::vpu_return_t VARITH_INT::sll_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1020,9 +881,10 @@ VILL::vpu_return_t VARITH_INT::sll_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::sll_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t u_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::sll_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                      std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1038,7 +900,7 @@ VILL::vpu_return_t VARITH_INT::sll_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = u_imm & 0x1F;
+        std::uint64_t imm = u_imm & 0x1F;
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1047,10 +909,11 @@ VILL::vpu_return_t VARITH_INT::sll_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::sll_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::sll_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1066,8 +929,8 @@ VILL::vpu_return_t VARITH_INT::sll_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1076,10 +939,10 @@ VILL::vpu_return_t VARITH_INT::sll_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::srl_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
+VILL::vpu_return_t VARITH_INT::srl_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1108,9 +971,10 @@ VILL::vpu_return_t VARITH_INT::srl_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::srl_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t u_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::srl_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                      std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1126,7 +990,7 @@ VILL::vpu_return_t VARITH_INT::srl_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = u_imm & 0x1F;
+        std::uint64_t imm = u_imm & 0x1F;
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1135,10 +999,11 @@ VILL::vpu_return_t VARITH_INT::srl_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::srl_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::srl_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1154,8 +1019,8 @@ VILL::vpu_return_t VARITH_INT::srl_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1164,10 +1029,10 @@ VILL::vpu_return_t VARITH_INT::srl_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::sra_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                      bool mask_f)
+VILL::vpu_return_t VARITH_INT::sra_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                      std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1196,9 +1061,10 @@ VILL::vpu_return_t VARITH_INT::sra_vv(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::sra_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t u_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::sra_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                      std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1214,7 +1080,7 @@ VILL::vpu_return_t VARITH_INT::sra_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = u_imm & 0x1F;
+        std::uint64_t imm = u_imm & 0x1F;
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1223,10 +1089,11 @@ VILL::vpu_return_t VARITH_INT::sra_vi(uint8_t *vec_reg_mem, uint64_t emul_num, u
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::sra_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                      uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                      uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                      bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::sra_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                      std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                      std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                      std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                      std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1242,8 +1109,8 @@ VILL::vpu_return_t VARITH_INT::sra_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1254,10 +1121,10 @@ VILL::vpu_return_t VARITH_INT::sra_vx(uint8_t *vec_reg_mem, uint64_t emul_num, u
 /* End 11.6. */
 
 /* 11.7. Vector Narrowing Integer Right Shift Instructions */
-VILL::vpu_return_t VARITH_INT::vnsrl_wv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnsrl_wv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     // vd and vs1: EEW = SEW, EMUL = LMUL
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
@@ -1296,10 +1163,10 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnsrl_wi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t u_imm,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnsrl_wi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                        std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(dst_vec_reg))
@@ -1316,7 +1183,7 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wi(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = u_imm & 0x1F;
+    std::uint64_t imm = u_imm & 0x1F;
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1333,10 +1200,11 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wi(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnsrl_wx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vnsrl_wx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(dst_vec_reg))
@@ -1353,8 +1221,8 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                   : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1371,10 +1239,10 @@ VILL::vpu_return_t VARITH_INT::vnsrl_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnsra_wv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnsra_wv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     // vd and vs1: EEW = SEW, EMUL = LMUL
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
@@ -1413,10 +1281,10 @@ VILL::vpu_return_t VARITH_INT::vnsra_wv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnsra_wi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t u_imm,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnsra_wi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                        std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(dst_vec_reg))
@@ -1433,7 +1301,7 @@ VILL::vpu_return_t VARITH_INT::vnsra_wi(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = u_imm & 0x1F;
+    std::uint64_t imm = u_imm & 0x1F;
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1450,10 +1318,11 @@ VILL::vpu_return_t VARITH_INT::vnsra_wi(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnsra_wx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vnsra_wx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(dst_vec_reg))
@@ -1470,8 +1339,8 @@ VILL::vpu_return_t VARITH_INT::vnsra_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VS.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                   : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = VS.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -1489,10 +1358,10 @@ VILL::vpu_return_t VARITH_INT::vnsra_wx(uint8_t *vec_reg_mem, uint64_t emul_num,
 }
 /* End 11.7. */
 
-VILL::vpu_return_t VARITH_INT::mseq_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::mseq_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1517,9 +1386,10 @@ VILL::vpu_return_t VARITH_INT::mseq_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mseq_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::mseq_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                       std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1544,10 +1414,11 @@ VILL::vpu_return_t VARITH_INT::mseq_vi(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mseq_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::mseq_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1573,10 +1444,10 @@ VILL::vpu_return_t VARITH_INT::mseq_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msne_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::msne_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1600,9 +1471,10 @@ VILL::vpu_return_t VARITH_INT::msne_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msne_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msne_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                       std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1628,10 +1500,11 @@ VILL::vpu_return_t VARITH_INT::msne_vi(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msne_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msne_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1657,10 +1530,10 @@ VILL::vpu_return_t VARITH_INT::msne_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msltu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msltu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1685,10 +1558,11 @@ VILL::vpu_return_t VARITH_INT::msltu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msltu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msltu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1704,8 +1578,8 @@ VILL::vpu_return_t VARITH_INT::msltu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -1714,10 +1588,10 @@ VILL::vpu_return_t VARITH_INT::msltu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mslt_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::mslt_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1742,10 +1616,11 @@ VILL::vpu_return_t VARITH_INT::mslt_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mslt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::mslt_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1771,10 +1646,10 @@ VILL::vpu_return_t VARITH_INT::mslt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msleu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msleu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1799,10 +1674,10 @@ VILL::vpu_return_t VARITH_INT::msleu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msleu_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t u_imm,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msleu_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t u_imm,
+                                        std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1818,7 +1693,7 @@ VILL::vpu_return_t VARITH_INT::msleu_vi(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = u_imm & 0x1F;
+        std::uint64_t imm = u_imm & 0x1F;
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -1827,10 +1702,11 @@ VILL::vpu_return_t VARITH_INT::msleu_vi(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msleu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msleu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1846,8 +1722,8 @@ VILL::vpu_return_t VARITH_INT::msleu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -1856,10 +1732,10 @@ VILL::vpu_return_t VARITH_INT::msleu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msle_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::msle_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1884,9 +1760,10 @@ VILL::vpu_return_t VARITH_INT::msle_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msle_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msle_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                       std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1911,10 +1788,11 @@ VILL::vpu_return_t VARITH_INT::msle_vi(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msle_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msle_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1941,10 +1819,10 @@ VILL::vpu_return_t VARITH_INT::msle_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgtu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msgtu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1969,10 +1847,11 @@ VILL::vpu_return_t VARITH_INT::msgtu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgtu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msgtu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -1988,8 +1867,8 @@ VILL::vpu_return_t VARITH_INT::msgtu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -1998,10 +1877,10 @@ VILL::vpu_return_t VARITH_INT::msgtu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgtu_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t s_imm,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msgtu_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                        std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2026,10 +1905,10 @@ VILL::vpu_return_t VARITH_INT::msgtu_vi(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgt_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::msgt_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2054,10 +1933,11 @@ VILL::vpu_return_t VARITH_INT::msgt_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::msgt_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2073,8 +1953,8 @@ VILL::vpu_return_t VARITH_INT::msgt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         SVRegister &vd = V.get_vecreg(dst_vec_reg);
 
@@ -2083,9 +1963,10 @@ VILL::vpu_return_t VARITH_INT::msgt_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::msgt_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::msgt_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                       std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2111,10 +1992,10 @@ VILL::vpu_return_t VARITH_INT::msgt_vi(uint8_t *vec_reg_mem, uint64_t emul_num, 
 }
 
 /* 11.10. Vector Single-Width Integer Multiply Instructions */
-VILL::vpu_return_t VARITH_INT::vmul_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmul_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2143,10 +2024,11 @@ VILL::vpu_return_t VARITH_INT::vmul_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmul_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2172,10 +2054,10 @@ VILL::vpu_return_t VARITH_INT::vmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmulh_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmulh_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2203,10 +2085,11 @@ VILL::vpu_return_t VARITH_INT::vmulh_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
-VILL::vpu_return_t VARITH_INT::vmulh_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmulh_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2232,10 +2115,11 @@ VILL::vpu_return_t VARITH_INT::vmulh_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmulhu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmulhu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2263,10 +2147,11 @@ VILL::vpu_return_t VARITH_INT::vmulhu_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
-VILL::vpu_return_t VARITH_INT::vmulhu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmulhu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                         std::uint16_t vec_elem_start, bool mask_f, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2292,10 +2177,11 @@ VILL::vpu_return_t VARITH_INT::vmulhu_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmulhsu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                          uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmulhsu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                          std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                          std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                          std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                          std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2323,10 +2209,11 @@ VILL::vpu_return_t VARITH_INT::vmulhsu_vv(uint8_t *vec_reg_mem, uint64_t emul_nu
     }
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
-VILL::vpu_return_t VARITH_INT::vmulhsu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                          uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmulhsu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                          std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                          std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                          std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                          std::uint16_t vec_elem_start, bool mask_f, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2353,10 +2240,10 @@ VILL::vpu_return_t VARITH_INT::vmulhsu_vx(uint8_t *vec_reg_mem, uint64_t emul_nu
 }
 
 /* 11.11. Vector Single-Width Integer Divide Instructions */
-VILL::vpu_return_t VARITH_INT::vdiv_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vdiv_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2385,10 +2272,11 @@ VILL::vpu_return_t VARITH_INT::vdiv_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vdiv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vdiv_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2414,10 +2302,10 @@ VILL::vpu_return_t VARITH_INT::vdiv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vdivu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vdivu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2446,10 +2334,11 @@ VILL::vpu_return_t VARITH_INT::vdivu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vdivu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vdivu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2465,8 +2354,8 @@ VILL::vpu_return_t VARITH_INT::vdivu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -2475,10 +2364,10 @@ VILL::vpu_return_t VARITH_INT::vdivu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vrem_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vrem_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2507,10 +2396,11 @@ VILL::vpu_return_t VARITH_INT::vrem_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vrem_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vrem_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2536,10 +2426,10 @@ VILL::vpu_return_t VARITH_INT::vrem_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vremu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vremu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2568,10 +2458,11 @@ VILL::vpu_return_t VARITH_INT::vremu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vremu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vremu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2587,8 +2478,8 @@ VILL::vpu_return_t VARITH_INT::vremu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                  : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                       : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -2602,10 +2493,11 @@ VILL::vpu_return_t VARITH_INT::vremu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
 /* 2*SEW product from SEW*SEW */
 
 // enum class Widening_Mul_Type
-VILL::vpu_return_t VARITH_INT::vwmul_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f, VWMUL_TYPE vwmul_type)
+VILL::vpu_return_t VARITH_INT::vwmul_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f,
+                                        VWMUL_TYPE vwmul_type)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
@@ -2667,11 +2559,11 @@ VILL::vpu_return_t VARITH_INT::vwmul_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vwmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
-                                        VWMUL_TYPE vwmul_type)
+VILL::vpu_return_t VARITH_INT::vwmul_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes, VWMUL_TYPE vwmul_type)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2689,8 +2581,8 @@ VILL::vpu_return_t VARITH_INT::vwmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     V.init();
     VD.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                   : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = VD.get_vec(dst_vec_reg);
 
@@ -2730,10 +2622,10 @@ VILL::vpu_return_t VARITH_INT::vwmul_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
 /* End 11.12. */
 
 /* Regular vector min and max instructions */
-VILL::vpu_return_t VARITH_INT::vmax_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmax_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2762,10 +2654,11 @@ VILL::vpu_return_t VARITH_INT::vmax_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmax_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmax_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2791,10 +2684,10 @@ VILL::vpu_return_t VARITH_INT::vmax_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmaxu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmaxu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2823,10 +2716,11 @@ VILL::vpu_return_t VARITH_INT::vmaxu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmaxu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmaxu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2842,8 +2736,8 @@ VILL::vpu_return_t VARITH_INT::vmaxu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -2852,10 +2746,10 @@ VILL::vpu_return_t VARITH_INT::vmaxu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmin_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                       bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmin_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                       std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2884,10 +2778,11 @@ VILL::vpu_return_t VARITH_INT::vmin_vv(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmin_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                       uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                       uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                                       bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmin_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                       std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                       std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                       std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                       std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2913,10 +2808,10 @@ VILL::vpu_return_t VARITH_INT::vmin_vx(uint8_t *vec_reg_mem, uint64_t emul_num, 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vminu_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vminu_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2945,10 +2840,11 @@ VILL::vpu_return_t VARITH_INT::vminu_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vminu_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vminu_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -2964,8 +2860,8 @@ VILL::vpu_return_t VARITH_INT::vminu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     {
         V.init();
 
-        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+        int64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
         RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
         RVVector &vd = V.get_vec(dst_vec_reg);
 
@@ -2975,9 +2871,9 @@ VILL::vpu_return_t VARITH_INT::vminu_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
 }
 
 /* 11.16. Vector Integer Move Instructions */
-VILL::vpu_return_t VARITH_INT::mv_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                     uint16_t src_vec_reg, uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::mv_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg, std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3001,9 +2897,10 @@ VILL::vpu_return_t VARITH_INT::mv_vv(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                                     uint8_t *scalar_reg_mem, uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::mv_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint8_t *scalar_reg_mem,
+                                     std::uint16_t vec_elem_start, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3024,9 +2921,9 @@ VILL::vpu_return_t VARITH_INT::mv_vx(uint8_t *vec_reg_mem, uint64_t emul_num, ui
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::mv_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                                     uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint8_t s_imm,
-                                     uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::mv_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                     std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                     std::uint16_t dst_vec_reg, std::uint8_t s_imm, std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3048,10 +2945,10 @@ VILL::vpu_return_t VARITH_INT::mv_vi(uint8_t *vec_reg_mem, uint64_t emul_num, ui
 /* End 11.16. */
 
 /* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
-VILL::vpu_return_t VARITH_INT::vadc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::vadc_vvm(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3080,10 +2977,10 @@ VILL::vpu_return_t VARITH_INT::vadc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vadc_vim(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t s_imm,
-                                        uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::vadc_vim(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                        std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3108,10 +3005,11 @@ VILL::vpu_return_t VARITH_INT::vadc_vim(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vadc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vadc_vxm(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3137,10 +3035,10 @@ VILL::vpu_return_t VARITH_INT::vadc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmadc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmadc_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3169,10 +3067,10 @@ VILL::vpu_return_t VARITH_INT::vmadc_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmadc_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t s_imm,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmadc_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                        std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3197,10 +3095,11 @@ VILL::vpu_return_t VARITH_INT::vmadc_vi(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmadc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmadc_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3226,10 +3125,10 @@ VILL::vpu_return_t VARITH_INT::vmadc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vsbc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::vsbc_vvm(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3258,10 +3157,11 @@ VILL::vpu_return_t VARITH_INT::vsbc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vsbc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vsbc_vxm(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3287,10 +3187,10 @@ VILL::vpu_return_t VARITH_INT::vsbc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmsbc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmsbc_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3319,10 +3219,11 @@ VILL::vpu_return_t VARITH_INT::vmsbc_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmsbc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmsbc_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3350,10 +3251,10 @@ VILL::vpu_return_t VARITH_INT::vmsbc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
 /* End 11.4 */
 
 /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
-VILL::vpu_return_t VARITH_INT::vmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmacc_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3382,10 +3283,11 @@ VILL::vpu_return_t VARITH_INT::vmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmacc_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3411,10 +3313,11 @@ VILL::vpu_return_t VARITH_INT::vmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnmsac_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnmsac_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3443,10 +3346,11 @@ VILL::vpu_return_t VARITH_INT::vnmsac_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnmsac_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vnmsac_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                         std::uint16_t vec_elem_start, bool mask_f, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3472,10 +3376,10 @@ VILL::vpu_return_t VARITH_INT::vnmsac_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmadd_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                        uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vmadd_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_rhs,
+                                        std::uint16_t src_vec_reg_lhs, std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3504,10 +3408,11 @@ VILL::vpu_return_t VARITH_INT::vmadd_vv(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmadd_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                        uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                        uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                        uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmadd_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                        std::uint16_t sew_bytes, std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
+                                        std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
+                                        std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start, bool mask_f,
+                                        std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3533,10 +3438,11 @@ VILL::vpu_return_t VARITH_INT::vmadd_vx(uint8_t *vec_reg_mem, uint64_t emul_num,
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnmsub_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f)
+VILL::vpu_return_t VARITH_INT::vnmsub_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start, bool mask_f)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3565,10 +3471,11 @@ VILL::vpu_return_t VARITH_INT::vnmsub_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vnmsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vnmsub_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                         std::uint16_t vec_elem_start, bool mask_f, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3596,10 +3503,11 @@ VILL::vpu_return_t VARITH_INT::vnmsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num
 /* End 11.13. */
 
 /* 11.14. Vector Widening Integer Multiply-Add Instructions */
-VILL::vpu_return_t VARITH_INT::vwmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start, bool mask_f, VWMACC_TYPE vwmacc_type)
+VILL::vpu_return_t VARITH_INT::vwmacc_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start, bool mask_f, VWMACC_TYPE vwmacc_type)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
@@ -3664,10 +3572,11 @@ VILL::vpu_return_t VARITH_INT::vwmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, bool mask_f, uint8_t scalar_reg_len_bytes,
+VILL::vpu_return_t VARITH_INT::vwmacc_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                         std::uint16_t vec_elem_start, bool mask_f, std::uint8_t scalar_reg_len_bytes,
                                          VWMACC_TYPE vwmacc_type)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
@@ -3686,8 +3595,8 @@ VILL::vpu_return_t VARITH_INT::vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     V.init();
     VD.init();
 
-    uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    std::uint64_t imm = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                                   : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = VD.get_vec(dst_vec_reg);
 
@@ -3730,10 +3639,11 @@ VILL::vpu_return_t VARITH_INT::vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num
 /* End 11.14. */
 
 /* 11.15. Vector Integer Merge Instructions */
-VILL::vpu_return_t VARITH_INT::vmerge_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                         uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::vmerge_vv(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_rhs, std::uint16_t src_vec_reg_lhs,
+                                         std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -3761,10 +3671,11 @@ VILL::vpu_return_t VARITH_INT::vmerge_vv(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmerge_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                         uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes)
+VILL::vpu_return_t VARITH_INT::vmerge_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t *scalar_reg_mem,
+                                         std::uint16_t vec_elem_start, std::uint8_t scalar_reg_len_bytes)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
     if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
@@ -3789,10 +3700,11 @@ VILL::vpu_return_t VARITH_INT::vmerge_vx(uint8_t *vec_reg_mem, uint64_t emul_num
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::vmerge_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t s_imm,
-                                         uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_INT::vmerge_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom,
+                                         std::uint16_t sew_bytes, std::uint16_t vec_len,
+                                         std::uint16_t vec_reg_len_bytes, std::uint16_t dst_vec_reg,
+                                         std::uint16_t src_vec_reg_lhs, std::uint8_t s_imm,
+                                         std::uint16_t vec_elem_start)
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 

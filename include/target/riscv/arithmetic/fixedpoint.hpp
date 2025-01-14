@@ -72,6 +72,7 @@ auto roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_m
 
 auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t;
 
+// TODO: Inline implementations in .ipp file
 /* 12.1. Vector Single-Width Saturating Add and Subtract */
 
 inline FixpointFunction sadd = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
@@ -164,6 +165,17 @@ inline FixpointFunction asubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
     return false;
 };
 
+/* 12.3. Vector Single-Width Fractional Multiply with Rounding and Saturation */
+
+inline FixpointFunction smul = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
+                                  uint8_t rounding_mode) -> bool {
+    auto res = (static_cast<int64_t>(lhs) * static_cast<int64_t>(rhs));
+    res = roundoff_signed(res, sew - 1, rounding_mode);
+    auto clamped_res = saturate_boundary_signed(res, sew);
+    vd = clamped_res;
+    return clamped_res != res;
+};
+
 /* 12.4. Vector Single-Width Scaling Shift Instructions */
 
 inline FixpointFunction ssrl = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
@@ -186,7 +198,6 @@ inline FixpointFunction clip = [](uint64_t lhs, uint64_t rhs, SVElement &vd, siz
     vd = clamped_res;
     return clamped_res != res;
 };
-
 
 inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                    uint8_t rounding_mode) -> bool {
