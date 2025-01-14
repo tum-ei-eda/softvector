@@ -22,6 +22,7 @@
 #ifndef __RVVHL_BASE_H__
 #define __RVVHL_BASE_H__
 
+#include <cstdint>
 #include "stdint.h"
 #include "stddef.h"
 
@@ -191,18 +192,17 @@ class VTYPE
 };
 } // namespace VTYPE
 
-enum class FP_ROUNDING_MODE : uint8_t
-{
-    // RVV Spec 1.0: The fixed-point rounding algorithm is specified as follows.
-    // Suppose the pre-rounding result is v, and d bits of that result are to be rounded off.
-    // Then the rounded result is (v >> d) + r, where r depends on the rounding mode as specified below.
-    rnu = 0, // round-to-nearest-up (add +0.5 LSB), r = v[d-1]
-    rne = 1, // round-to-nearest-even, r = v[d-1] & (v[d-2:0] != 0 | v[d])
-    rdn = 2, // round-down (truncate), r = 0
-    rod = 3  // round-to-odd (OR bits into LSB, aka "jam"), r = !v[d] & v[d-1:0] != 0
-};
+// General helper constants, functions, and structs, etc.
 
-// General helper constants, functions, and structs
+inline constexpr auto operator"" _u64(unsigned long long value) -> std::uint64_t
+{
+    return static_cast<std::uint64_t>(value);
+}
+
+inline constexpr auto operator"" _i64(unsigned long long value) -> std::int64_t
+{
+    return static_cast<std::int64_t>(value);
+}
 
 struct v_instr_info_t
 {
@@ -215,6 +215,9 @@ struct v_instr_info_t
     uint16_t start_element = 0U;          //!< First element to be processed (index)
     bool signed_op = false;               //!< True if the operation is signed, false otherwise
     bool zero_extend_immediate = false;   //!< True if the immediate is to be explicitly zero extended
+    bool wide_vd = false;                 //!< True if this vector uses width 2*SEW
+    bool wide_vs2 = false;                //!< True if this vector uses width 2*SEW
+    bool wide_vs1 = false;                //!< True if this vector uses width 2*SEW
 };
 
 inline constexpr auto xlen_32_bytes = 4;
