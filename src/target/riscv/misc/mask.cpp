@@ -236,7 +236,7 @@ auto VMASK::mask_viota(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_de
 
     auto accumulator = 0;
 
-    for (size_t i_element = vec_elem_start; i_element < vs2.length_bits_; ++i_element)
+    for (size_t i_element = vec_elem_start; i_element < vec_len; ++i_element)
     {
         if (mask_f || vm.get_bit(i_element))
         {
