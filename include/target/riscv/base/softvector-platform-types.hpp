@@ -157,7 +157,7 @@ class RVVRegField
     /// \brief Check wether passed register number is aligned with the current vector register field configuration.
     /// \param reg_n Register number
     /// \returns True unless not aligned.
-    bool vec_reg_is_aligned(const size_t reg_n)
+    bool vec_reg_is_aligned(const size_t reg_n) const
     {
         if (!multiplicity_.is_frac())
         {
