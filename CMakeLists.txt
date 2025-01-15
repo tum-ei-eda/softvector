@@ -35,7 +35,9 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 )
 
 # Set NO_ETISS to 1 to build using own softfloat library
-SET(NO_ETISS 0)
+IF(NOT NO_ETISS)
+	SET(NO_ETISS 0)
+ENDIF()
 IF(NO_ETISS EQUAL 1)
 	MESSAGE("Using softvector softfloat")
 	ADD_SUBDIRECTORY(lib)
