@@ -34,117 +34,132 @@
 namespace VARITH_INT
 {
 
-using ArithmeticFunction = std::function<void(uint64_t /* lhs */, uint64_t /* rhs */, SVElement & /* vd */)>;
-using ComparisonFunction =
-    std::function<void(uint64_t /* lhs */, uint64_t /* rhs */, SVRegister & /* vd */, size_t /* index */)>;
+using ArithmeticFunction = std::function<void(std::uint64_t /* lhs */, std::uint64_t /* rhs */, SVElement & /* vd */)>;
+using ComparisonFunction = std::function<void(std::uint64_t /* lhs */, std::uint64_t /* rhs */, SVRegister & /* vd */,
+                                              std::size_t /* index */)>;
+
+struct int_info_t
+{
+    bool mixed_signed = false;            //!< True if instruction is mixed-signed (e.g. vmulhsu)
+    bool mixed_signed_vs2_signed = false; //!< True if vs2 is signed in mixed-signed instruction
+};
 
 /* 11.1. Vector Single-Width Integer Add and Subtract */
-inline ArithmeticFunction add = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs + rhs; };
+inline ArithmeticFunction add = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = lhs + rhs; };
 
-inline ArithmeticFunction sub = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs - rhs; };
+inline ArithmeticFunction sub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = lhs - rhs; };
 
-inline ArithmeticFunction rsub = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = rhs - lhs; };
+inline ArithmeticFunction rsub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = rhs - lhs; };
 
 /* 11.5. Vector Bitwise Logical Instructions */
-inline ArithmeticFunction logical_and = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs & rhs; };
+inline ArithmeticFunction logical_and = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = lhs & rhs;
+};
 
-inline ArithmeticFunction logical_or = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs | rhs; };
+inline ArithmeticFunction logical_or = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = lhs | rhs;
+};
 
-inline ArithmeticFunction logical_xor = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = lhs ^ rhs; };
+inline ArithmeticFunction logical_xor = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = lhs ^ rhs;
+};
 
 /* 11.6. Vector Single-Width Shift Instructions */
-inline ArithmeticFunction sll = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction sll = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
     vd = lhs << (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction srl = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction srl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
     vd = lhs >> (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction sra = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction sra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
-    vd = static_cast<int64_t>(lhs) >> (rhs & shiftamount_mask);
+    vd = static_cast<std::int64_t>(lhs) >> (rhs & shiftamount_mask);
 };
 
 /* 11.7. Vector Narrowing Integer Right Shift Instructions */
-inline ArithmeticFunction nsrl = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction nsrl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
     vd = lhs >> (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction nsra = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction nsra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
-    vd = static_cast<int64_t>(lhs) >> (rhs & shiftamount_mask);
+    vd = static_cast<std::int64_t>(lhs) >> (rhs & shiftamount_mask);
 };
 
-/* Vector Integer Compare Instructions */
-inline ComparisonFunction seq = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+/* 11.8. Vector Integer Compare Instructions */
+inline ComparisonFunction seq = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
     lhs == rhs ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sne = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+inline ComparisonFunction sne = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
     lhs != rhs ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sltu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+inline ComparisonFunction sltu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
     lhs < rhs ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction slt = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
-    static_cast<int64_t>(lhs) < static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline ComparisonFunction slt = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
+    static_cast<std::int64_t>(lhs) < static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sleu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+inline ComparisonFunction sleu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
     lhs <= rhs ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sle = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
-    static_cast<int64_t>(lhs) <= static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline ComparisonFunction sle = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
+    static_cast<std::int64_t>(lhs) <= static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sgtu = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
+inline ComparisonFunction sgtu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
     lhs > rhs ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
-inline ComparisonFunction sgt = [](uint64_t lhs, uint64_t rhs, SVRegister &vd, size_t index) -> void {
-    static_cast<int64_t>(lhs) > static_cast<int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline ComparisonFunction sgt = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
+    static_cast<std::int64_t>(lhs) > static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
 };
 
 /* 11.9. Vector Integer Min/Max Instructions */
-inline ArithmeticFunction minu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = std::min(lhs, rhs); };
-
-inline ArithmeticFunction min = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = std::min(static_cast<int64_t>(lhs), static_cast<int64_t>(rhs));
+inline ArithmeticFunction minu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = std::min(lhs, rhs);
 };
 
-inline ArithmeticFunction maxu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void { vd = std::max(lhs, rhs); };
+inline ArithmeticFunction min = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = std::min(static_cast<std::int64_t>(lhs), static_cast<std::int64_t>(rhs));
+};
 
-inline ArithmeticFunction max = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = std::max(static_cast<int64_t>(lhs), static_cast<int64_t>(rhs));
+inline ArithmeticFunction maxu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = std::max(lhs, rhs);
+};
+
+inline ArithmeticFunction max = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = std::max(static_cast<std::int64_t>(lhs), static_cast<std::int64_t>(rhs));
 };
 
 /* 11.10. Vector Single-Width Integer Multiply Instructions */
-inline ArithmeticFunction mul = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = static_cast<int64_t>(lhs) * static_cast<int64_t>(rhs);
+inline ArithmeticFunction mul = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = static_cast<std::int64_t>(lhs) * static_cast<std::int64_t>(rhs);
 };
 
-inline ArithmeticFunction mulh = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction mulh = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = (static_cast<std::int64_t>(lhs) * static_cast<std::int64_t>(rhs)) >> vd.width_in_bits_;
+};
+
+inline ArithmeticFunction mulhu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     vd = (lhs * rhs) >> vd.width_in_bits_;
 };
 
-// TODO: mulhu, mulhsu -> check if needed or already handled by signed_vs*
-inline ArithmeticFunction mulhu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = (lhs * rhs) >> vd.width_in_bits_;
-};
-
-inline ArithmeticFunction mulhsu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
-    vd = (static_cast<int64_t>(lhs) * rhs) >> vd.width_in_bits_;
+inline ArithmeticFunction mulhsu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    vd = (static_cast<std::int64_t>(lhs) * rhs) >> vd.width_in_bits_;
 };
 
 /* 11.11. Vector Integer Divide Instructions */
-inline ArithmeticFunction divu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction divu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -154,7 +169,7 @@ inline ArithmeticFunction divu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -
     vd = lhs / rhs;
 };
 
-inline ArithmeticFunction div = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction div = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -162,14 +177,14 @@ inline ArithmeticFunction div = [](uint64_t lhs, uint64_t rhs, SVElement &vd) ->
         return;
     }
     // Overflow case
-    if (lhs == ((uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    if (lhs == ((std::uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
     {
         vd = lhs;
     }
-    vd = static_cast<int64_t>(lhs) / static_cast<int64_t>(rhs);
+    vd = static_cast<std::int64_t>(lhs) / static_cast<std::int64_t>(rhs);
 };
 
-inline ArithmeticFunction remu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction remu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -179,7 +194,7 @@ inline ArithmeticFunction remu = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -
     vd = lhs % rhs;
 };
 
-inline ArithmeticFunction rem = [](uint64_t lhs, uint64_t rhs, SVElement &vd) -> void {
+inline ArithmeticFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -187,49 +202,40 @@ inline ArithmeticFunction rem = [](uint64_t lhs, uint64_t rhs, SVElement &vd) ->
         return;
     }
     // Overflow case
-    if (lhs == ((uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    if (lhs == ((std::uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
     {
         vd = 0;
     }
-    vd = static_cast<int64_t>(lhs) % static_cast<int64_t>(rhs);
+    vd = static_cast<std::int64_t>(lhs) % static_cast<std::int64_t>(rhs);
+};
+
+/* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
+inline ArithmeticFunction madd = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+    auto res = (static_cast<std::int64_t>(rhs) * vd.to_i64()) + static_cast<int64_t>(lhs);
+    vd = res;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Regular vector integer arithmetic operation vector-vector
 /// \details For all i: vd[i] = vs2[i] op vs1[i]
-VILL::vpu_return_t int_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,          //!< Register multiplicity numerator
-                             uint64_t emul_denom,        //!< Register multiplicity denominator
-                             uint16_t sew_bytes,         //!< Element width [bytes]
-                             uint16_t vec_len,           //!< Vector length [elements]
-                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                             uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                             uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                             uint16_t vec_elem_start,    //!< Starting element [index]
-                             bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                             ArithmeticFunction func,    //!< Integer arithmetic function
-                             bool signed_vs2,            //!< Whether vs2 is signed
-                             bool signed_vs1             //!< Whether vs1 is signed
+VILL::vpu_return_t int_op_vv(uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+                             const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
+                             const int_info_t &int_info, //!< Struct containint integer instruction specific information
+                             uint16_t reg_vd,            //!< Destination vector D [index]
+                             uint16_t reg_vs1,           //!< Source vector R [index]
+                             uint16_t reg_vs2,           //!< Source vector L [index]
+                             ArithmeticFunction func     //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Regular vector integer arithmetic operation vector-immediate
 /// \details For all i: vd[i] = vs2[i] op sign_extend(imm5)
-VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,          //!< Register multiplicity numerator
-                             uint64_t emul_denom,        //!< Register multiplicity denominator
-                             uint16_t sew_bytes,         //!< Element width [bytes]
-                             uint16_t vec_len,           //!< Vector length [elements]
-                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                             uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                             uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
-                             uint16_t vec_elem_start,    //!< Starting element [index]
-                             bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                             ArithmeticFunction func,    //!< Integer arithmetic function
-                             bool signed_vs2,            //!< Whether vs2 is signed
-                             bool signed_imm             //!< Whether the immediate is signed
+VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+                             const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
+                             uint16_t reg_vd,                    //!< Destination vector D [index]
+                             uint16_t reg_vs2,                   //!< Source vector L [index]
+                             uint8_t imm5,                       //!< Sign or zero extending 5-bit immediate
+                             ArithmeticFunction func             //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -248,8 +254,8 @@ VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,               //!< Vector reg
 /// \brief Regular vector integer comparison operation vector-vector
 /// \details For all i: vd.mask[i] = vs2[i] cmp_op vs1[i]
 VILL::vpu_return_t int_compare_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     uint64_t emul_num,          //!< Register multiplicity numerator
-                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
+                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
                                      uint16_t sew_bytes,         //!< Element width [bytes]
                                      uint16_t vec_len,           //!< Vector length [elements]
                                      uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -267,8 +273,8 @@ VILL::vpu_return_t int_compare_op_vv(uint8_t *vec_reg_mem,       //!< Vector reg
 /// \brief Regular vector integer comparison operation vector-immediate
 /// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(imm5)
 VILL::vpu_return_t int_compare_op_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     uint64_t emul_num,          //!< Register multiplicity numerator
-                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
+                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
                                      uint16_t sew_bytes,         //!< Element width [bytes]
                                      uint16_t vec_len,           //!< Vector length [elements]
                                      uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -285,8 +291,8 @@ VILL::vpu_return_t int_compare_op_vi(uint8_t *vec_reg_mem,       //!< Vector reg
 /// \brief Regular vector integer comparison operation vector-scalar
 /// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(X[rs1])
 VILL::vpu_return_t int_compare_op_vx(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     uint64_t emul_num,          //!< Register multiplicity numerator
-                                     uint64_t emul_denom,        //!< Register multiplicity denominator
+                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
+                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
                                      uint16_t sew_bytes,         //!< Element width [bytes]
                                      uint16_t vec_len,           //!< Vector length [elements]
                                      uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -307,8 +313,8 @@ VILL::vpu_return_t int_compare_op_vx(uint8_t *vec_reg_mem,       //!< Vector reg
 /// \brief Add vector-vector
 /// \details For all i: D[i] = L[i] + R[i]
 VILL::vpu_return_t add_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -322,8 +328,8 @@ VILL::vpu_return_t add_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief Add vector-immediate
 /// \details For all i: D[i] = L[i] + sign_extend(_vimm)
 VILL::vpu_return_t add_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -338,8 +344,8 @@ VILL::vpu_return_t add_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief Add vector-scalar
 /// \details For all i: D[i] = L[i] + sign_extend(*X)
 VILL::vpu_return_t add_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -356,8 +362,8 @@ VILL::vpu_return_t add_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief Sub vector-vector
 /// \details For all i: D[i] = L[i] - R[i]
 VILL::vpu_return_t sub_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -372,8 +378,8 @@ VILL::vpu_return_t sub_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief Sub vector-scalar
 /// \details For all i: D[i] = L[i] - sign_extend(*X). No sub_vi (use add_vi with negative immediate
 VILL::vpu_return_t sub_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -389,8 +395,8 @@ VILL::vpu_return_t sub_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief Sub vector-scalar
 /// \details For all i: D[i] = sign_extend(*X) - R[i].
 VILL::vpu_return_t rsub_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -405,8 +411,8 @@ VILL::vpu_return_t rsub_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief Sub vector-scalar
 /// \details For all i: D[i] = sign_extend(imm) - R[i].
 VILL::vpu_return_t rsub_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -422,8 +428,8 @@ VILL::vpu_return_t rsub_vi(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Widening unsigned <OP> Add vector-vector
 /// \details For all i: D[i] = L[i] + R[i]. w/ D:2*SEW, L:SEW,  R:SEW
 VILL::vpu_return_t wop_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -439,8 +445,8 @@ VILL::vpu_return_t wop_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief Widening unsigned <OP> Add vector-scalar
 /// \details For all i: D[i] = L[i] + sign_extend(*X). w/ D:2*SEW, L:SEW
 VILL::vpu_return_t wop_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -457,8 +463,8 @@ VILL::vpu_return_t wop_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief Widening integer <OP> vector-vector
 /// \details For all i: D[i] = L[i] + R[i]. w/ D:2*SEW, L:SEW,  R:SEW
 VILL::vpu_return_t wop_wv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -474,8 +480,8 @@ VILL::vpu_return_t wop_wv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief Widening unsigned <OP> Add vector-scalar
 /// \details For all i: D[i] = L[i] + sign_extend(*X). w/ D:2*SEW, L:SEW
 VILL::vpu_return_t wop_wx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -494,8 +500,8 @@ VILL::vpu_return_t wop_wx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief Sign/zero-extend vector
 /// \details Sign/zero-extend SEW / {2|4|8} source to SEW destination
 VILL::vpu_return_t vext_vf(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -508,46 +514,46 @@ VILL::vpu_return_t vext_vf(uint8_t *vec_reg_mem,        //!< Vector register fil
 /* End 11.3. */
 
 /* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
-VILL::vpu_return_t vadc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vadc_vvm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start);
 
-VILL::vpu_return_t vadc_vim(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vadc_vim(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start);
 
-VILL::vpu_return_t vadc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vadc_vxm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
                             uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vmadc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmadc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vmadc_vi(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmadc_vi(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vmadc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmadc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vsbc_vvm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vsbc_vvm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start);
 
-VILL::vpu_return_t vsbc_vxm(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vsbc_vxm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
                             uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vmsbc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmsbc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vmsbc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmsbc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
@@ -559,8 +565,8 @@ VILL::vpu_return_t vmsbc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t em
 /// \brief AND vector-vector
 /// \details For all i: D[i] = L[i] & R[i]
 VILL::vpu_return_t and_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -574,8 +580,8 @@ VILL::vpu_return_t and_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief AND vector-immediate
 /// \details For all i: D[i] = L[i] & sign_extend(_vimm)
 VILL::vpu_return_t and_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -589,8 +595,8 @@ VILL::vpu_return_t and_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief AND vector-scalar
 /// \details For all i: D[i] = L[i] & sign_extend(*X)
 VILL::vpu_return_t and_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -607,8 +613,8 @@ VILL::vpu_return_t and_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief OR vector-vector
 /// \details For all i: D[i] = L[i] | R[i]
 VILL::vpu_return_t or_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,          //!< Register multiplicity numerator
-                         uint64_t emul_denom,        //!< Register multiplicity denominator
+                         std::uint64_t emul_num,     //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,   //!< Register multiplicity denominator
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -622,8 +628,8 @@ VILL::vpu_return_t or_vv(uint8_t *vec_reg_mem,       //!< Vector register file m
 /// \brief OR vector-immediate
 /// \details For all i: D[i] = L[i] | sign_extend(_vimm)
 VILL::vpu_return_t or_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,          //!< Register multiplicity numerator
-                         uint64_t emul_denom,        //!< Register multiplicity denominator
+                         std::uint64_t emul_num,     //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,   //!< Register multiplicity denominator
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -637,8 +643,8 @@ VILL::vpu_return_t or_vi(uint8_t *vec_reg_mem,       //!< Vector register file m
 /// \brief OR vector-scalar
 /// \details For all i: D[i] = L[i] | sign_extend(*X)
 VILL::vpu_return_t or_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,           //!< Register multiplicity numerator
-                         uint64_t emul_denom,         //!< Register multiplicity denominator
+                         std::uint64_t emul_num,      //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,    //!< Register multiplicity denominator
                          uint16_t sew_bytes,          //!< Element width [bytes]
                          uint16_t vec_len,            //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -655,8 +661,8 @@ VILL::vpu_return_t or_vx(uint8_t *vec_reg_mem,        //!< Vector register file 
 /// \brief XOR vector-vector
 /// \details For all i: D[i] = L[i] ^ R[i]
 VILL::vpu_return_t xor_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -670,8 +676,8 @@ VILL::vpu_return_t xor_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief XOR vector-immediate
 /// \details For all i: D[i] = L[i] ^ sign_extend(_vimm)
 VILL::vpu_return_t xor_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -685,8 +691,8 @@ VILL::vpu_return_t xor_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief XOR vector-scalar
 /// \details For all i: D[i] = L[i] ^ X.
 VILL::vpu_return_t xor_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -705,8 +711,8 @@ VILL::vpu_return_t xor_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief SLL vector-vector
 /// \details For all i: D[i] = R[i] << (L[i] & possible SEW bits)
 VILL::vpu_return_t sll_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -720,8 +726,8 @@ VILL::vpu_return_t sll_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief SLL vector-immediate
 /// \details For all i: D[i] = L[i] << (uimm)
 VILL::vpu_return_t sll_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -736,8 +742,8 @@ VILL::vpu_return_t sll_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \details For all i: D[i] = L[i] << (X & possible SEW bits)
 VILL::vpu_return_t sll_vx(
     uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-    uint64_t emul_num,           //!< Register multiplicity numerator
-    uint64_t emul_denom,         //!< Register multiplicity denominator
+    std::uint64_t emul_num,      //!< Register multiplicity numerator
+    std::uint64_t emul_denom,    //!< Register multiplicity denominator
     uint16_t sew_bytes,          //!< Element width [bytes]
     uint16_t vec_len,            //!< Vector length [elements]
     uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -754,8 +760,8 @@ VILL::vpu_return_t sll_vx(
 /// \brief SRL vector-vector
 /// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits)
 VILL::vpu_return_t srl_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -769,8 +775,8 @@ VILL::vpu_return_t srl_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief SRL vector-immediate
 /// \details For all i: D[i] = L[i] >> (uimm)
 VILL::vpu_return_t srl_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -784,8 +790,8 @@ VILL::vpu_return_t srl_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief SRL vector-scalar
 /// \details For all i: D[i] = L[i] >> (X & possible SEW bits)
 VILL::vpu_return_t srl_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -802,8 +808,8 @@ VILL::vpu_return_t srl_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief SRA vector-vector
 /// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits)
 VILL::vpu_return_t sra_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -817,8 +823,8 @@ VILL::vpu_return_t sra_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief SRA vector-immediate
 /// \details For all i: D[i] = L[i] >> (uimm)
 VILL::vpu_return_t sra_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
+                          std::uint64_t emul_num,     //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,   //!< Register multiplicity denominator
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -832,8 +838,8 @@ VILL::vpu_return_t sra_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
 /// \brief SRA vector-scalar
 /// \details For all i: D[i] = L[i] >> (X & possible SEW bits)
 VILL::vpu_return_t sra_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,           //!< Register multiplicity numerator
-                          uint64_t emul_denom,         //!< Register multiplicity denominator
+                          std::uint64_t emul_num,      //!< Register multiplicity numerator
+                          std::uint64_t emul_denom,    //!< Register multiplicity denominator
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -851,8 +857,8 @@ VILL::vpu_return_t sra_vx(uint8_t *vec_reg_mem,        //!< Vector register file
 /// \brief Narrowing SRL vector-vector
 /// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsrl_wv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -866,8 +872,8 @@ VILL::vpu_return_t vnsrl_wv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Narrowing SRL vector-immediate
 /// \details For all i: D[i] = L[i] >> (uimm), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsrl_wi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -881,8 +887,8 @@ VILL::vpu_return_t vnsrl_wi(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Narrowing SRL vector-scalar
 /// \details For all i: D[i] = L[i] >> (X & possible SEW bits), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsrl_wx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -899,8 +905,8 @@ VILL::vpu_return_t vnsrl_wx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief Narrowing SRA vector-vector
 /// \details For all i: D[i] = R[i] >> (L[i] & possible SEW bits), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsra_wv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -914,8 +920,8 @@ VILL::vpu_return_t vnsra_wv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Narrowing SRA vector-immediate
 /// \details For all i: D[i] = L[i] >> (uimm), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsra_wi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -929,8 +935,8 @@ VILL::vpu_return_t vnsra_wi(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Narrowing SRA vector-scalar
 /// \details For all i: D[i] = L[i] >> (X & possible SEW bits), SEW = 2*SEW >> SEW
 VILL::vpu_return_t vnsra_wx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -949,8 +955,8 @@ VILL::vpu_return_t vnsra_wx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief (Mask register) SEQ vector-vector
 /// \details For all i: MaskReg[i] = R[i] == L[i]
 VILL::vpu_return_t mseq_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -964,8 +970,8 @@ VILL::vpu_return_t mseq_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SEQ vector-immediate
 /// \details For all i: MaskReg[i] = R[i] == immediate
 VILL::vpu_return_t mseq_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -979,8 +985,8 @@ VILL::vpu_return_t mseq_vi(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SEQ vector-scalar
 /// \details For all i: MaskReg[i] = R[i] == zero_extend(X)
 VILL::vpu_return_t mseq_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -996,8 +1002,8 @@ VILL::vpu_return_t mseq_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief (Mask register) SNE vector-vector
 /// \details For all i: MaskReg[i] = R[i] != L[i]
 VILL::vpu_return_t msne_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1011,8 +1017,8 @@ VILL::vpu_return_t msne_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SNE vector-immediate
 /// \details For all i: MaskReg[i] = R[i] != immediate
 VILL::vpu_return_t msne_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1026,8 +1032,8 @@ VILL::vpu_return_t msne_vi(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SNE vector-scalar
 /// \details For all i: MaskReg[i] = R[i] != zero_extend(X)
 VILL::vpu_return_t msne_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1043,8 +1049,8 @@ VILL::vpu_return_t msne_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief (Mask register) SLTU vector-vector (less than unsigned)
 /// \details For all i: MaskReg[i] = R[i] < L[i]
 VILL::vpu_return_t msltu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1058,8 +1064,8 @@ VILL::vpu_return_t msltu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief (Mask register) SLTU vector-scalar (less than unsigned)
 /// \details For all i: MaskReg[i] = R[i] < zero_extend(X)
 VILL::vpu_return_t msltu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1075,8 +1081,8 @@ VILL::vpu_return_t msltu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief (Mask register) SLT vector-vector (less than signed)
 /// \details For all i: MaskReg[i] = R[i] < L[i]
 VILL::vpu_return_t mslt_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1090,8 +1096,8 @@ VILL::vpu_return_t mslt_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SLT vector-scalar (less than signed)
 /// \details For all i: MaskReg[i] = R[i] < zero_extend(X)
 VILL::vpu_return_t mslt_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1107,8 +1113,8 @@ VILL::vpu_return_t mslt_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief (Mask register) SLEU vector-vector (less than or equal unsigned)
 /// \details For all i: MaskReg[i] = R[i] < L[i]
 VILL::vpu_return_t msleu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1122,8 +1128,8 @@ VILL::vpu_return_t msleu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief (Mask register) SLEU vector-immediate (less than or equal unsigned)
 /// \details For all i: MaskReg[i] = R[i] < immediate
 VILL::vpu_return_t msleu_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1137,8 +1143,8 @@ VILL::vpu_return_t msleu_vi(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief (Mask register) SLEU vector-scalar (less than or equal unsigned)
 /// \details For all i: MaskReg[i] = R[i] < zero_extend(X)
 VILL::vpu_return_t msleu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1154,8 +1160,8 @@ VILL::vpu_return_t msleu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief (Mask register) SLE vector-vector (less than or equal signed)
 /// \details For all i: MaskReg[i] = R[i] <= L[i]
 VILL::vpu_return_t msle_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1169,8 +1175,8 @@ VILL::vpu_return_t msle_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SLE vector-immediate (less than or equal signed)
 /// \details For all i: MaskReg[i] = R[i] < immediate
 VILL::vpu_return_t msle_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1184,8 +1190,8 @@ VILL::vpu_return_t msle_vi(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SLE vector-scalar (less than or equal signed)
 /// \details For all i: MaskReg[i] = R[i] < zero_extend(X)
 VILL::vpu_return_t msle_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1201,8 +1207,8 @@ VILL::vpu_return_t msle_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief (Mask register) SGTU vector-vector (less than unsigned)
 /// \details For all i: MaskReg[i] = R[i] > L[i]
 VILL::vpu_return_t msgtu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1216,8 +1222,8 @@ VILL::vpu_return_t msgtu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief (Mask register) SGTU vector-scalar (less than unsigned)
 /// \details For all i: MaskReg[i] = R[i] > zero_extend(X)
 VILL::vpu_return_t msgtu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1232,8 +1238,8 @@ VILL::vpu_return_t msgtu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief (Mask register) SGTU vector-immediate (less than or equal signed)
 /// \details For all i: MaskReg[i] = R[i] < immediate
 VILL::vpu_return_t msgtu_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1248,8 +1254,8 @@ VILL::vpu_return_t msgtu_vi(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief (Mask register) SGT vector-vector (less than signed)
 /// \details For all i: MaskReg[i] = R[i] > L[i]
 VILL::vpu_return_t msgt_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1263,8 +1269,8 @@ VILL::vpu_return_t msgt_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief (Mask register) SGT vector-scalar (less than signed)
 /// \details For all i: MaskReg[i] = R[i] > zero_extend(X)
 VILL::vpu_return_t msgt_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1279,8 +1285,8 @@ VILL::vpu_return_t msgt_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief (Mask register) GTU vector-immediate (less than or equal signed)
 /// \details For all i: MaskReg[i] = R[i] < immediate
 VILL::vpu_return_t msgt_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1296,8 +1302,8 @@ VILL::vpu_return_t msgt_vi(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Signed Multiplication vector-vector low bits of product
 /// \details For all i: D[i] = L[i] * R[i]
 VILL::vpu_return_t vmul_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1311,8 +1317,8 @@ VILL::vpu_return_t vmul_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Signed Multiplication vector-scalar low bits of product
 /// \details For all i: D[i] = L[i] * sign_extend(*X)
 VILL::vpu_return_t vmul_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1327,8 +1333,8 @@ VILL::vpu_return_t vmul_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief Signed Multiplication vector-vector high bits of product
 /// \details For all i: D[i] = L[i] * R[i]
 VILL::vpu_return_t vmulh_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1342,8 +1348,8 @@ VILL::vpu_return_t vmulh_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Signed Multiplication vector-scalar high bits of product
 /// \details For all i: D[i] = L[i] * sign_extend(*X)
 VILL::vpu_return_t vmulh_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1358,8 +1364,8 @@ VILL::vpu_return_t vmulh_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief Unsigned Multiplication vector-vector high bits of product
 /// \details For all i: D[i] = L[i] * R[i]
 VILL::vpu_return_t vmulhu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,          //!< Register multiplicity numerator
-                             uint64_t emul_denom,        //!< Register multiplicity denominator
+                             std::uint64_t emul_num,     //!< Register multiplicity numerator
+                             std::uint64_t emul_denom,   //!< Register multiplicity denominator
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1373,8 +1379,8 @@ VILL::vpu_return_t vmulhu_vv(uint8_t *vec_reg_mem,       //!< Vector register fi
 /// \brief Unsigned Multiplication vector-scalar high bits of product
 /// \details For all i: D[i] = L[i] * sign_extend(*X)
 VILL::vpu_return_t vmulhu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,           //!< Register multiplicity numerator
-                             uint64_t emul_denom,         //!< Register multiplicity denominator
+                             std::uint64_t emul_num,      //!< Register multiplicity numerator
+                             std::uint64_t emul_denom,    //!< Register multiplicity denominator
                              uint16_t sew_bytes,          //!< Element width [bytes]
                              uint16_t vec_len,            //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1389,8 +1395,8 @@ VILL::vpu_return_t vmulhu_vx(uint8_t *vec_reg_mem,        //!< Vector register f
 /// \brief Signed * Unsigned Multiplication vector-vector high bits of product
 /// \details For all i: D[i] = L[i] * R[i]
 VILL::vpu_return_t vmulhsu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                              uint64_t emul_num,          //!< Register multiplicity numerator
-                              uint64_t emul_denom,        //!< Register multiplicity denominator
+                              std::uint64_t emul_num,     //!< Register multiplicity numerator
+                              std::uint64_t emul_denom,   //!< Register multiplicity denominator
                               uint16_t sew_bytes,         //!< Element width [bytes]
                               uint16_t vec_len,           //!< Vector length [elements]
                               uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1404,8 +1410,8 @@ VILL::vpu_return_t vmulhsu_vv(uint8_t *vec_reg_mem,       //!< Vector register f
 /// \brief Signed * Unsigned Multiplication vector-scalar high bits of product
 /// \details For all i: D[i] = L[i] * sign_extend(*X)
 VILL::vpu_return_t vmulhsu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                              uint64_t emul_num,           //!< Register multiplicity numerator
-                              uint64_t emul_denom,         //!< Register multiplicity denominator
+                              std::uint64_t emul_num,      //!< Register multiplicity numerator
+                              std::uint64_t emul_denom,    //!< Register multiplicity denominator
                               uint16_t sew_bytes,          //!< Element width [bytes]
                               uint16_t vec_len,            //!< Vector length [elements]
                               uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1423,8 +1429,8 @@ VILL::vpu_return_t vmulhsu_vx(uint8_t *vec_reg_mem,        //!< Vector register 
 /// \brief Signed division vector-vector
 /// \details For all i: D[i] = L[i] / R[i]
 VILL::vpu_return_t vdiv_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1439,8 +1445,8 @@ VILL::vpu_return_t vdiv_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Signed division vector-vector
 /// \details For all i: D[i] = L[i] / sign_extend(X[rs1])
 VILL::vpu_return_t vdiv_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1456,8 +1462,8 @@ VILL::vpu_return_t vdiv_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief Unsigned division vector-vector
 /// \details For all i: D[i] = L[i] / R[i]
 VILL::vpu_return_t vdivu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1472,8 +1478,8 @@ VILL::vpu_return_t vdivu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Unsigned division vector-scalar
 /// \details For all i: D[i] = L[i] / X[rs1]
 VILL::vpu_return_t vdivu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1489,8 +1495,8 @@ VILL::vpu_return_t vdivu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief Signed remainder vector-vector
 /// \details For all i: D[i] = L[i] % R[i]
 VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1506,8 +1512,8 @@ VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \details For all i: D[i] = L[i] % sign_extend(X[rs1])
 [[deprecated]] VILL::vpu_return_t vrem_vx(
     uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-    uint64_t emul_num,           //!< Register multiplicity numerator
-    uint64_t emul_denom,         //!< Register multiplicity denominator
+    std::uint64_t emul_num,      //!< Register multiplicity numerator
+    std::uint64_t emul_denom,    //!< Register multiplicity denominator
     uint16_t sew_bytes,          //!< Element width [bytes]
     uint16_t vec_len,            //!< Vector length [elements]
     uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1523,8 +1529,8 @@ VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Unsigned remainder vector-vector
 /// \details For all i: D[i] = L[i] % R[i]
 VILL::vpu_return_t vremu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1539,8 +1545,8 @@ VILL::vpu_return_t vremu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Unsigned remainder vector-scalar
 /// \details For all i: D[i] = L[i] % X[rs1]
 VILL::vpu_return_t vremu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1564,8 +1570,8 @@ enum class VWMUL_TYPE
 /// \brief Widening signed Multiplication vector-vector
 /// \details For all i: D[i] = L[i] * R[i]
 VILL::vpu_return_t vwmul_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1580,8 +1586,8 @@ VILL::vpu_return_t vwmul_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Widening signed multiplication vector-scalar
 /// \details For all i: D[i] = L[i] * sign_extend(*X)
 VILL::vpu_return_t vwmul_vx(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,            //!< Register multiplicity numerator
-                            uint64_t emul_denom,          //!< Register multiplicity denominator
+                            std::uint64_t emul_num,       //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,     //!< Register multiplicity denominator
                             uint16_t sew_bytes,           //!< Element width [bytes]
                             uint16_t vec_len,             //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
@@ -1600,8 +1606,8 @@ VILL::vpu_return_t vwmul_vx(uint8_t *vec_reg_mem,         //!< Vector register f
 /// \brief Signed maximum vector-vector
 /// \details For all i: D[i] = max(L[i], R[i])
 VILL::vpu_return_t vmax_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1616,8 +1622,8 @@ VILL::vpu_return_t vmax_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Signed maximum vector-scalar
 /// \details For all i: D[i] = max(L[i], sign_extend(*X))
 VILL::vpu_return_t vmax_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1633,8 +1639,8 @@ VILL::vpu_return_t vmax_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief Unsigned maximum vector-vector
 /// \details For all i: D[i] = max(L[i], R[i])
 VILL::vpu_return_t vmaxu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1649,8 +1655,8 @@ VILL::vpu_return_t vmaxu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Unsigned maximum vector-scalar
 /// \details For all i: D[i] = max(L[i], *X)
 VILL::vpu_return_t vmaxu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1666,8 +1672,8 @@ VILL::vpu_return_t vmaxu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 /// \brief Signed minimum vector-vector
 /// \details For all i: D[i] = min(L[i], R[i])
 VILL::vpu_return_t vmin_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,          //!< Register multiplicity numerator
-                           uint64_t emul_denom,        //!< Register multiplicity denominator
+                           std::uint64_t emul_num,     //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,   //!< Register multiplicity denominator
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1682,8 +1688,8 @@ VILL::vpu_return_t vmin_vv(uint8_t *vec_reg_mem,       //!< Vector register file
 /// \brief Signed minimum vector-scalar
 /// \details For all i: D[i] = min(L[i], sign_extend(*X))
 VILL::vpu_return_t vmin_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                           uint64_t emul_num,           //!< Register multiplicity numerator
-                           uint64_t emul_denom,         //!< Register multiplicity denominator
+                           std::uint64_t emul_num,      //!< Register multiplicity numerator
+                           std::uint64_t emul_denom,    //!< Register multiplicity denominator
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1699,8 +1705,8 @@ VILL::vpu_return_t vmin_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
 /// \brief Unsigned minimum vector-vector
 /// \details For all i: D[i] = min(L[i], R[i])
 VILL::vpu_return_t vminu_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
+                            std::uint64_t emul_num,     //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,   //!< Register multiplicity denominator
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1715,8 +1721,8 @@ VILL::vpu_return_t vminu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
 /// \brief Unsigned minimum vector-scalar
 /// \details For all i: D[i] = min(L[i], *X)
 VILL::vpu_return_t vminu_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,           //!< Register multiplicity numerator
-                            uint64_t emul_denom,         //!< Register multiplicity denominator
+                            std::uint64_t emul_num,      //!< Register multiplicity numerator
+                            std::uint64_t emul_denom,    //!< Register multiplicity denominator
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1741,38 +1747,38 @@ VILL::vpu_return_t vminu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 // TODO: ...
 
 /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
-VILL::vpu_return_t vmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmacc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmacc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vnmsac_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vnmsac_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vnmsac_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vnmsac_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vmadd_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmadd_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vmadd_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vmadd_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vnmsub_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vnmsub_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
 
-VILL::vpu_return_t vnmsub_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vnmsub_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes);
@@ -1790,7 +1796,7 @@ enum class VWMACC_TYPE
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Widening multiply-accumulate vector-vector
 /// Type of MACC (signed, unsigned, etc.) depends on vwmacc_type
-VILL::vpu_return_t vwmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vwmacc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f,
                              VWMACC_TYPE vwmacc_type);
@@ -1798,7 +1804,7 @@ VILL::vpu_return_t vwmacc_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t e
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Widening multiply-accumulate vector-scalar
 /// Type of MACC (signed, unsigned, etc.) depends on vwmacc_type
-VILL::vpu_return_t vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
+VILL::vpu_return_t vwmacc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
                              uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
                              uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes, VWMACC_TYPE vwmacc_type);
@@ -1808,8 +1814,8 @@ VILL::vpu_return_t vwmacc_vx(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t e
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Merge vector-vector: vd[i] = v0.mask[i] ? vs1[i] : vs2[i]
 VILL::vpu_return_t vmerge_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,          //!< Register multiplicity numerator
-                             uint64_t emul_denom,        //!< Register multiplicity denominator
+                             std::uint64_t emul_num,     //!< Register multiplicity numerator
+                             std::uint64_t emul_denom,   //!< Register multiplicity denominator
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1822,8 +1828,8 @@ VILL::vpu_return_t vmerge_vv(uint8_t *vec_reg_mem,       //!< Vector register fi
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Merge vector-scalar: vd[i] = v0.mask[i] ? x[rs1] : vs2[i]
 VILL::vpu_return_t vmerge_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,           //!< Register multiplicity numerator
-                             uint64_t emul_denom,         //!< Register multiplicity denominator
+                             std::uint64_t emul_num,      //!< Register multiplicity numerator
+                             std::uint64_t emul_denom,    //!< Register multiplicity denominator
                              uint16_t sew_bytes,          //!< Element width [bytes]
                              uint16_t vec_len,            //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1837,8 +1843,8 @@ VILL::vpu_return_t vmerge_vx(uint8_t *vec_reg_mem,        //!< Vector register f
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Merge vector-scalar: vd[i] = v0.mask[i] ? imm : vs2[i]
 VILL::vpu_return_t vmerge_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                             uint64_t emul_num,          //!< Register multiplicity numerator
-                             uint64_t emul_denom,        //!< Register multiplicity denominator
+                             std::uint64_t emul_num,     //!< Register multiplicity numerator
+                             std::uint64_t emul_denom,   //!< Register multiplicity denominator
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1853,8 +1859,8 @@ VILL::vpu_return_t vmerge_vi(uint8_t *vec_reg_mem,       //!< Vector register fi
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move vector vd[i] = vs1[i]
 VILL::vpu_return_t mv_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,          //!< Register multiplicity numerator
-                         uint64_t emul_denom,        //!< Register multiplicity denominator
+                         std::uint64_t emul_num,     //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,   //!< Register multiplicity denominator
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
@@ -1866,8 +1872,8 @@ VILL::vpu_return_t mv_vv(uint8_t *vec_reg_mem,       //!< Vector register file m
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move vector vd[i] = X[rs1]
 VILL::vpu_return_t mv_vx(uint8_t *vec_reg_mem,        //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,           //!< Register multiplicity numerator
-                         uint64_t emul_denom,         //!< Register multiplicity denominator
+                         std::uint64_t emul_num,      //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,    //!< Register multiplicity denominator
                          uint16_t sew_bytes,          //!< Element width [bytes]
                          uint16_t vec_len,            //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
@@ -1880,8 +1886,8 @@ VILL::vpu_return_t mv_vx(uint8_t *vec_reg_mem,        //!< Vector register file 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move signed immediate to vector vd[i] = simm
 VILL::vpu_return_t mv_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                         uint64_t emul_num,          //!< Register multiplicity numerator
-                         uint64_t emul_denom,        //!< Register multiplicity denominator
+                         std::uint64_t emul_num,     //!< Register multiplicity numerator
+                         std::uint64_t emul_denom,   //!< Register multiplicity denominator
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]

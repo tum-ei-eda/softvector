@@ -211,8 +211,8 @@ struct v_instr_info_t
     uint32_t sew = 8U;                    //!< Selected element width (bit)
     uint16_t vector_length = 0U;          //!< Vector length (elements)
     uint16_t vector_register_length = 0U; //!< Length of a vector register (bit)
-    bool masked = false;                  //!< True if masked instruction, false otherwise
     uint16_t start_element = 0U;          //!< First element to be processed (index)
+    bool masked = false;                  //!< True if masked instruction, false otherwise
     bool signed_op = false;               //!< True if the operation is signed, false otherwise
     bool zero_extend_immediate = false;   //!< True if the immediate is to be explicitly zero extended
     bool wide_vd = false;                 //!< True if this vector uses width 2*SEW

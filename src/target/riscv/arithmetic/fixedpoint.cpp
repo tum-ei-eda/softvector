@@ -287,7 +287,7 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vi(std::uint8_t *vec_reg_mem, const v_in
     RVVector &vs2 = fixedpoint_info.narrowing_op ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
     RVVector &vd = V.get_vec(reg_vd);
 
-    // For instruction with specific uimm, just zero extend, otherwise sign extend
+    // For instructions with specific uimm, just zero extend, otherwise sign extend
     std::uint64_t imm = v_instr_info.zero_extend_immediate ? zero_extend_immediate(imm5) : sign_extend_immediate(imm5);
 
     // However, if the instruction is unsigned, we must zero out the upper 64 - SEW bits!
