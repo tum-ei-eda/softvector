@@ -48,7 +48,7 @@ struct fixedpoint_info_t
 /**
  * @brief Saturates a value to the nearest sew bit boundary
  */
-inline auto saturate_boundary_signed(int64_t value, size_t sew) -> int64_t
+[[nodiscard]] inline auto saturate_boundary_signed(int64_t value, size_t sew) -> int64_t
 {
     // E.g. 8 bit:
     // Upper bound = 0111 1111
@@ -62,15 +62,15 @@ inline auto saturate_boundary_signed(int64_t value, size_t sew) -> int64_t
 /**
  * @brief Saturates a value to the unsigned sew bit boundary
  */
-inline auto saturate_boundary_unsigned(uint64_t value, size_t sew) -> uint64_t
+[[nodiscard]] inline auto saturate_boundary_unsigned(uint64_t value, size_t sew) -> uint64_t
 {
     auto upper_bound = get_n_bit_mask(sew);
     return (value <= upper_bound) ? value : upper_bound;
 }
 
-auto roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> uint64_t;
+[[nodiscard]] auto roundoff_unsigned(uint64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> uint64_t;
 
-auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t;
+[[nodiscard]] auto roundoff_signed(int64_t value, uint8_t rounding_bits, uint8_t rounding_mode) -> int64_t;
 
 // TODO: Inline implementations in .ipp file
 /* 12.1. Vector Single-Width Saturating Add and Subtract */
@@ -118,17 +118,41 @@ inline FixpointFunction saddu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
 inline FixpointFunction ssub = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                   uint8_t rounding_mode) -> bool {
     auto res = static_cast<int64_t>(lhs) - static_cast<int64_t>(rhs);
-    auto clamped_res = saturate_boundary_signed(res, sew);
-    vd = clamped_res;
-    return res != clamped_res;
+    auto msb_lhs = msb_is_set(lhs, sew);
+    auto msb_rhs = msb_is_set(rhs, sew);
+    auto msb_res = msb_is_set(res, sew);
+
+    if (msb_lhs && !msb_rhs && !msb_res)
+    {
+        // Negative overflow
+        vd = get_min_signed(sew);
+        return true;
+    }
+
+    if (!msb_lhs && msb_rhs && msb_res)
+    {
+        // Positive overflow
+        vd = get_n_bit_mask(sew - 1);
+        return true;
+    }
+
+    vd = res;
+    return false;
 };
 
 inline FixpointFunction ssubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, size_t sew,
                                    uint8_t rounding_mode) -> bool {
-    auto res = lhs - rhs;
-    auto clamped_res = saturate_boundary_unsigned(res, sew);
-    vd = clamped_res;
-    return res != clamped_res;
+    auto sew_mask = get_n_bit_mask(sew);
+    auto res = (lhs - rhs) & sew_mask;
+    auto sat = false;
+    if (res > lhs)
+    {
+        // Overflow
+        res = 1_i64 << sew - 1;
+        sat = true;
+    }
+    vd = res;
+    return sat;
 };
 
 /* 12.2. Vector Single-Width Averaging Add and Subtract */

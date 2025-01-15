@@ -23,6 +23,7 @@
 #define __RVVHL_BASE_H__
 
 #include <cstdint>
+#include <cstddef>
 #include "stdint.h"
 #include "stddef.h"
 
@@ -139,37 +140,38 @@ typedef enum BITS_EEW
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Decode a VTYPE bitfield and store retrieved fields to Output parameter set
 /// \return If field valid 1, else -1 (e.g. reserved LMUL code)
-int8_t decode(uint16_t vtype, uint8_t *ta, uint8_t *ma, uint32_t *sew, uint8_t *z_lmul, uint8_t *n_lmul);
+int8_t decode(uint16_t vtype, std::uint8_t *ta, std::uint8_t *ma, uint32_t *sew, std::uint8_t *z_lmul,
+              std::uint8_t *n_lmul);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Encode Input parameter set of bitfields to a VTYPE bitfield
 /// \return Encoded VTYPE bitfield
-uint16_t encode(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma);
+uint16_t encode(uint16_t sew, std::uint8_t z_lmul, std::uint8_t n_lmul, std::uint8_t ta, std::uint8_t ma);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Extract SEW bitfield from VTYPE bitfield
 /// \return Encoded SEW bitfield
-uint8_t extractSEW(uint16_t pVTYPE);
+std::uint8_t extractSEW(uint16_t pVTYPE);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Extract LMUL bitfield from VTYPE bitfield
 /// \return Encoded LMUL bitfield
-uint8_t extractLMUL(uint16_t pVTYPE);
+std::uint8_t extractLMUL(uint16_t pVTYPE);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Extract TA bitfield from VTYPE bitfield
 /// \return Encoded TA bitfield
-uint8_t extractTA(uint16_t pVTYPE);
+std::uint8_t extractTA(uint16_t pVTYPE);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Extract MA bitfield from VTYPE bitfield
 /// \return Encoded MA bitfield
-uint8_t extractMA(uint16_t pVTYPE);
+std::uint8_t extractMA(uint16_t pVTYPE);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Concatenate MEW and WIDTH to EEW and return number of bits for EEW
 /// \return Decoded EEW [bits]
-uint16_t concatEEW(uint8_t mew, uint8_t width);
+uint16_t concatEEW(std::uint8_t mew, std::uint8_t width);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \class VTYPE
@@ -178,13 +180,13 @@ class VTYPE
 {
   public:
     uint16_t _bitfield{};
-    uint8_t _z_lmul{}, _n_lmul{}, _ta{}, _ma{};
+    std::uint8_t _z_lmul{}, _n_lmul{}, _ta{}, _ma{};
     uint32_t _sew{};
     VTYPE(uint16_t _vtype_bitfield) : _bitfield(_vtype_bitfield)
     {
         decode(_bitfield, &_ta, &_ma, &_sew, &_z_lmul, &_n_lmul);
     }
-    VTYPE(uint16_t sew, uint8_t z_lmul, uint8_t n_lmul, uint8_t ta, uint8_t ma)
+    VTYPE(uint16_t sew, std::uint8_t z_lmul, std::uint8_t n_lmul, std::uint8_t ta, std::uint8_t ma)
         : _z_lmul(z_lmul), _n_lmul(n_lmul), _ta(ta), _ma(ma), _sew(sew)
     {
         _bitfield = encode(_sew, _z_lmul, _n_lmul, _ta, _ma);
@@ -206,9 +208,9 @@ inline constexpr auto operator"" _i64(unsigned long long value) -> std::int64_t
 
 struct v_instr_info_t
 {
-    uint64_t emul_num = 1U;               //!< EMUL numerator
-    uint64_t emul_denom = 1U;             //!< EMUL denominator
-    uint32_t sew = 8U;                    //!< Selected element width (bit)
+    uint64_t emul_num = 1_u64;               //!< EMUL numerator
+    uint64_t emul_denom = 1_u64;             //!< EMUL denominator
+    uint32_t sew = 8_u64;                    //!< Selected element width (bit)
     uint16_t vector_length = 0U;          //!< Vector length (elements)
     uint16_t vector_register_length = 0U; //!< Length of a vector register (bit)
     uint16_t start_element = 0U;          //!< First element to be processed (index)
@@ -223,43 +225,43 @@ struct v_instr_info_t
 inline constexpr auto xlen_32_bytes = 4;
 
 // Masks for 5 bit immediate
-inline constexpr uint64_t imm_msb_mask = 0x10;
-inline constexpr uint64_t imm_width_mask = 0x1F;
+inline constexpr uint64_t imm_msb_mask = 0x10_u64;
+inline constexpr uint64_t imm_width_mask = 0x1F_u64;
 inline constexpr uint64_t imm_ext_mask = ~imm_width_mask;
 
-inline auto sign_extend_immediate(uint8_t imm5) -> uint64_t
+inline auto sign_extend_immediate(std::uint8_t imm5) -> uint64_t
 {
     return (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
 }
 
-inline auto zero_extend_immediate(uint8_t imm5) -> uint64_t
+inline auto zero_extend_immediate(std::uint8_t imm5) -> uint64_t
 {
     return imm5 & imm_width_mask;
 }
 
-inline auto get_n_bit_mask(size_t n_bits) -> uint64_t
+inline auto get_n_bit_mask(std::size_t n_bits) -> uint64_t
 {
-    return ((uint64_t)1U << (n_bits)) - 1;
+    return (1_u64 << (n_bits)) - 1;
 }
 
-inline auto get_min_signed(size_t sew) -> int64_t
+inline auto get_min_signed(std::size_t sew) -> int64_t
 {
-    return -1 & get_n_bit_mask(sew - 1);
+    return -1_i64 & (~get_n_bit_mask(sew - 1));
 }
 
-inline auto msb_is_set(uint64_t value, size_t sew) -> bool
+inline auto msb_is_set(uint64_t value, std::size_t sew) -> bool
 {
-    return value & ((uint64_t)1 << (sew - 1));
+    return value & (1_u64 << (sew - 1));
 }
 
-inline auto sign_extend(uint64_t value, size_t sew) -> uint64_t
+inline auto sign_extend(uint64_t value, std::size_t sew) -> uint64_t
 {
-    uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
+    uint64_t sew_mask = (1_u64 << sew) - 1;
     uint64_t ext_mask = msb_is_set(value, sew) * (~sew_mask);
     return value | ext_mask;
 }
 
-inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_scalar) -> uint64_t
+inline auto mask_and_sign_extend_scalar(uint64_t value, std::size_t sew, bool signed_scalar) -> uint64_t
 {
     if (sew == 64)
     {
@@ -267,7 +269,7 @@ inline auto mask_and_sign_extend_scalar(uint64_t value, size_t sew, bool signed_
     }
 
     // Use least significant SEW bits
-    uint64_t sew_mask = ((uint64_t)1 << sew) - 1;
+    uint64_t sew_mask = (1_u64 << sew) - 1;
     value &= sew_mask;
 
     bool sign_extend = signed_scalar && msb_is_set(value, sew);

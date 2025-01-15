@@ -243,9 +243,10 @@ VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,               //!< Vector reg
 /// \details For all i: vd[i] = vs2[i] op sign_extend(X[rs1])
 VILL::vpu_return_t int_op_vx(uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
                              const v_instr_info_t &v_instr_info, //!< Struct containing vector instruction information
-                             uint16_t reg_vd,                    //!< Destination vector D [index]
-                             uint16_t reg_vs2,                   //!< Source vector L [index]
-                             uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
+                             const int_info_t &int_info, //!< Struct containint integer instruction specific information
+                             uint16_t reg_vd,            //!< Destination vector D [index]
+                             uint16_t reg_vs2,           //!< Source vector L [index]
+                             uint8_t *scalar_reg_mem,    //!< Memory space holding scalar data (min. _xlenb bytes)
                              uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
                              ArithmeticFunction func       //!< Integer arithmetic function
 );
