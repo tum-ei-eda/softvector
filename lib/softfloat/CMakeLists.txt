@@ -1,3 +1,5 @@
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 add_library(softfloat
 	bf16_to_f32.c
 	f128_add.c
@@ -46,14 +48,14 @@ add_library(softfloat
 	f16_to_f128.c
 	f16_to_f32.c
 	f16_to_f64.c
-	f16_to_i8.c
-	f16_to_i16.c
+	# f16_to_i8.c
+	# f16_to_i16.c
 	f16_to_i32.c
 	f16_to_i32_r_minMag.c
 	f16_to_i64.c
 	f16_to_i64_r_minMag.c
-	f16_to_ui8.c
-	f16_to_ui16.c
+	# f16_to_ui8.c
+	# f16_to_ui16.c
 	f16_to_ui32.c
 	f16_to_ui32_r_minMag.c
 	f16_to_ui64.c
@@ -78,12 +80,12 @@ add_library(softfloat
 	f32_to_f128.c
 	f32_to_f16.c
 	f32_to_f64.c
-	f32_to_i16.c
+	# f32_to_i16.c
 	f32_to_i32.c
 	f32_to_i32_r_minMag.c
 	f32_to_i64.c
 	f32_to_i64_r_minMag.c
-	f32_to_ui16.c
+	# f32_to_ui16.c
 	f32_to_ui32.c
 	f32_to_ui32_r_minMag.c
 	f32_to_ui64.c
@@ -115,8 +117,8 @@ add_library(softfloat
 	f64_to_ui32_r_minMag.c
 	f64_to_ui64.c
 	f64_to_ui64_r_minMag.c
-	fall_maxmin.c
-	fall_reciprocal.c
+	# fall_maxmin.c
+	# fall_reciprocal.c
 	i32_to_f128.c
 	i32_to_f16.c
 	i32_to_f32.c
@@ -181,17 +183,17 @@ add_library(softfloat
 	s_remStepMBy32.c
 	s_roundMToI64.c
 	s_roundMToUI64.c
-	s_roundPackMToI64.c
-	s_roundPackMToUI64.c
+	# s_roundPackMToI64.c
+	# s_roundPackMToUI64.c
 	s_roundPackToBF16.c
 	s_roundPackToF128.c
 	s_roundPackToF16.c
 	s_roundPackToF32.c
 	s_roundPackToF64.c
-	s_roundPackToI32.c
-	s_roundPackToI64.c
-	s_roundPackToUI32.c
-	s_roundPackToUI64.c
+	# s_roundPackToI32.c
+	# s_roundPackToI64.c
+	# s_roundPackToUI32.c
+	# s_roundPackToUI64.c
 	s_roundToI32.c
 	s_roundToI64.c
 	s_roundToUI32.c
@@ -237,8 +239,11 @@ target_compile_definitions(softfloat PRIVATE
 	SOFTFLOAT_FAST_DIV64TO32
 	SOFTFLOAT_FAST_INT64)
 
-target_include_directories(softfloat PRIVATE
-	${CMAKE_CURRENT_SOURCE_DIR}/include
-	${CMAKE_CURRENT_SOURCE_DIR}/include/softfloat)
 target_include_directories(softfloat PUBLIC
-	${CMAKE_CURRENT_SOURCE_DIR}/include)
+	${CMAKE_CURRENT_SOURCE_DIR}/include
+	${CMAKE_CURRENT_SOURCE_DIR}/include/softfloat
+	${CMAKE_CURRENT_SOURCE_DIR}/RISCV)
+# target_include_directories(softfloat PUBLIC
+# 	${CMAKE_CURRENT_SOURCE_DIR}/include)
+# target_include_directories(softfloat PUBLIC
+# 	${CMAKE_CURRENT_SOURCE_DIR}/RISCV)
