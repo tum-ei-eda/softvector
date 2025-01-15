@@ -73,7 +73,7 @@ extern "C"
         };
 
         VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
-                       pVm, 0);
+                       pVm, pEEW / 8);
 
         return (0);
     }
@@ -134,7 +134,7 @@ extern "C"
         for (int i = 0; i < pNF; ++i)
         {
             VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8,
-                           pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, 0);
+                           pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, pEEW / 8);
             _moffset += (pVL - _vstart) * pEEW / 8;
             _vstart = 0;
         }
@@ -200,7 +200,7 @@ extern "C"
         };
 
         VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
-                        pVm, 0);
+                        pVm, pEEW / 8);
 
         return (0);
     }
@@ -258,7 +258,7 @@ extern "C"
         for (int i = 0; i < pNF; ++i)
         {
             VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8,
-                            pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, 0);
+                            pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, pEEW / 8);
             _moffset += (pVL - _vstart) * pEEW / 8;
             _vstart = 0;
         }
@@ -296,7 +296,7 @@ extern "C"
         {
             _moffset = pMSTART + i * pEEW / 8;
             VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8,
-                            pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, 0);
+                            pVd + (i * _z_emul / _n_emul), _moffset, _vstart, pVm, pStride);
             _moffset += (pVL - _vstart) * pEEW / 8;
             _vstart = 0;
         }
