@@ -54,7 +54,7 @@ VILL::vpu_return_t VPERM::mv_sx(uint8_t *vec_reg_mem, uint16_t sew_bytes, uint16
                                 uint16_t dst_vec_reg, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
                                 uint8_t scalar_reg_len_bytes)
 {
-    if (vec_elem_start > vec_len)
+    if (vec_elem_start >= vec_len)
     {
         return (VILL::VPU_RETURN::NO_EXCEPT);
     }
