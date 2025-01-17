@@ -710,8 +710,24 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                           pVSTART, pVm, true, false, pXLEN / 8);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .start_element = pVSTART,
+                                     .masked = !pVm,
+                                     .signed_op = false,
+                                     .wide_vd = true,
+                                     .wide_vs2 = true };
+
+        VARITH_INT::int_info_t int_info;
+        VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8,
+                              VARITH_INT::add);
+
+        // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        // ScalarReg,
+        //                    pVSTART, pVm, true, false, pXLEN / 8);
 
         return (0);
     }
@@ -729,8 +745,23 @@ extern "C"
         else
             ScalarReg = &(static_cast<uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                           pVSTART, pVm, true, true, pXLEN / 8);
+        v_instr_info_t v_instr_info{ .emul_num = _vt._z_lmul,
+                                     .emul_denom = _vt._n_lmul,
+                                     .sew = _vt._sew,
+                                     .vector_length = pVL,
+                                     .vector_register_length = pVLEN,
+                                     .start_element = pVSTART,
+                                     .masked = !pVm,
+                                     .signed_op = true,
+                                     .wide_vd = true,
+                                     .wide_vs2 = true };
+
+        VARITH_INT::int_info_t int_info;
+        VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::add);
+
+        // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
+        // ScalarReg,
+        //                    pVSTART, pVm, true, true, pXLEN / 8);
 
         return (0);
     }
