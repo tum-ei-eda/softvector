@@ -39,6 +39,19 @@ extern "C"
 #include "softfloat.hpp"
 #endif
 
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief This space concludes floating-point arithmetic helpers
+namespace VARITH_FLOAT
+{
+
+struct FloatInstrInfo
+{
+    uint8_t rounding_mode = 0U;  //!< Floating point rounding mode
+    bool cvt_vs2_is_int = false; //!< Whether vs2 contains integers in float conversion instructions
+    bool cvt_rtz = false;        //!< Whether conversion is truncating
+    bool ncvt_rod = false;       //!< Whether round-towards-odd is used in narrowing float-float conversion
+};
+
 using FloatFunction = std::function<bool(uint64_t, uint64_t, SVElement &, size_t)>;
 using FloatConversionFunction = std::function<void(uint64_t /* opL */, SVElement & /* vd */, size_t /* sew */,
                                                    bool /* signed_x */, bool /* rtz */, bool /* rod */)>;
@@ -53,7 +66,7 @@ Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University
 */
 
 /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
-inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction add = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -72,7 +85,7 @@ inline FloatFunction vfadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     return true;
 };
 
-inline FloatFunction vfsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction sub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -91,7 +104,7 @@ inline FloatFunction vfsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     return true;
 };
 
-inline FloatFunction vfrsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction rsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -112,7 +125,7 @@ inline FloatFunction vfrsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 /* End 13.2. */
 
 /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
-inline FloatFunction vfwadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -128,7 +141,7 @@ inline FloatFunction vfwadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfwsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -145,7 +158,7 @@ inline FloatFunction vfwsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 };
 
 // Wide vs2 (2*SEW)
-inline FloatFunction vfwadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -162,7 +175,7 @@ inline FloatFunction vfwadd_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
 };
 
 // Wide vs2 (2*SEW)
-inline FloatFunction vfwsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -180,7 +193,7 @@ inline FloatFunction vfwsub_w = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
 /* End 13.3. */
 
 /* 13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
-inline FloatFunction vfmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction mul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -199,7 +212,7 @@ inline FloatFunction vfmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     return true;
 };
 
-inline FloatFunction vfdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction div = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -218,7 +231,7 @@ inline FloatFunction vfdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     return true;
 };
 
-inline FloatFunction vfrdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction rdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -239,7 +252,7 @@ inline FloatFunction vfrdiv = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 /* End 13.4. */
 
 /* 13.5. Vector Widening Floating-Point Multiply */
-inline FloatFunction vfwmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -257,7 +270,7 @@ inline FloatFunction vfwmul = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 /* End 13.5. */
 
 /* 13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
-inline FloatFunction vfmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction macc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -276,7 +289,7 @@ inline FloatFunction vfmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction nmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -295,7 +308,7 @@ inline FloatFunction vfnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction msac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -314,7 +327,7 @@ inline FloatFunction vfmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction nmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -333,7 +346,7 @@ inline FloatFunction vfnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction madd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -352,7 +365,7 @@ inline FloatFunction vfmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfnmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction nmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -371,7 +384,7 @@ inline FloatFunction vfnmadd = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction msub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -390,7 +403,7 @@ inline FloatFunction vfmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfnmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction nmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -411,7 +424,7 @@ inline FloatFunction vfnmsub = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
 /* End 13.6. */
 
 /* 13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
-inline FloatFunction vfwmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -427,7 +440,7 @@ inline FloatFunction vfwmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfwnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -443,7 +456,7 @@ inline FloatFunction vfwnmacc = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
     return true;
 };
 
-inline FloatFunction vfwmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -459,7 +472,7 @@ inline FloatFunction vfwmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction wnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -477,7 +490,7 @@ inline FloatFunction vfwnmsac = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
 /* End 13.7. */
 
 /* 13.8. Vector Floating-Point Square-Root Instruction */
-inline FloatFunction vfsqrt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction sqrt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -498,7 +511,7 @@ inline FloatFunction vfsqrt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 /* End 13.8. */
 
 /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
-inline FloatFunction vfrsqrt7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction rsqrt7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -519,7 +532,7 @@ inline FloatFunction vfrsqrt7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, si
 /* End 13.9. */
 
 /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
-inline FloatFunction vfrec7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction rec7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -540,7 +553,7 @@ inline FloatFunction vfrec7 = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
 /* End 13.10. */
 
 /* 13.11. Vector Floating-Point MIN/MAX Instructions */
-inline FloatFunction vfmin = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction min = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -559,7 +572,7 @@ inline FloatFunction vfmin = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     return true;
 };
 
-inline FloatFunction vfmax = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction max = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -580,7 +593,7 @@ inline FloatFunction vfmax = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
 /* End 13.11. */
 
 /* 13.12. Vector Floating-Point Sign-Injection Instructions */
-inline FloatFunction vfsgnj = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction sgnj = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -599,7 +612,7 @@ inline FloatFunction vfsgnj = [](uint64_t opL, uint64_t rhs, SVElement &vd, size
     return true;
 };
 
-inline FloatFunction vfsgnjn = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction sgnjn = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -618,7 +631,7 @@ inline FloatFunction vfsgnjn = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
     return true;
 };
 
-inline FloatFunction vfsgnjx = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction sgnjx = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -639,7 +652,7 @@ inline FloatFunction vfsgnjx = [](uint64_t opL, uint64_t rhs, SVElement &vd, siz
 /* End 13.12. */
 
 /* 13.13. Vector Floating-Point Compare Instructions */
-inline FloatFunction vmfeq = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction eq = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -654,7 +667,7 @@ inline FloatFunction vmfeq = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     }
 };
 
-inline FloatFunction vmfne = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction ne = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -669,7 +682,7 @@ inline FloatFunction vmfne = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     }
 };
 
-inline FloatFunction vmflt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction lt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -684,7 +697,7 @@ inline FloatFunction vmflt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     }
 };
 
-inline FloatFunction vmfle = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction le = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -699,7 +712,7 @@ inline FloatFunction vmfle = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     }
 };
 
-inline FloatFunction vmfgt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction gt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -714,7 +727,7 @@ inline FloatFunction vmfgt = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
     }
 };
 
-inline FloatFunction vmfge = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction ge = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -731,7 +744,7 @@ inline FloatFunction vmfge = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_
 /* End 13.13. */
 
 /* 13.14. Vector Floating-Point Classify Instruction */
-inline FloatFunction vfclass = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
+inline FloatFunction classify = [](uint64_t opL, uint64_t rhs, SVElement &vd, size_t sew) -> bool {
     switch (sew)
     {
     case 16:
@@ -826,7 +839,7 @@ inline FloatConversionFunction convert_widening_f_x = [](uint64_t opL, SVElement
     }
 };
 
-// Float to float, widening
+// Float to float, widening                         pVSTART, pVm
 inline FloatConversionFunction convert_widening_f_f = [](uint64_t opL, SVElement &vd, size_t sew, bool signed_x,
                                                          bool rtz = false, bool rod = false) -> void {
     switch (sew)
@@ -906,151 +919,90 @@ Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University
 ============================================================================================================
 */
 
-//////////////////////////////////////////////////////////////////////////////////////
-/// \brief This space concludes floating-point arithmetic helpers
-namespace VARITH_FLOAT
-{
-VILL::vpu_return_t vf_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
-                            uint16_t sew_bytes,         //!< Element width [bytes]
-                            uint16_t vec_len,           //!< Vector length [elements]
-                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                            uint16_t vec_elem_start,    //!< Starting element [index]
-                            bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                            FloatFunction func,         //!< Floating-point function lambda
-                            uint8_t rounding_mode,      //!< Floating-point rounding mode
-                            bool wide_dest = false,     //!< Use wide destination (2*SEW)
-                            bool wide_vs2 = false       //!< Use wide vs2 (2*SEW)
-);
+auto vf_op_vv(uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+              VInstrInfo const &v_instr_info,         //!< Struct containing vector instruction information
+              FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+              uint16_t reg_vd,                        //!< Destination vector D [index]
+              uint16_t reg_vs1,                       //!< Source vector R [index]
+              uint16_t reg_vs2,                       //!< Source vector L [index]
+              FloatFunction func                      //!< Floating-point function lambda
+              ) -> VILL::vpu_return_t;
 
-VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                            uint64_t emul_num,          //!< Register multiplicity numerator
-                            uint64_t emul_denom,        //!< Register multiplicity denominator
-                            uint16_t sew_bytes,         //!< Element width [bytes]
-                            uint16_t vec_len,           //!< Vector length [elements]
-                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
-                            uint8_t *scalar_reg_mem,    //!< Source vector L [index]
+VILL::vpu_return_t vf_op_vf(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+                            const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
+                            FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+                            uint16_t reg_vd,                        //!< Destination vector D [index]
+                            uint16_t reg_vs2,                       //!< Source vector R [index]
+                            uint8_t *scalar_reg_mem,                //!< Source vector L [index]
                             uint8_t scalar_reg_len_bytes,
-                            uint16_t vec_elem_start, //!< Starting element [index]
-                            bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
-                            FloatFunction func,      //!< Floating-point function lambda
-                            uint8_t rounding_mode,   //!< Floating-point rounding mode
-                            bool wide_dest = false,  //!< Use wide destination (2*SEW)
-                            bool wide_vs2 = false    //!< Use wide vs2 (2*SEW)
+                            FloatFunction func //!< Floating-point function lambda
 );
 
-VILL::vpu_return_t vf_op_unary(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                               uint64_t emul_num,          //!< Register multiplicity numerator
-                               uint64_t emul_denom,        //!< Register multiplicity denominator
-                               uint16_t sew_bytes,         //!< Element width [bytes]
-                               uint16_t vec_len,           //!< Vector length [elements]
-                               uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                               uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                               uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                               uint16_t vec_elem_start,    //!< Starting element [index]
-                               bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                               FloatFunction func,         //!< Floating-point function lambda
-                               uint8_t rounding_mode       //!< Floating-point rounding mode
+VILL::vpu_return_t vf_op_unary(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs2,                       //!< Source vector L [index]
+    FloatFunction func                      //!< Floating-point function lambda
 );
 
 // Destination is register
-VILL::vpu_return_t vf_op_vv_to_reg(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                   uint64_t emul_num,          //!< Register multiplicity numerator
-                                   uint64_t emul_denom,        //!< Register multiplicity denominator
-                                   uint16_t sew_bytes,         //!< Element width [bytes]
-                                   uint16_t vec_len,           //!< Vector length [elements]
-                                   uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                   uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                   uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                                   uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                   uint16_t vec_elem_start,    //!< Starting element [index]
-                                   bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                   FloatFunction func,         //!< Floating-point function lambda
-                                   uint8_t rounding_mode       //!< Floating-point rounding mode
+VILL::vpu_return_t vf_op_vv_to_reg(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs1,                       //!< Source vector R [index]
+    uint16_t reg_vs2,                       //!< Source vector L [index]
+    FloatFunction func                      //!< Floating-point function lambda
 );
 
 // Destination is register
-VILL::vpu_return_t vf_op_vf_to_reg(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                   uint64_t emul_num,          //!< Register multiplicity numerator
-                                   uint64_t emul_denom,        //!< Register multiplicity denominator
-                                   uint16_t sew_bytes,         //!< Element width [bytes]
-                                   uint16_t vec_len,           //!< Vector length [elements]
-                                   uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                   uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                   uint16_t src_vec_reg_lhs,   //!< Source vector R [index]
-                                   uint8_t *scalar_reg_mem,    //!< Source vector L [index]
-                                   uint8_t scalar_reg_len_bytes,
-                                   uint16_t vec_elem_start, //!< Starting element [index]
-                                   bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
-                                   FloatFunction func,      //!< Floating-point function lamb
-                                   uint8_t rounding_mode    //!< Floating-point rounding mode
+VILL::vpu_return_t vf_op_vf_to_reg(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs2,                       //!< Source vector R [index]
+    uint8_t *scalar_reg_mem,                //!< Source vector L [index]
+    uint8_t scalar_reg_len_bytes,
+    FloatFunction func //!< Floating-point function lamb
 );
 
-VILL::vpu_return_t vf_merge(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
-                            uint16_t vec_elem_start);
+VILL::vpu_return_t vf_merge(uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
-                           uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint8_t *scalar_reg_mem,
-                           uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start);
+VILL::vpu_return_t vf_move(uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info, uint16_t reg_vd,
+                           uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes);
 
-VILL::vpu_return_t vf_convert(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
-                              uint64_t emul_num,            //!< Register multiplicity numerator
-                              uint64_t emul_denom,          //!< Register multiplicity denominator
-                              uint16_t sew_bytes,           //!< Element width [bytes]
-                              uint16_t vec_len,             //!< Vector length [elements]
-                              uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
-                              uint16_t dst_vec_reg,         //!< Destination vector D [index]
-                              uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
-                              uint16_t vec_elem_start,      //!< Starting element [index]
-                              bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
-                              FloatConversionFunction func, //!< Conversion function
-                              uint8_t rounding_mode,        //!< Floating-point rounding mode
-                              bool signed_x,                //!< Whether any used integer is signed
-                              bool vs2_is_int,              //!< Whether vs2 is converted from int to float
-                              bool rtz = false              //!< Use rtz rounding (XF)
+VILL::vpu_return_t vf_convert(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs2,                       //!< Source vector L [index]
+    FloatConversionFunction func            //!< Conversion function
+
 );
 
-VILL::vpu_return_t vf_convert_wide(uint8_t *vec_reg_mem,         //!< Vector register file memory space. One dimensional
-                                   uint64_t emul_num,            //!< Register multiplicity numerator
-                                   uint64_t emul_denom,          //!< Register multiplicity denominator
-                                   uint16_t sew_bytes,           //!< Element width [bytes]
-                                   uint16_t vec_len,             //!< Vector length [elements]
-                                   uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
-                                   uint16_t dst_vec_reg,         //!< Destination vector D [index]
-                                   uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
-                                   uint16_t vec_elem_start,      //!< Starting element [index]
-                                   bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
-                                   FloatConversionFunction func, //!< Conversion function
-                                   uint8_t rounding_mode,        //!< Floating-point rounding mode
-                                   bool signed_x,                //!< Whether any used integer is signed
-                                   bool vs2_is_int,              //!< Whether vs2 is converted from int to float
-                                   bool rtz = false              //!< Use rtz rounding (XF)
+VILL::vpu_return_t vf_convert_wide(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs2,                       //!< Source vector L [index]
+    FloatConversionFunction func            //!< Conversion function
+
 );
 
-VILL::vpu_return_t vf_convert_narrow(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     uint64_t emul_num,          //!< Register multiplicity numerator
-                                     uint64_t emul_denom,        //!< Register multiplicity denominator
-                                     uint16_t sew_bytes,         //!< Element width [bytes]
-                                     uint16_t vec_len,           //!< Vector length [elements]
-                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                     uint16_t vec_elem_start,    //!< Starting element [index]
-                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                     FloatConversionFunction func, //!< Conversion function
-                                     uint8_t rounding_mode,        //!< Floating-point rounding mode
-                                     bool signed_x,                //!< Whether any used integer is signed
-                                     bool vs2_is_int,              //!< Whether vs2 is converted from int to float
-                                     bool rtz = false,             //!< Use rtz rounding (XF)
-                                     bool rod = false              //!< Use rod rounding (narrowing FF)
+VILL::vpu_return_t vf_convert_narrow(
+    uint8_t *vec_reg_mem,                   //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,         //!< Struct containing vector instruction information
+    FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                        //!< Destination vector D [index]
+    uint16_t reg_vs2,                       //!< Source vector L [index]
+    FloatConversionFunction func            //!< Conversion function
 );
 /* rvv spec. 14.1. Vector Floating-Point Exception Flags */
 // TODO: ...

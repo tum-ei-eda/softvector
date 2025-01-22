@@ -15,113 +15,158 @@ extern "C"
 #endif
 
 // Private function declarations
-void iterate_vector(const SVector &opL, const SVector &rhs, SVector &vd, const SVRegister &vm, bool mask,
-                    FloatFunction func, size_t sew, size_t start_index = 0);
 
-void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, bool mask, FloatFunction func,
-                    size_t sew, size_t start_index = 0);
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2, bool wide_vs1)
+    -> VILL::vpu_return_t;
 
-void iterate_vector_register(const SVector &opL, const SVector &rhs, SVRegister &vd, const SVRegister &vm, bool mask,
-                             FloatFunction func, size_t sew, size_t start_index = 0);
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t;
 
-void iterate_vector_register(const SVector &opL, uint64_t rhs, SVRegister &vd, const SVRegister &vm, bool mask,
-                             FloatFunction func, size_t sew, size_t start_index = 0);
+void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
 
-void iterate_vector_unary(const SVector &opL, SVector &vd, const SVRegister &vm, bool mask, FloatFunction func,
-                          size_t sew, size_t start_index = 0);
+void iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
 
-void iterate_vector_merge(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, size_t sew,
-                          size_t start_index = 0);
+void iterate_vector_register(const SVector &vs2, const SVector &vs1, SVRegister &vd, const SVRegister &vm, bool mask,
+                             VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
 
-void iterate_vector_move(uint64_t rhs, SVector &vd, const SVRegister &vm, size_t sew, size_t start_index = 0);
+void iterate_vector_register(const SVector &vs2, uint64_t scalar, SVRegister &vd, const SVRegister &vm, bool mask,
+                             VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
 
-void iterate_vector_convert(const SVector &opL, SVector &vd, const SVRegister &vm, bool mask,
-                            FloatConversionFunction func, size_t sew, bool signed_x, bool rtz, bool rod,
-                            bool vs2_is_int, size_t start_index = 0);
+void iterate_vector_unary(const SVector &vs2, SVector &vd, const SVRegister &vm, bool mask,
+                          VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
+
+void iterate_vector_merge(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, size_t sew,
+                          size_t start_index);
+
+void iterate_vector_move(uint64_t scalar, SVector &vd, const SVRegister &vm, size_t sew, size_t start_index);
+
+void iterate_vector_convert(const SVector &vs2, SVector &vd, const SVRegister &vm, bool mask,
+                            VARITH_FLOAT::FloatConversionFunction func, size_t sew, bool signed_x, bool rtz, bool rod,
+                            bool vs2_is_int, size_t start_index);
 
 // Private function definitions
-void iterate_vector(const SVector &opL, const SVector &rhs, SVector &vd, const SVRegister &vm, bool mask,
-                    FloatFunction func, size_t sew, size_t start_index)
+
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2)
+    -> VILL::vpu_return_t
+{
+
+    if (!V.vec_reg_is_aligned(reg_vs1))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t
+{
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            func(opL[i_element].to_u64(), rhs[i_element].to_u64(), vd[i_element], sew);
+            func(vs2[i_element].to_u64(), vs1[i_element].to_u64(), vd[i_element], sew);
         }
     }
 }
 
-void iterate_vector(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, bool mask, FloatFunction func,
-                    size_t sew, size_t start_index)
+void iterate_vector(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                    VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            func(opL[i_element].to_u64(), rhs, vd[i_element], sew);
+            func(vs2[i_element].to_u64(), scalar, vd[i_element], sew);
         }
     }
 }
 
-void iterate_vector_register(const SVector &opL, const SVector &rhs, SVRegister &vd, const SVRegister &vm, bool mask,
-                             FloatFunction func, size_t sew, size_t start_index)
+void iterate_vector_register(const SVector &vs2, const SVector &vs1, SVRegister &vd, const SVRegister &vm, bool mask,
+                             VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)
 {
-    for (size_t i_element = start_index; i_element < opL.length_; ++i_element)
+    for (size_t i_element = start_index; i_element < vs2.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            auto ret = func(opL[i_element].to_u64(), rhs[i_element].to_u64(), opL[i_element] /* Dummy */, sew);
+            auto ret = func(vs2[i_element].to_u64(), vs1[i_element].to_u64(), vs2[i_element] /* Dummy */, sew);
             ret ? vd.set_bit(i_element) : vd.reset_bit(i_element);
         }
     }
 }
 
-void iterate_vector_register(const SVector &opL, uint64_t rhs, SVRegister &vd, const SVRegister &vm, bool mask,
-                             FloatFunction func, size_t sew, size_t start_index)
+void iterate_vector_register(const SVector &vs2, uint64_t scalar, SVRegister &vd, const SVRegister &vm, bool mask,
+                             VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)
 {
-    for (size_t i_element = start_index; i_element < opL.length_; ++i_element)
+    for (size_t i_element = start_index; i_element < vs2.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            auto ret = func(opL[i_element].to_u64(), rhs, opL[i_element] /* Dummy */, sew);
+            auto ret = func(vs2[i_element].to_u64(), scalar, vs2[i_element] /* Dummy */, sew);
             ret ? vd.set_bit(i_element) : vd.reset_bit(i_element);
         }
     }
 }
 
-void iterate_vector_unary(const SVector &opL, SVector &vd, const SVRegister &vm, bool mask, FloatFunction func,
-                          size_t sew, size_t start_index)
+void iterate_vector_unary(const SVector &vs2, SVector &vd, const SVRegister &vm, bool mask,
+                          VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
-            func(opL[i_element].to_u64(), 0 /* Not needed */, vd[i_element], sew);
+            func(vs2[i_element].to_u64(), 0 /* Not needed */, vd[i_element], sew);
         }
     }
 }
 
-void iterate_vector_merge(const SVector &opL, uint64_t rhs, SVector &vd, const SVRegister &vm, size_t sew,
+void iterate_vector_merge(const SVector &vs2, uint64_t scalar, SVector &vd, const SVRegister &vm, size_t sew,
                           size_t start_index)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         // 0: use vs2[i], f[rs1] otherwise
-        vd[i_element] = vm.get_bit(i_element) ? rhs : opL[i_element].to_u64();
+        vd[i_element] = vm.get_bit(i_element) ? scalar : vs2[i_element].to_u64();
     }
 }
 
-void iterate_vector_move(uint64_t rhs, SVector &vd, const SVRegister &vm, size_t sew, size_t start_index)
+void iterate_vector_move(uint64_t scalar, SVector &vd, const SVRegister &vm, size_t sew, size_t start_index)
 {
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
-        vd[i_element] = rhs;
+        vd[i_element] = scalar;
     }
 }
 
-void iterate_vector_convert(const SVector &opL, SVector &vd, const SVRegister &vm, bool mask,
-                            FloatConversionFunction func, size_t sew, bool signed_x, bool rtz, bool rod,
+void iterate_vector_convert(const SVector &vs2, SVector &vd, const SVRegister &vm, bool mask,
+                            VARITH_FLOAT::FloatConversionFunction func, size_t sew, bool signed_x, bool rtz, bool rod,
                             bool vs2_is_int, size_t start_index)
 {
 
@@ -129,313 +174,315 @@ void iterate_vector_convert(const SVector &opL, SVector &vd, const SVRegister &v
     {
         if (!mask || vm.get_bit(i_element))
         {
-            uint64_t opL_value = vs2_is_int && signed_x ? opL[i_element].to_i64() : opL[i_element].to_u64();
-            func(opL_value, vd[i_element], sew, signed_x, rtz, rod);
+            uint64_t vs2_value = vs2_is_int && signed_x ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            func(vs2_value, vd[i_element], sew, signed_x, rtz, rod);
         }
     }
 }
 
 // Public function definitions
-VILL::vpu_return_t VARITH_FLOAT::vf_op_vv(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs,
-                                          uint16_t vec_elem_start, bool mask_f, FloatFunction func,
-                                          uint8_t rounding_mode, bool wide_dest, bool wide_vs2)
+auto VARITH_FLOAT::vf_op_vv(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                            FloatInstrInfo const &float_instr_info, uint16_t reg_vd, uint16_t reg_vs1, uint16_t reg_vs2,
+                            VARITH_FLOAT::FloatFunction func) -> VILL::vpu_return_t
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-    RVVRegField V_wide(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
+    const auto alignment_exception =
+        check_alignment(V, V_wide, reg_vd, reg_vs2, reg_vs1, v_instr_info.wide_vd, v_instr_info.wide_vs2);
+
+    if (alignment_exception != VILL::VPU_RETURN::NO_EXCEPT)
     {
-        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+        return alignment_exception;
     }
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(src_vec_reg_lhs)) ||
-        (wide_vs2 && !V_wide.vec_reg_is_aligned(src_vec_reg_lhs)))
+
+    V.init();
+    if (v_instr_info.wide_vd || v_instr_info.wide_vs2)
     {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+        V_wide.init();
     }
-    if ((!wide_dest && !V.vec_reg_is_aligned(dst_vec_reg)) || (wide_dest && !V_wide.vec_reg_is_aligned(dst_vec_reg)))
+
+    RVVector &vs1 = V.get_vec(reg_vs1);
+    RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
+
+    softfloat_exceptionFlags = 0;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
+
+    iterate_vector(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                   v_instr_info.start_element);
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+VILL::vpu_return_t VARITH_FLOAT::vf_op_vf(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                          FloatInstrInfo const &float_instr_info, uint16_t reg_vd, uint16_t reg_vs2,
+                                          uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes, FloatFunction func)
+{
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    const auto alignment_exception =
+        check_alignment(V, V_wide, reg_vd, reg_vs2, v_instr_info.wide_vd, v_instr_info.wide_vs2);
+
+    if (alignment_exception != VILL::VPU_RETURN::NO_EXCEPT)
     {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
+        return alignment_exception;
     }
 
     // TODO: check wide V overlap rules
 
     V.init();
-    if (wide_dest || wide_vs2)
+    if (v_instr_info.wide_vd || v_instr_info.wide_vs2)
     {
         V_wide.init();
     }
 
-    RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-    RVVector &vs2 = wide_vs2 ? V_wide.get_vec(src_vec_reg_lhs) : V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = wide_dest ? V_wide.get_vec(dst_vec_reg) : V.get_vec(dst_vec_reg);
+    RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
+
+    uint64_t scalar = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+
+    if (scalar_reg_len_bytes > (v_instr_info.sew >> 3))
+    {
+        scalar =
+            ((v_instr_info.sew >> 3) == 2) ? check_and_unbox_f16(f64(scalar)).v : check_and_unbox_f32(f64(scalar)).v;
+    }
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector(vs2, vs1, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
+    iterate_vector(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                   v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_op_vf(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                          uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start, bool mask_f,
-                                          FloatFunction func, uint8_t rounding_mode, bool wide_dest, bool wide_vs2)
+VILL::vpu_return_t VARITH_FLOAT::vf_op_unary(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                             FloatInstrInfo const &float_instr_info, uint16_t reg_vd, uint16_t reg_vs2,
+                                             FloatFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-    RVVRegField V_wide(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(src_vec_reg_lhs)) ||
-        (wide_vs2 && !V_wide.vec_reg_is_aligned(src_vec_reg_lhs)))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if ((!wide_dest && !V.vec_reg_is_aligned(dst_vec_reg)) || (wide_dest && !V_wide.vec_reg_is_aligned(dst_vec_reg)))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-
-    // TODO: check wide V overlap rules
-
-    V.init();
-    if (wide_dest || wide_vs2)
-    {
-        V_wide.init();
-    }
-
-    RVVector &vs2 = wide_vs2 ? V_wide.get_vec(src_vec_reg_lhs) : V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = wide_dest ? V_wide.get_vec(dst_vec_reg) : V.get_vec(dst_vec_reg);
-
-    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
-
-    if (scalar_reg_len_bytes > sew_bytes)
-    {
-        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
-    }
-
-    softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
-
-    iterate_vector(vs2, rhs, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
-
-    return VILL::VPU_RETURN::NO_EXCEPT;
-}
-
-VILL::vpu_return_t VARITH_FLOAT::vf_op_unary(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                             uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                             uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                             bool mask_f, FloatFunction func, uint8_t rounding_mode)
-{
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    RVVector &vd = V.get_vec(reg_vd);
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_unary(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
+    iterate_vector_unary(vs2, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                         v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_op_vv_to_reg(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_rhs,
-                                                 uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f,
-                                                 FloatFunction func, uint8_t rounding_mode)
+VILL::vpu_return_t VARITH_FLOAT::vf_op_vv_to_reg(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                                 FloatInstrInfo const &float_instr_info, uint16_t reg_vd,
+                                                 uint16_t reg_vs1, uint16_t reg_vs2, FloatFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_rhs))
+    if (!V.vec_reg_is_aligned(reg_vs1))
     {
         return (VILL::VPU_RETURN::SRC1_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    RVVector &vs1 = V.get_vec(src_vec_reg_rhs);
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+    RVVector &vs1 = V.get_vec(reg_vs1);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    SVRegister &vd = V.get_vecreg(reg_vd);
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_register(vs2, vs1, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
+    iterate_vector_register(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                            v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_op_vf_to_reg(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                                                 uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
-                                                 uint16_t vec_elem_start, bool mask_f, FloatFunction func,
-                                                 uint8_t rounding_mode)
+VILL::vpu_return_t VARITH_FLOAT::vf_op_vf_to_reg(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                                 FloatInstrInfo const &float_instr_info, uint16_t reg_vd,
+                                                 uint16_t reg_vs2, uint8_t *scalar_reg_mem,
+                                                 uint8_t scalar_reg_len_bytes, FloatFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    SVRegister &vd = V.get_vecreg(reg_vd);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t scalar = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
 
-    if (scalar_reg_len_bytes > sew_bytes)
+    if (scalar_reg_len_bytes > (v_instr_info.sew >> 3))
     {
-        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+        scalar =
+            ((v_instr_info.sew >> 3) == 2) ? check_and_unbox_f16(f64(scalar)).v : check_and_unbox_f32(f64(scalar)).v;
     }
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_register(vs2, rhs, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, vec_elem_start);
+    iterate_vector_register(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                            v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_merge(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                          uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                          uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem,
-                                          uint8_t scalar_reg_len_bytes, uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_FLOAT::vf_merge(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info, uint16_t reg_vd,
+                                          uint16_t reg_vs2, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    RVVector &vd = V.get_vec(reg_vd);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t scalar = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
 
-    if (scalar_reg_len_bytes > sew_bytes)
+    if (scalar_reg_len_bytes > (v_instr_info.sew >> 3))
     {
-        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+        scalar =
+            ((v_instr_info.sew >> 3) == 2) ? check_and_unbox_f16(f64(scalar)).v : check_and_unbox_f32(f64(scalar)).v;
     }
 
-    iterate_vector_merge(vs2, rhs, vd, V.get_mask_reg(), sew_bytes * 8, vec_elem_start);
+    iterate_vector_merge(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.sew, v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_move(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                         uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                         uint16_t dst_vec_reg, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
-                                         uint16_t vec_elem_start)
+VILL::vpu_return_t VARITH_FLOAT::vf_move(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info, uint16_t reg_vd,
+                                         uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    RVVector &vd = V.get_vec(reg_vd);
 
-    uint64_t rhs = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
-                                              : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
+    uint64_t scalar = (scalar_reg_len_bytes > 4) ? *(reinterpret_cast<uint64_t *>(scalar_reg_mem))
+                                                 : *(reinterpret_cast<uint32_t *>(scalar_reg_mem));
 
-    if (scalar_reg_len_bytes > sew_bytes)
+    if (scalar_reg_len_bytes > (v_instr_info.sew >> 3))
     {
-        rhs = (sew_bytes == 2) ? check_and_unbox_f16(f64(rhs)).v : check_and_unbox_f32(f64(rhs)).v;
+        scalar =
+            ((v_instr_info.sew >> 3) == 2) ? check_and_unbox_f16(f64(scalar)).v : check_and_unbox_f32(f64(scalar)).v;
     }
 
-    iterate_vector_move(rhs, vd, sew_bytes * 8, vec_elem_start);
+    iterate_vector_move(scalar, vd, V.get_mask_reg(), v_instr_info.sew, v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_convert(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                            uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                            uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start,
-                                            bool mask_f, FloatConversionFunction func, uint8_t rounding_mode,
-                                            bool signed_x, bool vs2_is_int, bool rtz)
+VILL::vpu_return_t VARITH_FLOAT::vf_convert(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                            FloatInstrInfo const &float_instr_info, uint16_t reg_vd, uint16_t reg_vs2,
+                                            FloatConversionFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                       SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    const auto alignment_exception =
+        check_alignment(V, V_wide, reg_vd, reg_vs2, v_instr_info.wide_vd, v_instr_info.wide_vs2);
+
+    if (alignment_exception != VILL::vpu_return_t::NO_EXCEPT)
     {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
+        return alignment_exception;
     }
 
     V.init();
+    if (v_instr_info.wide_vd || v_instr_info.wide_vs2)
+    {
+        V_wide.init();
+    }
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V.get_vec(dst_vec_reg);
+    RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, /*rod = */ false,
-                           vs2_is_int, vec_elem_start);
+    iterate_vector_convert(vs2, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                           v_instr_info.signed_op, float_instr_info.cvt_rtz, float_instr_info.ncvt_rod,
+                           float_instr_info.cvt_vs2_is_int, v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_convert_wide(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                 uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                 uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                                                 uint16_t vec_elem_start, bool mask_f, FloatConversionFunction func,
-                                                 uint8_t rounding_mode, bool signed_x, bool vs2_is_int, bool rtz)
+VILL::vpu_return_t VARITH_FLOAT::vf_convert_wide(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                                 FloatInstrInfo const &float_instr_info, uint16_t reg_vd,
+                                                 uint16_t reg_vs2, FloatConversionFunction func)
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-    RVVRegField V_wide(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V_wide.vec_reg_is_aligned(dst_vec_reg))
+    if (!V_wide.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
@@ -443,34 +490,34 @@ VILL::vpu_return_t VARITH_FLOAT::vf_convert_wide(uint8_t *vec_reg_mem, uint64_t 
     V.init();
     V_wide.init();
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V_wide.get_vec(dst_vec_reg);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    RVVector &vd = V_wide.get_vec(reg_vd);
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, /*rod = */ false,
-                           vs2_is_int, vec_elem_start);
+    iterate_vector_convert(vs2, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                           v_instr_info.signed_op, float_instr_info.cvt_rtz, float_instr_info.ncvt_rod,
+                           float_instr_info.cvt_vs2_is_int, v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom,
-                                                   uint16_t sew_bytes, uint16_t vec_len, uint16_t vec_reg_len_bytes,
-                                                   uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                                                   uint16_t vec_elem_start, bool mask_f, FloatConversionFunction func,
-                                                   uint8_t rounding_mode, bool signed_x, bool vs2_is_int, bool rtz,
-                                                   bool rod)
+VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                                   FloatInstrInfo const &float_instr_info, uint16_t reg_vd,
+                                                   uint16_t reg_vs2, FloatConversionFunction func)
 {
     // TODO: check
-    RVVRegField V_narrow(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, 2 * sew_bytes * 8, SVMul(2 * emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V_narrow(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                         SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                  SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V_narrow.vec_reg_is_aligned(dst_vec_reg))
+    if (!V_narrow.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
@@ -478,14 +525,15 @@ VILL::vpu_return_t VARITH_FLOAT::vf_convert_narrow(uint8_t *vec_reg_mem, uint64_
     V.init();
     V_narrow.init();
 
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    RVVector &vd = V_narrow.get_vec(dst_vec_reg);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    RVVector &vd = V_narrow.get_vec(reg_vd);
 
     softfloat_exceptionFlags = 0;
-    softfloat_roundingMode = rounding_mode;
+    softfloat_roundingMode = float_instr_info.rounding_mode;
 
-    iterate_vector_convert(vs2, vd, V.get_mask_reg(), !mask_f, func, sew_bytes * 8, signed_x, rtz, rod, vs2_is_int,
-                           vec_elem_start);
+    iterate_vector_convert(vs2, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.sew,
+                           v_instr_info.signed_op, float_instr_info.cvt_rtz, float_instr_info.ncvt_rod,
+                           float_instr_info.cvt_vs2_is_int, v_instr_info.start_element);
 
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
