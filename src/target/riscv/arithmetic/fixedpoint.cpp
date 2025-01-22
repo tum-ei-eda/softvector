@@ -176,8 +176,8 @@ auto VARITH_FIXP::roundoff_signed(std::int64_t value, std::uint8_t rounding_bits
     return (value >> rounding_bits) + rounding_increment;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
-                                           const fixedpoint_info_t &fixedpoint_info, std::uint16_t reg_vd,
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
+                                           const FpInstrInfo &fixedpoint_info, std::uint16_t reg_vd,
                                            std::uint16_t reg_vs1, std::uint16_t reg_vs2, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
@@ -216,8 +216,8 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(std::uint8_t *vec_reg_mem, const v_in
     return sat ? VILL::VPU_RETURN::NO_EXCEPT_FP_SAT : VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
-                                           const fixedpoint_info_t &fixedpoint_info, std::uint16_t reg_vd,
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
+                                           const FpInstrInfo &fixedpoint_info, std::uint16_t reg_vd,
                                            std::uint16_t reg_vs2, std::uint8_t *scalar_reg_mem,
                                            std::uint8_t scalar_register_length, FixpointFunction func)
 {
@@ -257,8 +257,8 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(std::uint8_t *vec_reg_mem, const v_in
     return sat ? VILL::VPU_RETURN::NO_EXCEPT_FP_SAT : VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-VILL::vpu_return_t VARITH_FIXP::fixp_op_vi(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
-                                           const fixedpoint_info_t &fixedpoint_info, std::uint16_t reg_vd,
+VILL::vpu_return_t VARITH_FIXP::fixp_op_vi(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
+                                           const FpInstrInfo &fixedpoint_info, std::uint16_t reg_vd,
                                            std::uint16_t reg_vs2, std::uint8_t imm5, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,

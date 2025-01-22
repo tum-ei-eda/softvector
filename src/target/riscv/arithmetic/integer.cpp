@@ -123,8 +123,8 @@ void iterate_vector_comparison(const SVector &vs2, std::uint64_t scalar, SVRegis
 
 // Public function definitions
 
-VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
-                                         const int_info_t &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs1,
+VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
+                                         const IntInstrInfo &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs1,
                                          std::uint16_t reg_vs2, ArithmeticFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
@@ -161,7 +161,7 @@ VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const v_inst
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
+VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
                                          std::uint16_t reg_vd, std::uint16_t reg_vs2, std::uint8_t imm5,
                                          ArithmeticFunction func)
 {
@@ -196,8 +196,8 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const v_inst
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const v_instr_info_t &v_instr_info,
-                                         const int_info_t &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs2,
+VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
+                                         const IntInstrInfo &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs2,
                                          std::uint8_t *scalar_reg_mem, std::uint8_t scalar_reg_len_bytes,
                                          ArithmeticFunction func)
 {

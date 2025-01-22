@@ -206,7 +206,7 @@ inline constexpr auto operator"" _i64(unsigned long long value) -> std::int64_t
     return static_cast<std::int64_t>(value);
 }
 
-struct v_instr_info_t
+struct VInstrInfo
 {
     uint64_t emul_num = 1_u64;               //!< EMUL numerator
     uint64_t emul_denom = 1_u64;             //!< EMUL denominator

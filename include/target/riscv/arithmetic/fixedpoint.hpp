@@ -39,7 +39,7 @@ namespace VARITH_FIXP
 using FixpointFunction = std::function<bool(uint64_t /* lhs */, uint64_t /* rhs */, SVElement & /* vd */,
                                             size_t /* sew */, uint8_t /* rounding_mode */)>;
 
-struct fixedpoint_info_t
+struct FpInstrInfo
 {
     uint8_t rounding_mode = 0U;
     bool narrowing_op = false;
@@ -237,8 +237,8 @@ inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
 /// \details For all i: D[i] = L[i] op R[i]
 VILL::vpu_return_t fixp_op_vv(
     uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const v_instr_info_t &v_instr_info,       //!< Struct containing vector instruction information
-    const fixedpoint_info_t &fixedpoint_info, //!< Struct containing fixed-point op information
+    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
+    const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
     uint16_t reg_vd,                          //!< Destination vector D [index]
     uint16_t reg_vs1,                         //!< Source vector R [index]
     uint16_t reg_vs2,                         //!< Source vector L [index]
@@ -250,8 +250,8 @@ VILL::vpu_return_t fixp_op_vv(
 /// \details For all i: D[i] = L[i] op (signed ? sign_extend(X[rs1]) : X[rs1])
 VILL::vpu_return_t fixp_op_vx(
     uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const v_instr_info_t &v_instr_info,       //!< Struct containing vector instruction information
-    const fixedpoint_info_t &fixedpoint_info, //!< Struct containing fixed-point op information
+    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
+    const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
     uint16_t reg_vd,                          //!< Destination vector D [index]
     uint16_t reg_vs2,                         //!< Source vector L [index]
     uint8_t *scalar_reg_mem,                  //!< Memory space holding scalar data (min. _xlenb bytes)
@@ -264,8 +264,8 @@ VILL::vpu_return_t fixp_op_vx(
 /// \details For all i: D[i] = L[i] op sign_extend(imm)
 VILL::vpu_return_t fixp_op_vi(
     uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const v_instr_info_t &v_instr_info,       //!< Struct containing vector instruction information
-    const fixedpoint_info_t &fixedpoint_info, //!< Struct containing fixed-point op specific information
+    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
+    const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op specific information
     uint16_t reg_vd,                          //!< Destination vector D [index]
     uint16_t reg_vs2,                         //!< Source vector L [index]
     uint8_t imm5,                             //!< Sign or zero extending 5-bit immediate

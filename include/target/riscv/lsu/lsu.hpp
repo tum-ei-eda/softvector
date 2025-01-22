@@ -16,7 +16,7 @@
 //////////////////////////////////////////////////////////////////////////////////////
 /// \file lsu.hpp
 /// \brief Defines helpers implementing load/stores after
-/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-loads-and-stores 
+/// https://github.com/riscv/riscv-v-spec/blob/0.9/v-spec.adoc#vector-loads-and-stores
 /// \date 06/23/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
