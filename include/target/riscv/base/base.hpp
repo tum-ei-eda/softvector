@@ -208,8 +208,8 @@ inline constexpr auto operator"" _i64(unsigned long long value) -> std::int64_t
 
 struct VInstrInfo
 {
-    uint64_t emul_num = 1_u64;               //!< EMUL numerator
-    uint64_t emul_denom = 1_u64;             //!< EMUL denominator
+    uint64_t lmul_num = 1_u64;               //!< EMUL numerator
+    uint64_t lmul_denom = 1_u64;             //!< EMUL denominator
     uint32_t sew = 8_u64;                    //!< Selected element width (bit)
     uint16_t vector_length = 0U;          //!< Vector length (elements)
     uint16_t vector_register_length = 0U; //!< Length of a vector register (bit)

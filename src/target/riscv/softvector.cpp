@@ -336,14 +336,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -359,14 +359,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::int_op_vi(VectorRegField, v_instr_info, pVd, pVs2, pVimm, VARITH_INT::add);
 
@@ -387,14 +387,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -411,14 +411,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -441,14 +441,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::sub);
@@ -475,14 +475,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8,
@@ -504,14 +504,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::int_op_vi(VectorRegField, v_instr_info, pVd, pVs2, pVimm, VARITH_INT::rsub);
 
@@ -610,15 +610,15 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .wide_vd = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .wide_vd = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::add);
@@ -740,16 +740,16 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .wide_vd = true,
-                                     .wide_vs2 = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .wide_vd = true,
+                                 .wide_vs2 = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::add);
@@ -775,16 +775,16 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .wide_vd = true,
-                                     .wide_vs2 = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .wide_vd = true,
+                                 .wide_vs2 = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::add);
@@ -830,16 +830,16 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .wide_vd = true,
-                                     .wide_vs2 = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .wide_vd = true,
+                                 .wide_vs2 = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8, VARITH_INT::sub);
@@ -877,14 +877,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -901,14 +901,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::int_op_vi(VectorRegField, v_instr_info, pVd, pVs2, pVimm, VARITH_INT::logical_and);
 
@@ -929,14 +929,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8,
@@ -958,14 +958,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1016,14 +1016,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1060,14 +1060,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1087,15 +1087,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .zero_extend_immediate = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1145,15 +1145,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .zero_extend_immediate = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1204,15 +1204,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .zero_extend_immediate = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -1229,15 +1229,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .zero_extend_immediate = true };
 
         VARITH_INT::int_op_vi(VectorRegField, v_instr_info, pVd, pVs2, pVimm, VARITH_INT::sra);
 
@@ -1977,14 +1977,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2021,14 +2021,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2065,14 +2065,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2169,14 +2169,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2213,14 +2213,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2243,14 +2243,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2267,14 +2267,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2311,14 +2311,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2337,15 +2337,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .wide_vd = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .wide_vd = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2368,15 +2368,15 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .wide_vd = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .wide_vd = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2462,14 +2462,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2492,14 +2492,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2516,14 +2516,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2560,14 +2560,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2590,14 +2590,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2614,14 +2614,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_INT::IntInstrInfo int_info;
 
@@ -2913,14 +2913,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_INT::IntInstrInfo int_info;
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_info, pVd, pVs2, ScalarReg, pXLEN / 8,
@@ -3199,14 +3199,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
 
@@ -3227,15 +3227,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .zero_extend_immediate = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .zero_extend_immediate = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
 
@@ -3262,14 +3262,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = 0, .narrowing_op = false };
 
@@ -3389,14 +3389,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info;
 
@@ -3438,14 +3438,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3484,14 +3484,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3509,14 +3509,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3540,14 +3540,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3585,14 +3585,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3612,15 +3612,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true,
-                                     .zero_extend_immediate = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true,
+                                 .zero_extend_immediate = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3644,14 +3644,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3690,15 +3690,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .zero_extend_immediate = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .zero_extend_immediate = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = false };
 
@@ -3792,14 +3792,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
@@ -3822,15 +3822,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .zero_extend_immediate = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
@@ -3854,14 +3854,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
@@ -3883,14 +3883,14 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
@@ -3915,15 +3915,15 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = false,
-                                     .zero_extend_immediate = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false,
+                                 .zero_extend_immediate = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 
@@ -3951,14 +3951,14 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VInstrInfo v_instr_info{ .emul_num = _vt._z_lmul,
-                                     .emul_denom = _vt._n_lmul,
-                                     .sew = _vt._sew,
-                                     .vector_length = pVL,
-                                     .vector_register_length = pVLEN,
-                                     .start_element = pVSTART,
-                                     .masked = !pVm,
-                                     .signed_op = true };
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
 
         VARITH_FIXP::FpInstrInfo fixedpoint_info{ .rounding_mode = pRm, .narrowing_op = true };
 

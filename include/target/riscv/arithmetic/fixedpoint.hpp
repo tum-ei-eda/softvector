@@ -235,41 +235,39 @@ inline FixpointFunction clipu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-vector
 /// \details For all i: D[i] = L[i] op R[i]
-VILL::vpu_return_t fixp_op_vv(
-    uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
-    const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
-    uint16_t reg_vd,                          //!< Destination vector D [index]
-    uint16_t reg_vs1,                         //!< Source vector R [index]
-    uint16_t reg_vs2,                         //!< Source vector L [index]
-    FixpointFunction func                     //!< The inner function
+VILL::vpu_return_t fixp_op_vv(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+                              const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
+                              const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
+                              uint16_t reg_vd,                    //!< Destination vector D [index]
+                              uint16_t reg_vs1,                   //!< Source vector R [index]
+                              uint16_t reg_vs2,                   //!< Source vector L [index]
+                              FixpointFunction func               //!< The inner function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-scalar
 /// \details For all i: D[i] = L[i] op (signed ? sign_extend(X[rs1]) : X[rs1])
-VILL::vpu_return_t fixp_op_vx(
-    uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
-    const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
-    uint16_t reg_vd,                          //!< Destination vector D [index]
-    uint16_t reg_vs2,                         //!< Source vector L [index]
-    uint8_t *scalar_reg_mem,                  //!< Memory space holding scalar data (min. _xlenb bytes)
-    uint8_t scalar_register_length,           //!< Length of scalar (XLEN) [bit]
-    FixpointFunction func                     //!< The inner function
+VILL::vpu_return_t fixp_op_vx(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+                              const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
+                              const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op information
+                              uint16_t reg_vd,                    //!< Destination vector D [index]
+                              uint16_t reg_vs2,                   //!< Source vector L [index]
+                              uint8_t *scalar_reg_mem,        //!< Memory space holding scalar data (min. _xlenb bytes)
+                              uint8_t scalar_register_length, //!< Length of scalar (XLEN) [bit]
+                              FixpointFunction func           //!< The inner function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Fixed-point operation vector-immediate
 /// \details For all i: D[i] = L[i] op sign_extend(imm)
 VILL::vpu_return_t fixp_op_vi(
-    uint8_t *vec_reg_mem,                     //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info,       //!< Struct containing vector instruction information
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,     //!< Struct containing vector instruction information
     const FpInstrInfo &fixedpoint_info, //!< Struct containing fixed-point op specific information
-    uint16_t reg_vd,                          //!< Destination vector D [index]
-    uint16_t reg_vs2,                         //!< Source vector L [index]
-    uint8_t imm5,                             //!< Sign or zero extending 5-bit immediate
-    FixpointFunction func                     //!< The inner function
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    uint8_t imm5,                       //!< Sign or zero extending 5-bit immediate
+    FixpointFunction func               //!< The inner function
 );
 
 /* 12.1. Vector Single-Width Saturating Add and Subtract */

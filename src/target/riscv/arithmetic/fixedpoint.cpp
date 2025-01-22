@@ -9,19 +9,19 @@
 
 // Private function declarations
 
-auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
-                    std::uint8_t rounding_mode) -> bool;
+inline auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                           VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
+                           std::uint8_t rounding_mode) -> bool;
 
-auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
-                    std::uint8_t rounding_mode) -> bool;
+inline auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                           VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
+                           std::uint8_t rounding_mode) -> bool;
 
 // Private function definitions
 
-auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
-                    std::uint8_t rounding_mode) -> bool
+inline auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
+                           VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
+                           std::uint8_t rounding_mode) -> bool
 {
     auto sat = false;
     // TODO: If OMP is used, local sat results can be OR reduced to final sat
@@ -37,9 +37,9 @@ auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const S
     return sat;
 }
 
-auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
-                    std::uint8_t rounding_mode) -> bool
+inline auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+                           VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
+                           std::uint8_t rounding_mode) -> bool
 {
     auto sat = false;
     for (std::size_t i_element = start_index; i_element < vd.length_; ++i_element)
@@ -181,10 +181,10 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vv(std::uint8_t *vec_reg_mem, const VIns
                                            std::uint16_t reg_vs1, std::uint16_t reg_vs2, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew * 2,
-                       SVMul(v_instr_info.emul_num * 2, v_instr_info.emul_denom), vec_reg_mem);
+                       SVMul(v_instr_info.lmul_num * 2, v_instr_info.lmul_denom), vec_reg_mem);
 
     if (!V.vec_reg_is_aligned(reg_vs1))
     {
@@ -222,10 +222,10 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vx(std::uint8_t *vec_reg_mem, const VIns
                                            std::uint8_t scalar_register_length, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew * 2,
-                       SVMul(v_instr_info.emul_num * 2, v_instr_info.emul_denom), vec_reg_mem);
+                       SVMul(v_instr_info.lmul_num * 2, v_instr_info.lmul_denom), vec_reg_mem);
 
     if ((!fixedpoint_info.narrowing_op && !V.vec_reg_is_aligned(reg_vs2)) ||
         (fixedpoint_info.narrowing_op && !V_wide.vec_reg_is_aligned(reg_vs2)))
@@ -262,10 +262,10 @@ VILL::vpu_return_t VARITH_FIXP::fixp_op_vi(std::uint8_t *vec_reg_mem, const VIns
                                            std::uint16_t reg_vs2, std::uint8_t imm5, FixpointFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew * 2,
-                       SVMul(v_instr_info.emul_num * 2, v_instr_info.emul_denom), vec_reg_mem);
+                       SVMul(v_instr_info.lmul_num * 2, v_instr_info.lmul_denom), vec_reg_mem);
 
     if ((!fixedpoint_info.narrowing_op && !V.vec_reg_is_aligned(reg_vs2)) ||
         (fixedpoint_info.narrowing_op && !V_wide.vec_reg_is_aligned(reg_vs2)))

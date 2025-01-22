@@ -128,10 +128,10 @@ VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const VInstr
                                          std::uint16_t reg_vs2, ArithmeticFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
-                       SVMul(2 * v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     auto alignment_exception =
         check_alignment(V, V_wide, reg_vd, reg_vs2, reg_vs1, v_instr_info.wide_vd, v_instr_info.wide_vs2);
@@ -166,7 +166,7 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const VInstr
                                          ArithmeticFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     if (!V.vec_reg_is_aligned(reg_vs2))
     {
@@ -202,10 +202,10 @@ VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const VInstr
                                          ArithmeticFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
-                  SVMul(v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
-                       SVMul(2 * v_instr_info.emul_num, v_instr_info.emul_denom), vec_reg_mem);
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
     auto alignment_exception = check_alignment(V, V_wide, reg_vd, reg_vs2, v_instr_info.wide_vd, v_instr_info.wide_vs2);
     if (alignment_exception != VILL::vpu_return_t::NO_EXCEPT)

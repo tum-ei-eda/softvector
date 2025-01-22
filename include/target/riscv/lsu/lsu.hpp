@@ -67,6 +67,31 @@ VILL::vpu_return_t store_eew(
     int16_t stride_bytes        //!< Stride length [bytes]
 );
 
+//////////////////////////////////////////////////////////////////////////////////////
+/// @brief Load <vl>-times <sew>-elements with <eew>-offsets (vs2) through readMem function into vector register file
+auto load_indices(
+    std::function<void(size_t, uint8_t *, size_t)> func_read_mem, //!< Function for memory read access
+    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional [0..32*VLEN-1] byte array
+    VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
+    uint16_t reg_vd,                //!< Destination vector register [index]
+    uint16_t reg_vs2,               //!< Index source vector register [index]
+    uint64_t src_mem_start,         //!< Source memory start address
+    uint16_t eew                    //!< Effective element width [bits]
+    ) -> VILL::vpu_return_t;
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// @brief Store <vl>-times <sew>-elements with <eew>-offsets (vs2) through func_write_mem function from vector register
+/// file
+auto store_indices(
+    std::function<void(size_t, uint8_t *, size_t)> func_write_mem, //!< Function for memory read access
+    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional [0..32*VLEN-1] byte array
+    VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
+    uint16_t reg_vs3,               //!< Source vector register [index]
+    uint16_t reg_vs2,               //!< Index source vector registers [index]
+    uint64_t dst_mem_start,         //!< Source memory start address
+    uint16_t eew                    //!< Effective element width [bits]
+    ) -> VILL::vpu_return_t;
+
 } // namespace VLSU
 
 #endif /* __RVVHL_VLSU_H__ */
