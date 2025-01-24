@@ -29,94 +29,82 @@
 
 // Private function declarations
 
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2, bool wide_vs1)
-    -> VILL::vpu_return_t;
+auto iterate_vector(SVector const &vs2, SVector const &vs1, SVector &vd, SVRegister const &vm, bool mask,
+                    VARITH_INT::IntFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1,
+                    bool mask_is_data) -> void;
 
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t;
+auto iterate_vector(SVector const &vs2, std::uint64_t scalar, SVector &vd, SVRegister const &vm, bool mask,
+                    VARITH_INT::IntFunction func, std::size_t start_index, bool signed_vs2, bool mask_is_data) -> void;
 
-auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1)
-    -> void;
+auto iterate_vector_to_register(SVector const &vs2, SVector const &vs1, SVRegister &vd, SVRegister const &vm, bool mask,
+                                VARITH_INT::IntRegisterFunction func, std::size_t start_index, bool signed_vs2,
+                                bool signed_vs1, bool mask_is_data, std::size_t sew) -> void;
 
-auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2) -> void;
+auto iterate_vector_to_register(SVector const &vs2, std::uint64_t scalar, SVRegister &vd, SVRegister const &vm,
+                                bool mask, VARITH_INT::IntRegisterFunction func, std::size_t start_index,
+                                bool signed_vs2, bool mask_is_data, std::size_t sew) -> void;
 
 // Private function definitions
 
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2)
-    -> VILL::vpu_return_t
-{
-
-    if (!V.vec_reg_is_aligned(reg_vs1))
-    {
-        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
-    }
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-
-    return VILL::VPU_RETURN::NO_EXCEPT;
-}
-
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t
-{
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-
-    return VILL::VPU_RETURN::NO_EXCEPT;
-}
-
-void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1)
+auto iterate_vector(SVector const &vs2, SVector const &vs1, SVector &vd, SVRegister const &vm, bool mask,
+                    VARITH_INT::IntFunction func, std::size_t start_index, bool signed_vs2, bool signed_vs1,
+                    bool mask_is_data) -> void
 {
     for (std::size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
-        if (!mask || vm.get_bit(i_element))
+        auto mask_bit = vm.get_bit(i_element);
+        if (!mask || mask_bit || mask_is_data)
         {
             auto lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
             auto rhs = signed_vs1 ? vs1[i_element].to_i64() : vs1[i_element].to_u64();
-            func(lhs, rhs, vd[i_element]);
+            func(lhs, rhs, vd[i_element], mask && mask_bit && mask_is_data);
         }
     }
 }
 
-void iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
-                    VARITH_INT::ArithmeticFunction func, std::size_t start_index, bool signed_vs2)
+auto iterate_vector(SVector const &vs2, std::uint64_t scalar, SVector &vd, SVRegister const &vm, bool mask,
+                    VARITH_INT::IntFunction func, std::size_t start_index, bool signed_vs2, bool mask_is_data) -> void
 {
     for (std::size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
-        if (!mask || vm.get_bit(i_element))
+        auto mask_bit = vm.get_bit(i_element);
+        if (!mask || mask_bit || mask_is_data)
         {
             std::uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
-            func(lhs, scalar, vd[i_element]);
+            func(lhs, scalar, vd[i_element], mask && mask_bit && mask_is_data);
         }
     }
 }
 
-void iterate_vector_comparison(const SVector &vs2, std::uint64_t scalar, SVRegister &vd, const SVRegister &vm,
-                               bool mask, VARITH_INT::ComparisonFunction func, std::size_t start_index, bool signed_vs2)
+auto iterate_vector_to_register(SVector const &vs2, SVector const &vs1, SVRegister &vd, SVRegister const &vm, bool mask,
+                                VARITH_INT::IntRegisterFunction func, std::size_t start_index, bool signed_vs2,
+                                bool signed_vs1, bool mask_is_data, std::size_t sew) -> void
 {
     for (std::size_t i_element = start_index; i_element < vs2.length_; ++i_element)
     {
-        if (!mask || vm.get_bit(i_element))
+        auto mask_bit = vm.get_bit(i_element);
+        if (!mask || mask_bit || mask_is_data)
         {
-            std::uint64_t lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
-            func(lhs, scalar, vd, i_element);
+            auto lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            auto rhs = signed_vs1 ? vs1[i_element].to_i64() : vs1[i_element].to_u64();
+            auto ret = func(lhs, rhs, sew, mask && mask_bit && mask_is_data);
+            ret ? vd.set_bit(i_element) : vd.reset_bit(i_element);
+        }
+    }
+}
+
+auto iterate_vector_to_register(SVector const &vs2, std::uint64_t scalar, SVRegister &vd, SVRegister const &vm,
+                                bool mask, VARITH_INT::IntRegisterFunction func, std::size_t start_index,
+                                bool signed_vs2, bool mask_is_data, std::size_t sew) -> void
+{
+    for (std::size_t i_element = start_index; i_element < vs2.length_; ++i_element)
+    {
+        auto mask_bit = vm.get_bit(i_element);
+        if (!mask || mask_bit || mask_is_data)
+        {
+            auto lhs = signed_vs2 ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
+            auto ret = func(lhs, scalar, sew, mask && mask_bit && mask_is_data);
+            ret ? vd.set_bit(i_element) : vd.reset_bit(i_element);
         }
     }
 }
@@ -124,8 +112,8 @@ void iterate_vector_comparison(const SVector &vs2, std::uint64_t scalar, SVRegis
 // Public function definitions
 
 VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
-                                         const IntInstrInfo &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs1,
-                                         std::uint16_t reg_vs2, ArithmeticFunction func)
+                                         const IntInstrInfo &int_instr_info, std::uint16_t reg_vd,
+                                         std::uint16_t reg_vs1, std::uint16_t reg_vs2, IntFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
@@ -151,19 +139,19 @@ VILL::vpu_return_t VARITH_INT::int_op_vv(std::uint8_t *vec_reg_mem, const VInstr
     RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
 
     // Mixed-signed: vs2 is signed if it is a signed-unsigned instruction
-    auto signed_vs2 = int_info.mixed_signed ? int_info.mixed_signed_vs2_signed : v_instr_info.signed_op;
+    auto signed_vs2 = int_instr_info.mixed_signed ? int_instr_info.mixed_signed_vs2_signed : v_instr_info.signed_op;
     // Mixed-signed: vs1 is signed if vs2 is unsigned and vice versa
-    auto signed_vs1 = int_info.mixed_signed ? !signed_vs2 : v_instr_info.signed_op;
+    auto signed_vs1 = int_instr_info.mixed_signed ? !signed_vs2 : v_instr_info.signed_op;
 
     iterate_vector(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element, signed_vs2,
-                   signed_vs1);
+                   signed_vs1, int_instr_info.mask_is_data);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
-                                         std::uint16_t reg_vd, std::uint16_t reg_vs2, std::uint8_t imm5,
-                                         ArithmeticFunction func)
+VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                         IntInstrInfo const &int_instr_info, std::uint16_t reg_vd,
+                                         std::uint16_t reg_vs2, std::uint8_t imm5, IntFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
@@ -179,11 +167,6 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const VInstr
 
     V.init();
 
-    // Mask for 5 bit immediate
-    static constexpr std::uint64_t imm_msb_mask = 0x10;
-    static constexpr std::uint64_t imm_width_mask = 0x1F;
-    static constexpr std::uint64_t imm_ext_mask = ~imm_width_mask;
-
     // For instructions with specific uimm, just zero extend, otherwise sign extend
     std::uint64_t imm = v_instr_info.zero_extend_immediate ? zero_extend_immediate(imm5) : sign_extend_immediate(imm5);
 
@@ -191,15 +174,15 @@ VILL::vpu_return_t VARITH_INT::int_op_vi(std::uint8_t *vec_reg_mem, const VInstr
     RVVector &vd = V.get_vec(reg_vd);
 
     iterate_vector(vs2, imm, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
-                   v_instr_info.signed_op);
+                   v_instr_info.signed_op, int_instr_info.mask_is_data);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
 VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info,
-                                         const IntInstrInfo &int_info, std::uint16_t reg_vd, std::uint16_t reg_vs2,
-                                         std::uint8_t *scalar_reg_mem, std::uint8_t scalar_reg_len_bytes,
-                                         ArithmeticFunction func)
+                                         const IntInstrInfo &int_instr_info, std::uint16_t reg_vd,
+                                         std::uint16_t reg_vs2, std::uint8_t *scalar_reg_mem,
+                                         std::uint8_t scalar_reg_len_bytes, IntFunction func)
 {
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
@@ -224,67 +207,101 @@ VILL::vpu_return_t VARITH_INT::int_op_vx(std::uint8_t *vec_reg_mem, const VInstr
                                : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
 
     // Mixed-signed: vs2 is signed if it is a signed-unsigned instruction
-    auto signed_vs2 = int_info.mixed_signed ? int_info.mixed_signed_vs2_signed : v_instr_info.signed_op;
+    auto signed_vs2 = int_instr_info.mixed_signed ? int_instr_info.mixed_signed_vs2_signed : v_instr_info.signed_op;
     // Mixed-signed: Scalar is signed if vs2 is unsigned and vice versa
-    auto signed_scalar = int_info.mixed_signed ? !signed_vs2 : v_instr_info.signed_op;
+    auto signed_scalar = int_instr_info.mixed_signed ? !signed_vs2 : v_instr_info.signed_op;
 
     scalar = mask_and_sign_extend_scalar(scalar, v_instr_info.sew, signed_scalar);
 
     RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
     RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
 
-    iterate_vector(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
-                   signed_vs2);
+    iterate_vector(vs2, scalar, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element, signed_vs2,
+                   int_instr_info.mask_is_data);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_compare_op_vi(std::uint8_t *vec_reg_mem, std::uint64_t emul_num,
-                                                 std::uint64_t emul_denom, std::uint16_t sew_bytes,
-                                                 std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
-                                                 std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
-                                                 std::uint8_t imm5, std::uint16_t vec_elem_start, bool mask_f,
-                                                 ComparisonFunction func, bool signed_vs2)
+auto VARITH_INT::int_op_vv_to_register(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                       IntInstrInfo const &int_instr_info, uint16_t reg_vd, uint16_t reg_vs1,
+                                       uint16_t reg_vs2, IntRegisterFunction func) -> VILL::vpu_return_t
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
+                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    auto alignment_exception =
+        check_alignment(V, V_wide, reg_vd, reg_vs2, reg_vs1, v_instr_info.wide_vd, v_instr_info.wide_vs2);
+    if (alignment_exception != VILL::vpu_return_t::NO_EXCEPT)
+    {
+        return alignment_exception;
+    }
+
+    V.init();
+    if (v_instr_info.wide_vd || v_instr_info.wide_vs2)
+    {
+        V_wide.init();
+    }
+
+    RVVector &vs1 = V.get_vec(reg_vs1);
+    RVVector &vs2 = v_instr_info.wide_vs2 ? V_wide.get_vec(reg_vs2) : V.get_vec(reg_vs2);
+    SVRegister &vd = v_instr_info.wide_vd ? V_wide.get_vecreg(reg_vd) : V.get_vecreg(reg_vd);
+
+    // Mixed-signed: vs2 is signed if it is a signed-unsigned instruction
+    auto signed_vs2 = int_instr_info.mixed_signed ? int_instr_info.mixed_signed_vs2_signed : v_instr_info.signed_op;
+    // Mixed-signed: vs1 is signed if vs2 is unsigned and vice versa
+    auto signed_vs1 = int_instr_info.mixed_signed ? !signed_vs2 : v_instr_info.signed_op;
+
+    iterate_vector_to_register(vs2, vs1, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
+                               signed_vs2, signed_vs1, int_instr_info.mask_is_data, v_instr_info.sew);
+
+    return (VILL::VPU_RETURN::NO_EXCEPT);
+}
+
+auto VARITH_INT::int_op_vi_to_register(std::uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                       IntInstrInfo const &int_instr_info, std::uint16_t reg_vd, std::uint16_t reg_vs2,
+                                       std::uint8_t imm5, IntRegisterFunction func) -> VILL::vpu_return_t
+{
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
 
     V.init();
 
-    // If msb set: mask and sign-extend, otherwise just mask
-    // Could use mask_and_sign_extend_scalar(imm, 5, true)
-    std::uint64_t imm = (imm5 & imm_msb_mask) ? (imm5 | imm_ext_mask) : (imm5 & imm_width_mask);
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+    std::uint64_t imm = v_instr_info.zero_extend_immediate ? zero_extend_immediate(imm5) : sign_extend_immediate(imm5);
 
-    iterate_vector_comparison(vs2, imm, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, signed_vs2);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    SVRegister &vd = V.get_vecreg(reg_vd);
+
+    iterate_vector_to_register(vs2, imm, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
+                               v_instr_info.signed_op, int_instr_info.mask_is_data, v_instr_info.sew);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-VILL::vpu_return_t VARITH_INT::int_compare_op_vx(std::uint8_t *vec_reg_mem, std::uint64_t emul_num,
-                                                 std::uint64_t emul_denom, std::uint16_t sew_bytes,
-                                                 std::uint16_t vec_len, std::uint16_t vec_reg_len_bytes,
-                                                 std::uint16_t dst_vec_reg, std::uint16_t src_vec_reg_lhs,
-                                                 std::uint8_t *scalar_reg_mem, std::uint16_t vec_elem_start,
-                                                 bool mask_f, std::uint8_t scalar_reg_len_bytes,
-                                                 ComparisonFunction func, bool signed_vs2, bool signed_scalar)
+auto VARITH_INT::int_op_vx_to_register(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
+                                       VARITH_INT::IntInstrInfo const &int_instr_info, uint16_t reg_vd,
+                                       uint16_t reg_vs2, uint8_t *scalar_reg_mem, uint8_t scalar_reg_len_bytes,
+                                       VARITH_INT::IntRegisterFunction func) -> VILL::vpu_return_t
 {
-    RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
+    RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    if (!V.vec_reg_is_aligned(src_vec_reg_lhs))
+    if (!V.vec_reg_is_aligned(reg_vs2))
     {
         return (VILL::VPU_RETURN::SRC2_VEC_ILL);
     }
-    if (!V.vec_reg_is_aligned(dst_vec_reg))
+    if (!V.vec_reg_is_aligned(reg_vd))
     {
         return (VILL::VPU_RETURN::DST_VEC_ILL);
     }
@@ -293,11 +310,12 @@ VILL::vpu_return_t VARITH_INT::int_compare_op_vx(std::uint8_t *vec_reg_mem, std:
 
     std::uint64_t imm = (scalar_reg_len_bytes > xlen_32_bytes) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
                                                                : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
-    imm = mask_and_sign_extend_scalar(imm, sew_bytes * 8, signed_scalar);
-    RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
-    SVRegister &vd = V.get_vecreg(dst_vec_reg);
+    imm = mask_and_sign_extend_scalar(imm, v_instr_info.sew, v_instr_info.signed_op);
+    RVVector &vs2 = V.get_vec(reg_vs2);
+    SVRegister &vd = V.get_vecreg(reg_vd);
 
-    iterate_vector_comparison(vs2, imm, vd, V.get_mask_reg(), !mask_f, func, vec_elem_start, signed_vs2);
+    iterate_vector_to_register(vs2, imm, vd, V.get_mask_reg(), v_instr_info.masked, func, v_instr_info.start_element,
+                               v_instr_info.signed_op, int_instr_info.mask_is_data, v_instr_info.sew);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }

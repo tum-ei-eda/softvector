@@ -16,13 +16,6 @@ extern "C"
 
 // Private function declarations
 
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2, bool wide_vs1)
-    -> VILL::vpu_return_t;
-
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t;
-
 void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index);
 
@@ -48,42 +41,6 @@ void iterate_vector_convert(const SVector &vs2, SVector &vd, const SVRegister &v
                             bool vs2_is_int, size_t start_index);
 
 // Private function definitions
-
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2)
-    -> VILL::vpu_return_t
-{
-
-    if (!V.vec_reg_is_aligned(reg_vs1))
-    {
-        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
-    }
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-
-    return VILL::VPU_RETURN::NO_EXCEPT;
-}
-
-inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
-                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t
-{
-    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
-    {
-        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
-    }
-    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
-    {
-        return (VILL::VPU_RETURN::DST_VEC_ILL);
-    }
-
-    return VILL::VPU_RETURN::NO_EXCEPT;
-}
 
 void iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                     VARITH_FLOAT::FloatFunction func, size_t sew, size_t start_index)

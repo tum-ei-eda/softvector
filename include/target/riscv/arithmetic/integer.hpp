@@ -34,132 +34,176 @@
 namespace VARITH_INT
 {
 
-using ArithmeticFunction = std::function<void(std::uint64_t /* lhs */, std::uint64_t /* rhs */, SVElement & /* vd */)>;
-using ComparisonFunction = std::function<void(std::uint64_t /* lhs */, std::uint64_t /* rhs */, SVRegister & /* vd */,
-                                              std::size_t /* index */)>;
+using IntFunction =
+    std::function<void(std::uint64_t /* lhs */, std::uint64_t /* rhs */, SVElement & /* vd */, bool /* mask_bit */)>;
+using IntRegisterFunction = std::function<bool(std::uint64_t /* lhs */, std::uint64_t /* rhs */, std::size_t /* sew */,
+                                               [[maybe_unused]] bool /* mask_bit */)>;
 
 struct IntInstrInfo
 {
     bool mixed_signed = false;            //!< True if instruction is mixed-signed (e.g. vmulhsu)
     bool mixed_signed_vs2_signed = false; //!< True if vs2 is signed in mixed-signed instruction
+    bool mask_is_data = false;            //!< True if mask register bits are used as data instead of element masks
 };
 
 /* 11.1. Vector Single-Width Integer Add and Subtract */
-inline ArithmeticFunction add = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = lhs + rhs; };
+inline IntFunction add = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool carry_in) -> void {
+    vd = lhs + rhs + carry_in;
+};
 
-inline ArithmeticFunction sub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = lhs - rhs; };
+inline IntFunction sub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool borrow_in) -> void {
+    vd = lhs - rhs - borrow_in;
+};
 
-inline ArithmeticFunction rsub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void { vd = rhs - lhs; };
+inline IntFunction rsub = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
+    vd = rhs - lhs;
+};
+
+/* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
+inline IntRegisterFunction produce_carry_out = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew,
+                                                  bool carry_in) -> bool {
+    auto result = lhs + rhs + carry_in;
+
+    auto msb_lhs = msb_is_set(lhs, sew);
+    auto msb_rhs = msb_is_set(rhs, sew);
+    auto msb_result = msb_is_set(result, sew);
+
+    // Carry out if:
+    // - MSB of both operands are set
+    // - MSB of one operand is set, but result MSB is not set
+    auto carry_out =
+        (msb_lhs && msb_rhs) || (msb_lhs && !msb_rhs && !msb_result) || (!msb_lhs && msb_rhs && !msb_result);
+
+    return carry_out;
+};
+
+/* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
+inline IntRegisterFunction produce_borrow_out = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew,
+                                                   bool borrow_in) -> bool {
+    auto result = lhs - rhs - borrow_in;
+
+    auto msb_lhs = msb_is_set(lhs, sew);
+    auto msb_rhs = msb_is_set(rhs, sew);
+    auto msb_result = msb_is_set(result, sew);
+
+    // Borrow out if:
+    // - MSB of rhs is set and MSB of lhs is not set
+    // - MSB of result is set and MSB of lhs = MSB of rhs
+    auto borrow_out =
+        (!msb_lhs && msb_rhs) || (msb_lhs && msb_rhs && msb_result) || (!msb_lhs && !msb_rhs && msb_result);
+
+    return borrow_out;
+};
 
 /* 11.5. Vector Bitwise Logical Instructions */
-inline ArithmeticFunction logical_and = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction logical_and = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = lhs & rhs;
 };
 
-inline ArithmeticFunction logical_or = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction logical_or = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = lhs | rhs;
 };
 
-inline ArithmeticFunction logical_xor = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction logical_xor = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = lhs ^ rhs;
 };
 
 /* 11.6. Vector Single-Width Shift Instructions */
-inline ArithmeticFunction sll = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction sll = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
     vd = lhs << (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction srl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction srl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
     vd = lhs >> (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction sra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction sra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto shiftamount_mask = vd.width_in_bits_ - 1;
     vd = static_cast<std::int64_t>(lhs) >> (rhs & shiftamount_mask);
 };
 
 /* 11.7. Vector Narrowing Integer Right Shift Instructions */
-inline ArithmeticFunction nsrl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction nsrl = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
     vd = lhs >> (rhs & shiftamount_mask);
 };
 
-inline ArithmeticFunction nsra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction nsra = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto shiftamount_mask = (2 * vd.width_in_bits_) - 1;
     vd = static_cast<std::int64_t>(lhs) >> (rhs & shiftamount_mask);
 };
 
 /* 11.8. Vector Integer Compare Instructions */
-inline ComparisonFunction seq = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    lhs == rhs ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction eq = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return lhs == rhs;
 };
 
-inline ComparisonFunction sne = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    lhs != rhs ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction ne = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return lhs != rhs;
 };
 
-inline ComparisonFunction sltu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    lhs < rhs ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction ltu = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return lhs < rhs;
 };
 
-inline ComparisonFunction slt = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    static_cast<std::int64_t>(lhs) < static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction lt = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return static_cast<std::int64_t>(lhs) < static_cast<std::int64_t>(rhs);
 };
 
-inline ComparisonFunction sleu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    lhs <= rhs ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction leu = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return lhs <= rhs;
 };
 
-inline ComparisonFunction sle = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    static_cast<std::int64_t>(lhs) <= static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction le = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return static_cast<std::int64_t>(lhs) <= static_cast<std::int64_t>(rhs);
 };
 
-inline ComparisonFunction sgtu = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    lhs > rhs ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction gtu = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return lhs > rhs;
 };
 
-inline ComparisonFunction sgt = [](std::uint64_t lhs, std::uint64_t rhs, SVRegister &vd, std::size_t index) -> void {
-    static_cast<std::int64_t>(lhs) > static_cast<std::int64_t>(rhs) ? vd.set_bit(index) : vd.reset_bit(index);
+inline IntRegisterFunction gt = [](std::uint64_t lhs, std::uint64_t rhs, std::size_t sew, bool mask_bit) -> bool {
+    return static_cast<std::int64_t>(lhs) > static_cast<std::int64_t>(rhs);
 };
 
 /* 11.9. Vector Integer Min/Max Instructions */
-inline ArithmeticFunction minu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction minu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = std::min(lhs, rhs);
 };
 
-inline ArithmeticFunction min = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction min = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = std::min(static_cast<std::int64_t>(lhs), static_cast<std::int64_t>(rhs));
 };
 
-inline ArithmeticFunction maxu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction maxu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = std::max(lhs, rhs);
 };
 
-inline ArithmeticFunction max = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction max = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = std::max(static_cast<std::int64_t>(lhs), static_cast<std::int64_t>(rhs));
 };
 
 /* 11.10. Vector Single-Width Integer Multiply Instructions */
-inline ArithmeticFunction mul = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction mul = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = static_cast<std::int64_t>(lhs) * static_cast<std::int64_t>(rhs);
 };
 
-inline ArithmeticFunction mulh = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction mulh = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = (static_cast<std::int64_t>(lhs) * static_cast<std::int64_t>(rhs)) >> vd.width_in_bits_;
 };
 
-inline ArithmeticFunction mulhu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction mulhu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = (lhs * rhs) >> vd.width_in_bits_;
 };
 
-inline ArithmeticFunction mulhsu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction mulhsu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     vd = (static_cast<std::int64_t>(lhs) * rhs) >> vd.width_in_bits_;
 };
 
 /* 11.11. Vector Integer Divide Instructions */
-inline ArithmeticFunction divu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction divu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -169,7 +213,7 @@ inline ArithmeticFunction divu = [](std::uint64_t lhs, std::uint64_t rhs, SVElem
     vd = lhs / rhs;
 };
 
-inline ArithmeticFunction div = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction div = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -184,7 +228,7 @@ inline ArithmeticFunction div = [](std::uint64_t lhs, std::uint64_t rhs, SVEleme
     vd = static_cast<std::int64_t>(lhs) / static_cast<std::int64_t>(rhs);
 };
 
-inline ArithmeticFunction remu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction remu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -194,7 +238,7 @@ inline ArithmeticFunction remu = [](std::uint64_t lhs, std::uint64_t rhs, SVElem
     vd = lhs % rhs;
 };
 
-inline ArithmeticFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     // Divide by zero case
     if (rhs == 0)
     {
@@ -210,7 +254,7 @@ inline ArithmeticFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVEleme
 };
 
 /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
-inline ArithmeticFunction madd = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd) -> void {
+inline IntFunction madd = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto res = (static_cast<std::int64_t>(rhs) * vd.to_i64()) + static_cast<int64_t>(lhs);
     vd = res;
 };
@@ -219,95 +263,80 @@ inline ArithmeticFunction madd = [](std::uint64_t lhs, std::uint64_t rhs, SVElem
 /// \brief Regular vector integer arithmetic operation vector-vector
 /// \details For all i: vd[i] = vs2[i] op vs1[i]
 VILL::vpu_return_t int_op_vv(
-    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
-    const IntInstrInfo &int_info,   //!< Struct containint integer instruction specific information
-    uint16_t reg_vd,                //!< Destination vector D [index]
-    uint16_t reg_vs1,               //!< Source vector R [index]
-    uint16_t reg_vs2,               //!< Source vector L [index]
-    ArithmeticFunction func         //!< Integer arithmetic function
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,     //!< Struct containing vector instruction information
+    const IntInstrInfo &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs1,                   //!< Source vector R [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    IntFunction func                    //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Regular vector integer arithmetic operation vector-immediate
 /// \details For all i: vd[i] = vs2[i] op sign_extend(imm5)
-VILL::vpu_return_t int_op_vi(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
-                             const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
-                             uint16_t reg_vd,                //!< Destination vector D [index]
-                             uint16_t reg_vs2,               //!< Source vector L [index]
-                             uint8_t imm5,                   //!< Sign or zero extending 5-bit immediate
-                             ArithmeticFunction func         //!< Integer arithmetic function
+VILL::vpu_return_t int_op_vi(
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    VInstrInfo const &v_instr_info,     //!< Struct containing vector instruction information
+    IntInstrInfo const &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    uint8_t imm5,                       //!< Sign or zero extending 5-bit immediate
+    IntFunction func                    //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Regular vector integer arithmetic operation vector-scalar
 /// \details For all i: vd[i] = vs2[i] op sign_extend(X[rs1])
 VILL::vpu_return_t int_op_vx(
-    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
-    const IntInstrInfo &int_info,   //!< Struct containint integer instruction specific information
-    uint16_t reg_vd,                //!< Destination vector D [index]
-    uint16_t reg_vs2,               //!< Source vector L [index]
-    uint8_t *scalar_reg_mem,        //!< Memory space holding scalar data (min. _xlenb bytes)
-    uint8_t scalar_reg_len_bytes,   //!< Length of scalar [bytes]
-    ArithmeticFunction func         //!< Integer arithmetic function
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    VInstrInfo const &v_instr_info,     //!< Struct containing vector instruction information
+    IntInstrInfo const &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    uint8_t *scalar_reg_mem,            //!< Memory space holding scalar data (min. _xlenb bytes)
+    uint8_t scalar_reg_len_bytes,       //!< Length of scalar [bytes]
+    IntFunction func                    //!< Integer arithmetic function
 );
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \brief Regular vector integer comparison operation vector-vector
-/// \details For all i: vd.mask[i] = vs2[i] cmp_op vs1[i]
-VILL::vpu_return_t int_compare_op_vv(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
-                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
-                                     uint16_t sew_bytes,         //!< Element width [bytes]
-                                     uint16_t vec_len,           //!< Vector length [elements]
-                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                     uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                     uint16_t vec_elem_start,    //!< Starting element [index]
-                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                     ComparisonFunction func,    //!< Integer comparison function
-                                     bool signed_vs2,            //!< Whether vs2 is signed
-                                     bool signed_vs1             //!< Whether vs1 is signed
-);
+/// \brief  Integer operation vector-vector with register destination
+/// \details For all i: vd.mask[i] = vs2[i] op vs1[i]
+auto int_op_vv_to_register(
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    VInstrInfo const &v_instr_info,     //!< Struct containing vector instruction information
+    IntInstrInfo const &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs1,                   //!< Source vector R [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    IntRegisterFunction func            //!< Integer comparison function
+    ) -> VILL::vpu_return_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \brief Regular vector integer comparison operation vector-immediate
-/// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(imm5)
-VILL::vpu_return_t int_compare_op_vi(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
-                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
-                                     uint16_t sew_bytes,         //!< Element width [bytes]
-                                     uint16_t vec_len,           //!< Vector length [elements]
-                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                     uint8_t imm5,               //!< Sign or zero extending 5-bit immediate
-                                     uint16_t vec_elem_start,    //!< Starting element [index]
-                                     bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                                     ComparisonFunction func,    //!< Integer comparison function
-                                     bool signed_vs2             //!< Whether vs2 is signed
-);
+/// \brief Integer operation vector-immediate with register destination
+/// \details For all i: vd.mask[i] = vs2[i] op sign_extend(imm5)
+auto int_op_vi_to_register(
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    VInstrInfo const &v_instr_info,     //!< Struct containing vector instruction information
+    IntInstrInfo const &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    uint8_t imm5,                       //!< Sign or zero extending 5-bit immediate
+    IntRegisterFunction func            //!< Integer comparison function
+    ) -> VILL::vpu_return_t;
 
 //////////////////////////////////////////////////////////////////////////////////////
-/// \brief Regular vector integer comparison operation vector-scalar
-/// \details For all i: vd.mask[i] = vs2[i] cmp_op sign_extend(X[rs1])
-VILL::vpu_return_t int_compare_op_vx(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                                     std::uint64_t emul_num,     //!< Register multiplicity numerator
-                                     std::uint64_t emul_denom,   //!< Register multiplicity denominator
-                                     uint16_t sew_bytes,         //!< Element width [bytes]
-                                     uint16_t vec_len,           //!< Vector length [elements]
-                                     uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                                     uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                                     uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                                     uint8_t *scalar_reg_mem, //!< Memory space holding scalar data (min. _xlenb bytes)
-                                     uint16_t vec_elem_start, //!< Starting element [index]
-                                     bool mask_f,             //!< Vector mask flag. 1: masking 0: no masking
-                                     uint8_t scalar_reg_len_bytes, //!< Length of scalar [bytes]
-                                     ComparisonFunction func,      //!< Integer comparison function
-                                     bool signed_vs2,              //!< Whether vs2 is signed
-                                     bool signed_scalar            //!< Whether the scalar value is signed
+/// \brief Integer operation vector-scalar with register destination
+/// \details For all i: vd.mask[i] = vs2[i] op zero/sign_extend(X[rs1])
+VILL::vpu_return_t int_op_vx_to_register(
+    uint8_t *vec_reg_mem,               //!< Vector register file memory space. One dimensional
+    VInstrInfo const &v_instr_info,     //!< Struct containing vector instruction information
+    IntInstrInfo const &int_instr_info, //!< Struct containint integer instruction specific information
+    uint16_t reg_vd,                    //!< Destination vector D [index]
+    uint16_t reg_vs2,                   //!< Source vector L [index]
+    uint8_t *scalar_reg_mem,            //!< Memory space holding scalar data (min. _xlenb bytes)
+    uint8_t scalar_reg_len_bytes,       //!< Length of scalar [bytes]
+    IntRegisterFunction func            //!< Integer comparison function
 );
 
 /* rvv spec. 12.1 - Vector Single-Width Add and Substract */
@@ -321,9 +350,9 @@ VILL::vpu_return_t add_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -336,8 +365,8 @@ VILL::vpu_return_t add_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t s_imm,              //!< Sign or zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -352,8 +381,8 @@ VILL::vpu_return_t add_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -370,9 +399,9 @@ VILL::vpu_return_t sub_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -386,8 +415,8 @@ VILL::vpu_return_t sub_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -403,8 +432,8 @@ VILL::vpu_return_t rsub_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,    //!< Source vector R [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs1,            //!< Source vector R [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -419,8 +448,8 @@ VILL::vpu_return_t rsub_vi(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
                            uint8_t s_imm,              //!< Sign or zero extending 5-bit immediate
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -436,9 +465,9 @@ VILL::vpu_return_t wop_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
                           bool dir_f,                 //!< Operation type: val > 0: ADD else SUB
@@ -453,8 +482,8 @@ VILL::vpu_return_t wop_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -471,9 +500,9 @@ VILL::vpu_return_t wop_wv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
                           bool dir_f,                 //!< Operation type: val > 0: ADD else SUB
@@ -488,8 +517,8 @@ VILL::vpu_return_t wop_wx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -508,8 +537,8 @@ VILL::vpu_return_t vext_vf(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint16_t extension_encoding, //!< Encoding of sign/zero and divider
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f                  //!< Vector mask flag. 1: masking 0: no masking
@@ -518,47 +547,45 @@ VILL::vpu_return_t vext_vf(uint8_t *vec_reg_mem,        //!< Vector register fil
 
 /* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
 VILL::vpu_return_t vadc_vvm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start);
 
 VILL::vpu_return_t vadc_vim(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t s_imm, uint16_t vec_elem_start);
 
 VILL::vpu_return_t vadc_vxm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                            uint8_t scalar_reg_len_bytes);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vmadc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vmadc_vi(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t s_imm, uint16_t vec_elem_start, bool mask_f);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t s_imm, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vmadc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vsbc_vvm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start);
 
 VILL::vpu_return_t vsbc_vxm(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start,
-                            uint8_t scalar_reg_len_bytes);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vmsbc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vmsbc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 /* End 11.4 */
 
@@ -573,9 +600,9 @@ VILL::vpu_return_t and_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -588,8 +615,8 @@ VILL::vpu_return_t and_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t s_imm,              //!< Sign or zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -603,8 +630,8 @@ VILL::vpu_return_t and_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes).
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -621,9 +648,9 @@ VILL::vpu_return_t or_vv(uint8_t *vec_reg_mem,       //!< Vector register file m
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                         uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                         uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                         uint16_t reg_vd,            //!< Destination vector D [index]
+                         uint16_t reg_vs1,           //!< Source vector R [index]
+                         uint16_t reg_vs2,           //!< Source vector L [index]
                          uint16_t vec_elem_start,    //!< Starting element [index]
                          bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -636,8 +663,8 @@ VILL::vpu_return_t or_vi(uint8_t *vec_reg_mem,       //!< Vector register file m
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                         uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                         uint16_t reg_vd,            //!< Destination vector D [index]
+                         uint16_t reg_vs2,           //!< Source vector L [index]
                          uint8_t s_imm,              //!< Sign or zero extending 5-bit immediate
                          uint16_t vec_elem_start,    //!< Starting element [index]
                          bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -651,8 +678,8 @@ VILL::vpu_return_t or_vx(uint8_t *vec_reg_mem,        //!< Vector register file 
                          uint16_t sew_bytes,          //!< Element width [bytes]
                          uint16_t vec_len,            //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                         uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                         uint16_t reg_vd,             //!< Destination vector D [index]
+                         uint16_t reg_vs2,            //!< Source vector L [index]
                          uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                          uint16_t vec_elem_start,     //!< Starting element [index]
                          bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -669,9 +696,9 @@ VILL::vpu_return_t xor_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -684,8 +711,8 @@ VILL::vpu_return_t xor_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t s_imm,              //!< Sign or zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -699,8 +726,8 @@ VILL::vpu_return_t xor_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -719,9 +746,9 @@ VILL::vpu_return_t sll_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -734,8 +761,8 @@ VILL::vpu_return_t sll_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t u_imm,              //!< Zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -750,8 +777,8 @@ VILL::vpu_return_t sll_vx(
     uint16_t sew_bytes,          //!< Element width [bytes]
     uint16_t vec_len,            //!< Vector length [elements]
     uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-    uint16_t dst_vec_reg,        //!< Destination vector D [index]
-    uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+    uint16_t reg_vd,             //!< Destination vector D [index]
+    uint16_t reg_vs2,            //!< Source vector L [index]
     uint8_t *scalar_reg_mem,     //!< X: Memory space holding scalar data (min. scalar_reg_len_bytes bytes)
     uint16_t vec_elem_start,     //!< Starting element [index]
     bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -768,9 +795,9 @@ VILL::vpu_return_t srl_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -783,8 +810,8 @@ VILL::vpu_return_t srl_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t u_imm,              //!< Zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -798,8 +825,8 @@ VILL::vpu_return_t srl_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -816,9 +843,9 @@ VILL::vpu_return_t sra_vv(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs1,           //!< Source vector R [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -831,8 +858,8 @@ VILL::vpu_return_t sra_vi(uint8_t *vec_reg_mem,       //!< Vector register file 
                           uint16_t sew_bytes,         //!< Element width [bytes]
                           uint16_t vec_len,           //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                          uint16_t reg_vd,            //!< Destination vector D [index]
+                          uint16_t reg_vs2,           //!< Source vector L [index]
                           uint8_t u_imm,              //!< Zero extending 5-bit immediate
                           uint16_t vec_elem_start,    //!< Starting element [index]
                           bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -846,8 +873,8 @@ VILL::vpu_return_t sra_vx(uint8_t *vec_reg_mem,        //!< Vector register file
                           uint16_t sew_bytes,          //!< Element width [bytes]
                           uint16_t vec_len,            //!< Vector length [elements]
                           uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                          uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                          uint16_t reg_vd,             //!< Destination vector D [index]
+                          uint16_t reg_vs2,            //!< Source vector L [index]
                           uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                           uint16_t vec_elem_start,     //!< Starting element [index]
                           bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -865,9 +892,9 @@ VILL::vpu_return_t vnsrl_wv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -880,8 +907,8 @@ VILL::vpu_return_t vnsrl_wi(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint8_t u_imm,              //!< Zero extending 5-bit immediate
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -895,8 +922,8 @@ VILL::vpu_return_t vnsrl_wx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -913,9 +940,9 @@ VILL::vpu_return_t vnsra_wv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -928,8 +955,8 @@ VILL::vpu_return_t vnsra_wi(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint8_t u_imm,              //!< Zero extending 5-bit immediate
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -943,8 +970,8 @@ VILL::vpu_return_t vnsra_wx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -963,9 +990,9 @@ VILL::vpu_return_t mseq_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -978,8 +1005,8 @@ VILL::vpu_return_t mseq_vi(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint8_t s_imm,              //!< Sign extending 5-bit immediate
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -993,8 +1020,8 @@ VILL::vpu_return_t mseq_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1010,9 +1037,9 @@ VILL::vpu_return_t msne_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1025,8 +1052,8 @@ VILL::vpu_return_t msne_vi(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint8_t s_imm,              //!< Sign extending 5-bit immediate
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1040,8 +1067,8 @@ VILL::vpu_return_t msne_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1057,9 +1084,9 @@ VILL::vpu_return_t msltu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1072,8 +1099,8 @@ VILL::vpu_return_t msltu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1089,9 +1116,9 @@ VILL::vpu_return_t mslt_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1104,8 +1131,8 @@ VILL::vpu_return_t mslt_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1121,9 +1148,9 @@ VILL::vpu_return_t msleu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1136,8 +1163,8 @@ VILL::vpu_return_t msleu_vi(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint8_t u_imm,              //!< Zero extending 5-bit immediate
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1151,8 +1178,8 @@ VILL::vpu_return_t msleu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1168,9 +1195,9 @@ VILL::vpu_return_t msle_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1183,8 +1210,8 @@ VILL::vpu_return_t msle_vi(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint8_t s_imm,              //!< Sign extending 5-bit immediate
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1198,8 +1225,8 @@ VILL::vpu_return_t msle_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1215,9 +1242,9 @@ VILL::vpu_return_t msgtu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1230,8 +1257,8 @@ VILL::vpu_return_t msgtu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1246,8 +1273,8 @@ VILL::vpu_return_t msgtu_vi(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint8_t s_imm,              //!< Sign extending 5-bit immediate
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1262,9 +1289,9 @@ VILL::vpu_return_t msgt_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1277,8 +1304,8 @@ VILL::vpu_return_t msgt_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1293,8 +1320,8 @@ VILL::vpu_return_t msgt_vi(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint8_t s_imm,              //!< Sign extending 5-bit immediate
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1310,9 +1337,9 @@ VILL::vpu_return_t vmul_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1325,8 +1352,8 @@ VILL::vpu_return_t vmul_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1341,9 +1368,9 @@ VILL::vpu_return_t vmulh_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1356,8 +1383,8 @@ VILL::vpu_return_t vmulh_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1372,9 +1399,9 @@ VILL::vpu_return_t vmulhu_vv(uint8_t *vec_reg_mem,       //!< Vector register fi
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                             uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                             uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                             uint16_t reg_vd,            //!< Destination vector D [index]
+                             uint16_t reg_vs1,           //!< Source vector R [index]
+                             uint16_t reg_vs2,           //!< Source vector L [index]
                              uint16_t vec_elem_start,    //!< Starting element [index]
                              bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1387,8 +1414,8 @@ VILL::vpu_return_t vmulhu_vx(uint8_t *vec_reg_mem,        //!< Vector register f
                              uint16_t sew_bytes,          //!< Element width [bytes]
                              uint16_t vec_len,            //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                             uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                             uint16_t reg_vd,             //!< Destination vector D [index]
+                             uint16_t reg_vs2,            //!< Source vector L [index]
                              uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                              uint16_t vec_elem_start,     //!< Starting element [index]
                              bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1403,9 +1430,9 @@ VILL::vpu_return_t vmulhsu_vv(uint8_t *vec_reg_mem,       //!< Vector register f
                               uint16_t sew_bytes,         //!< Element width [bytes]
                               uint16_t vec_len,           //!< Vector length [elements]
                               uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                              uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                              uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                              uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                              uint16_t reg_vd,            //!< Destination vector D [index]
+                              uint16_t reg_vs1,           //!< Source vector R [index]
+                              uint16_t reg_vs2,           //!< Source vector L [index]
                               uint16_t vec_elem_start,    //!< Starting element [index]
                               bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1418,8 +1445,8 @@ VILL::vpu_return_t vmulhsu_vx(uint8_t *vec_reg_mem,        //!< Vector register 
                               uint16_t sew_bytes,          //!< Element width [bytes]
                               uint16_t vec_len,            //!< Vector length [elements]
                               uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                              uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                              uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                              uint16_t reg_vd,             //!< Destination vector D [index]
+                              uint16_t reg_vs2,            //!< Source vector L [index]
                               uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                               uint16_t vec_elem_start,     //!< Starting element [index]
                               bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1437,9 +1464,9 @@ VILL::vpu_return_t vdiv_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1453,8 +1480,8 @@ VILL::vpu_return_t vdiv_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1470,9 +1497,9 @@ VILL::vpu_return_t vdivu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1486,8 +1513,8 @@ VILL::vpu_return_t vdivu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1503,9 +1530,9 @@ VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1520,8 +1547,8 @@ VILL::vpu_return_t vrem_vv(uint8_t *vec_reg_mem,       //!< Vector register file
     uint16_t sew_bytes,          //!< Element width [bytes]
     uint16_t vec_len,            //!< Vector length [elements]
     uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-    uint16_t dst_vec_reg,        //!< Destination vector D [index]
-    uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+    uint16_t reg_vd,             //!< Destination vector D [index]
+    uint16_t reg_vs2,            //!< Source vector L [index]
     uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
     uint16_t vec_elem_start,     //!< Starting element [index]
     bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1537,9 +1564,9 @@ VILL::vpu_return_t vremu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1553,8 +1580,8 @@ VILL::vpu_return_t vremu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1578,9 +1605,9 @@ VILL::vpu_return_t vwmul_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
                             VWMUL_TYPE vwmul_type       //!< Type of multiplication
@@ -1594,8 +1621,8 @@ VILL::vpu_return_t vwmul_vx(uint8_t *vec_reg_mem,         //!< Vector register f
                             uint16_t sew_bytes,           //!< Element width [bytes]
                             uint16_t vec_len,             //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,   //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,         //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,     //!< Source vector L [index]
+                            uint16_t reg_vd,              //!< Destination vector D [index]
+                            uint16_t reg_vs2,             //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,      //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,      //!< Starting element [index]
                             bool mask_f,                  //!< Vector mask flag. 1: masking 0: no masking
@@ -1614,9 +1641,9 @@ VILL::vpu_return_t vmax_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1630,8 +1657,8 @@ VILL::vpu_return_t vmax_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1647,9 +1674,9 @@ VILL::vpu_return_t vmaxu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1663,8 +1690,8 @@ VILL::vpu_return_t vmaxu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1680,9 +1707,9 @@ VILL::vpu_return_t vmin_vv(uint8_t *vec_reg_mem,       //!< Vector register file
                            uint16_t sew_bytes,         //!< Element width [bytes]
                            uint16_t vec_len,           //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                           uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                           uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                           uint16_t reg_vd,            //!< Destination vector D [index]
+                           uint16_t reg_vs1,           //!< Source vector R [index]
+                           uint16_t reg_vs2,           //!< Source vector L [index]
                            uint16_t vec_elem_start,    //!< Starting element [index]
                            bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1696,8 +1723,8 @@ VILL::vpu_return_t vmin_vx(uint8_t *vec_reg_mem,        //!< Vector register fil
                            uint16_t sew_bytes,          //!< Element width [bytes]
                            uint16_t vec_len,            //!< Vector length [elements]
                            uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                           uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                           uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                           uint16_t reg_vd,             //!< Destination vector D [index]
+                           uint16_t reg_vs2,            //!< Source vector L [index]
                            uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                            uint16_t vec_elem_start,     //!< Starting element [index]
                            bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1713,9 +1740,9 @@ VILL::vpu_return_t vminu_vv(uint8_t *vec_reg_mem,       //!< Vector register fil
                             uint16_t sew_bytes,         //!< Element width [bytes]
                             uint16_t vec_len,           //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                            uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                            uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
+                            uint16_t reg_vd,            //!< Destination vector D [index]
+                            uint16_t reg_vs1,           //!< Source vector R [index]
+                            uint16_t reg_vs2,           //!< Source vector L [index]
                             uint16_t vec_elem_start,    //!< Starting element [index]
                             bool mask_f                 //!< Vector mask flag. 1: masking 0: no masking
 );
@@ -1729,8 +1756,8 @@ VILL::vpu_return_t vminu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
                             uint16_t sew_bytes,          //!< Element width [bytes]
                             uint16_t vec_len,            //!< Vector length [elements]
                             uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                            uint16_t dst_vec_reg,        //!< Destination vector D [index]
-                            uint16_t src_vec_reg_lhs,    //!< Source vector L [index]
+                            uint16_t reg_vd,             //!< Destination vector D [index]
+                            uint16_t reg_vs2,            //!< Source vector L [index]
                             uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                             uint16_t vec_elem_start,     //!< Starting element [index]
                             bool mask_f,                 //!< Vector mask flag. 1: masking 0: no masking
@@ -1751,39 +1778,39 @@ VILL::vpu_return_t vminu_vx(uint8_t *vec_reg_mem,        //!< Vector register fi
 
 /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
 VILL::vpu_return_t vmacc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vmacc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vnmsac_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                             uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vnmsac_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                             uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vmadd_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                            uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vmadd_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                            uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                            uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                            uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                             uint8_t scalar_reg_len_bytes);
 
 VILL::vpu_return_t vnmsub_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f);
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                             uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f);
 
 VILL::vpu_return_t vnmsub_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                             uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes);
 /* End 11.13. */
 
@@ -1800,16 +1827,15 @@ enum class VWMACC_TYPE
 /// \brief Widening multiply-accumulate vector-vector
 /// Type of MACC (signed, unsigned, etc.) depends on vwmacc_type
 VILL::vpu_return_t vwmacc_vv(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_rhs, uint16_t src_vec_reg_lhs, uint16_t vec_elem_start, bool mask_f,
-                             VWMACC_TYPE vwmacc_type);
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs1,
+                             uint16_t reg_vs2, uint16_t vec_elem_start, bool mask_f, VWMACC_TYPE vwmacc_type);
 
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Widening multiply-accumulate vector-scalar
 /// Type of MACC (signed, unsigned, etc.) depends on vwmacc_type
 VILL::vpu_return_t vwmacc_vx(uint8_t *vec_reg_mem, std::uint64_t emul_num, std::uint64_t emul_denom, uint16_t sew_bytes,
-                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg,
-                             uint16_t src_vec_reg_lhs, uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
+                             uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t reg_vd, uint16_t reg_vs2,
+                             uint8_t *scalar_reg_mem, uint16_t vec_elem_start, bool mask_f,
                              uint8_t scalar_reg_len_bytes, VWMACC_TYPE vwmacc_type);
 /* End 11.14. */
 
@@ -1822,9 +1848,9 @@ VILL::vpu_return_t vmerge_vv(uint8_t *vec_reg_mem,       //!< Vector register fi
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,       //!< Destination vector A [index]
-                             uint16_t src_vec_reg_rhs,   //!< Source vector vs1 [index]
-                             uint16_t src_vec_reg_lhs,   //!< Source vector vs2 [index]
+                             uint16_t reg_vd,            //!< Destination vector A [index]
+                             uint16_t reg_vs1,           //!< Source vector vs1 [index]
+                             uint16_t reg_vs2,           //!< Source vector vs2 [index]
                              uint16_t vec_elem_start     //!< Starting element [index]
 );
 
@@ -1836,8 +1862,8 @@ VILL::vpu_return_t vmerge_vx(uint8_t *vec_reg_mem,        //!< Vector register f
                              uint16_t sew_bytes,          //!< Element width [bytes]
                              uint16_t vec_len,            //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,        //!< Destination vector A [index]
-                             uint16_t src_vec_reg_lhs,    //!< Source vector vs2 [index]
+                             uint16_t reg_vd,             //!< Destination vector A [index]
+                             uint16_t reg_vs2,            //!< Source vector vs2 [index]
                              uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                              uint16_t vec_elem_start,     //!< Starting element [index]
                              uint8_t scalar_reg_len_bytes //!< Length of scalar [bytes]
@@ -1851,8 +1877,8 @@ VILL::vpu_return_t vmerge_vi(uint8_t *vec_reg_mem,       //!< Vector register fi
                              uint16_t sew_bytes,         //!< Element width [bytes]
                              uint16_t vec_len,           //!< Vector length [elements]
                              uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                             uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                             uint16_t src_vec_reg_lhs,   //!< Source vector vs2 [index]
+                             uint16_t reg_vd,            //!< Destination vector D [index]
+                             uint16_t reg_vs2,           //!< Source vector vs2 [index]
                              uint8_t s_imm,              //!< Sign extending 5-bit immediate
                              uint16_t vec_elem_start     //!< Starting element [index]
 );
@@ -1867,7 +1893,7 @@ VILL::vpu_return_t mv_vv(uint8_t *vec_reg_mem,       //!< Vector register file m
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,       //!< Destination vector A [index]
+                         uint16_t reg_vd,            //!< Destination vector A [index]
                          uint16_t src_vec_reg,       //!< Source vector A [index]
                          uint16_t vec_elem_start     //!< Starting element [index]
 );
@@ -1880,7 +1906,7 @@ VILL::vpu_return_t mv_vx(uint8_t *vec_reg_mem,        //!< Vector register file 
                          uint16_t sew_bytes,          //!< Element width [bytes]
                          uint16_t vec_len,            //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes,  //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,        //!< Destination vector A [index]
+                         uint16_t reg_vd,             //!< Destination vector A [index]
                          uint8_t *scalar_reg_mem,     //!< Memory space holding scalar data (min. _xlenb bytes)
                          uint16_t vec_elem_start,     //!< Starting element [index]
                          uint8_t scalar_reg_len_bytes //!< Length of scalar [bytes]
@@ -1894,7 +1920,7 @@ VILL::vpu_return_t mv_vi(uint8_t *vec_reg_mem,       //!< Vector register file m
                          uint16_t sew_bytes,         //!< Element width [bytes]
                          uint16_t vec_len,           //!< Vector length [elements]
                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                         uint16_t dst_vec_reg,       //!< Destination vector D [index]
+                         uint16_t reg_vd,            //!< Destination vector D [index]
                          uint8_t s_imm,              //!< Sign extending 5-bit immediate
                          uint16_t vec_elem_start     //!< Starting element [index]
 );
