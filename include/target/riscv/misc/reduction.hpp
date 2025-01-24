@@ -29,6 +29,8 @@
 #include "stdint.h"
 #include "base/base.hpp"
 #include "vpu/softvector-types.hpp"
+#include "arithmetic/integer.hpp"
+#include "arithmetic/floatingpoint.hpp"
 
 #ifdef ETISS_SOFTFLOAT
 extern "C"
@@ -40,6 +42,11 @@ extern "C"
 #endif
 
 #include "arithmetic/softfloat-extension.hpp"
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief This space concludes vector reduction operations helpers
+namespace VREDUC
+{
 
 using ReductionFunction =
     std::function<void(SVElement & /* opL */, SVElement & /* vd */, bool /* is_signed */, size_t sew)>;
@@ -175,27 +182,23 @@ inline ReductionFunction red_widening_float_sum = [](SVElement &vsx_element, SVE
     }
 };
 
-//////////////////////////////////////////////////////////////////////////////////////
-/// \brief This space concludes vector reduction operations helpers
-namespace VREDUC
-{
-VILL::vpu_return_t red_op(uint8_t *vec_reg_mem,       //!< Vector register file memory space. One dimensional
-                          uint64_t emul_num,          //!< Register multiplicity numerator
-                          uint64_t emul_denom,        //!< Register multiplicity denominator
-                          uint16_t sew_bytes,         //!< Element width [bytes]
-                          uint16_t vec_len,           //!< Vector length [elements]
-                          uint16_t vec_reg_len_bytes, //!< Vector register length [bytes]
-                          uint16_t dst_vec_reg,       //!< Destination vector D [index]
-                          uint16_t src_vec_reg_rhs,   //!< Source vector R [index]
-                          uint16_t src_vec_reg_lhs,   //!< Source vector L [index]
-                          uint16_t vec_elem_start,    //!< Starting element [index]
-                          bool mask_f,                //!< Vector mask flag. 1: masking 0: no masking
-                          ReductionFunction func,     //!< Reduction function
-                          bool is_signed,             //!< Whether the instruction is signed or unsigned
-                          bool wide_dest,             //!< Use wide destination (2*SEW)
-                          bool is_float_instr,        //!< Is floating-point reduction instruction
-                          uint8_t rounding_mode       //!< Floating-point rounding mode
-);
+auto red_op_int(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+                const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
+                uint16_t reg_vd,                //!< Destination vector D [index]
+                uint16_t reg_vs1,               //!< Source vector R [index]
+                uint16_t reg_vs2,               //!< Source vector L [index]
+                VARITH_INT::IntFunction func    //!< Reduction function
+                ) -> VILL::vpu_return_t;
+
+auto red_op_float(
+    uint8_t *vec_reg_mem,                                 //!< Vector register file memory space. One dimensional
+    const VInstrInfo &v_instr_info,                       //!< Struct containing vector instruction information
+    VARITH_FLOAT::FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
+    uint16_t reg_vd,                                      //!< Destination vector D [index]
+    uint16_t reg_vs1,                                     //!< Source vector R [index]
+    uint16_t reg_vs2,                                     //!< Source vector L [index]
+    VARITH_FLOAT::FloatFunction func                      //!< Reduction function
+    ) -> VILL::vpu_return_t;
 
 } // namespace VREDUC
 #endif /* __RVVHL_MISC_REDUCTION_H_ */

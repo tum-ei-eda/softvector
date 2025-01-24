@@ -254,6 +254,17 @@ inline IntFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd,
 };
 
 /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
+
+inline IntFunction macc = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
+    auto res = (static_cast<std::int64_t>(rhs) * static_cast<int64_t>(lhs)) + vd.to_i64();
+    vd = res;
+};
+
+inline IntFunction maccu = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
+    auto res = (rhs * lhs) + vd.to_u64();
+    vd = res;
+};
+
 inline IntFunction madd = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd, bool mask_bit) -> void {
     auto res = (static_cast<std::int64_t>(rhs) * vd.to_i64()) + static_cast<int64_t>(lhs);
     vd = res;
