@@ -183,7 +183,7 @@ inline ReductionFunction red_widening_float_sum = [](SVElement &vsx_element, SVE
 };
 
 auto red_op_int(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
-                const VInstrInfo &v_instr_info, //!< Struct containing vector instruction information
+                VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
                 uint16_t reg_vd,                //!< Destination vector D [index]
                 uint16_t reg_vs1,               //!< Source vector R [index]
                 uint16_t reg_vs2,               //!< Source vector L [index]
@@ -192,7 +192,7 @@ auto red_op_int(uint8_t *vec_reg_mem,           //!< Vector register file memory
 
 auto red_op_float(
     uint8_t *vec_reg_mem,                                 //!< Vector register file memory space. One dimensional
-    const VInstrInfo &v_instr_info,                       //!< Struct containing vector instruction information
+    VInstrInfo const &v_instr_info,                       //!< Struct containing vector instruction information
     VARITH_FLOAT::FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
     uint16_t reg_vd,                                      //!< Destination vector D [index]
     uint16_t reg_vs1,                                     //!< Source vector R [index]
