@@ -2877,6 +2877,61 @@ extern "C"
         return (0);
     }
 
+    std::uint8_t vsbc_vvm(void *pV, std::uint16_t pVTYPE, std::uint8_t pVd, std::uint8_t pVs1, std::uint8_t pVs2,
+                          std::uint16_t pVSTART, std::uint16_t pVLEN, std::uint16_t pVL)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        std::uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<std::uint8_t *>(pV);
+
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = true,
+                                 .signed_op = true };
+
+        auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
+
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::sub);
+
+        return (0);
+    }
+
+    std::uint8_t vsbc_vxm(void *pV, void *pR, std::uint16_t pVTYPE, std::uint8_t pVd, std::uint8_t pVs2,
+                          std::uint8_t pRs1, std::uint16_t pVSTART, std::uint16_t pVLEN, std::uint16_t pVL,
+                          std::uint8_t pXLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        std::uint8_t *ScalarReg;
+        std::uint8_t *VectorRegField;
+
+        VectorRegField = static_cast<std::uint8_t *>(pV);
+        if (pXLEN <= 32)
+            ScalarReg = &((static_cast<std::uint8_t *>(pR))[pRs1 * 4]);
+        else
+            ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
+
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = true,
+                                 .signed_op = true };
+
+        auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
+
+        VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN >> 3,
+                              VARITH_INT::sub);
+
+        return (0);
+    }
+
     std::uint8_t vmsbc_vv(void *pV, std::uint16_t pVTYPE, std::uint8_t pVm, std::uint8_t pVd, std::uint8_t pVs1,
                           std::uint8_t pVs2, std::uint16_t pVSTART, std::uint16_t pVLEN, std::uint16_t pVL)
     {
