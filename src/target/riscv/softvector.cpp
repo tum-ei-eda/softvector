@@ -1984,28 +1984,46 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VPERM::slide1up(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                        pVSTART, pVm, pXLEN / 8);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm };
+
+        auto perm_instr_info = VPERM::PermInstrInfo{};
+
+        VPERM::perm_op_slide_vx(VectorRegField, v_instr_info, perm_instr_info, pVd, pVs2, ScalarReg, pXLEN >> 3);
 
         return (0);
     }
 
-    std::uint8_t vfslide1up(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pVm, std::uint8_t pVd,
-                            std::uint8_t pVs2, std::uint8_t pRs1, std::uint16_t pVSTART, std::uint16_t pVLEN,
-                            std::uint16_t pVL, std::uint8_t pXLEN)
+    std::uint8_t vfslide1up_vf(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pVm, std::uint8_t pVd,
+                               std::uint8_t pVs2, std::uint8_t pRs1, std::uint16_t pVSTART, std::uint16_t pVLEN,
+                               std::uint16_t pVL, std::uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         std::uint8_t *ScalarReg;
         std::uint8_t *VectorRegField;
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRs1 * 8]);
 
-        VPERM::fslide1up(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                         pVSTART, pVm, pXLEN / 8);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm };
+
+        auto perm_instr_info = VPERM::PermInstrInfo{ .float_instr = true };
+
+        VPERM::perm_op_slide_vx(VectorRegField, v_instr_info, perm_instr_info, pVd, pVs2, ScalarReg, pFLEN >> 3);
 
         return (0);
     }
@@ -2024,28 +2042,46 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VPERM::slide1down(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                          pVSTART, pVm, pXLEN / 8);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm };
+
+        auto perm_instr_info = VPERM::PermInstrInfo{ .slide_down = true };
+
+        VPERM::perm_op_slide_vx(VectorRegField, v_instr_info, perm_instr_info, pVd, pVs2, ScalarReg, pXLEN >> 3);
 
         return (0);
     }
 
-    std::uint8_t vfslide1down(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pVm, std::uint8_t pVd,
-                              std::uint8_t pVs2, std::uint8_t pRs1, std::uint16_t pVSTART, std::uint16_t pVLEN,
-                              std::uint16_t pVL, std::uint8_t pXLEN)
+    std::uint8_t vfslide1down_vf(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pVm, std::uint8_t pVd,
+                                 std::uint8_t pVs2, std::uint8_t pRs1, std::uint16_t pVSTART, std::uint16_t pVLEN,
+                                 std::uint16_t pVL, std::uint8_t pFLEN)
     {
         VTYPE::VTYPE _vt(pVTYPE);
         std::uint8_t *ScalarReg;
         std::uint8_t *VectorRegField;
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
-        if (pXLEN <= 32)
+        if (pFLEN <= 32)
             ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRs1 * 4]);
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRs1 * 8]);
 
-        VPERM::fslide1down(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                           pVSTART, pVm, pXLEN / 8);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm };
+
+        auto perm_instr_info = VPERM::PermInstrInfo{ .slide_down = true, .float_instr = true };
+
+        VPERM::perm_op_slide_vx(VectorRegField, v_instr_info, perm_instr_info, pVd, pVs2, ScalarReg, pFLEN >> 3);
 
         return (0);
     }

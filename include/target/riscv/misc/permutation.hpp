@@ -30,6 +30,24 @@
 /// \brief This space concludes vector permutation operation helpers
 namespace VPERM
 {
+struct PermInstrInfo
+{
+    bool slide_down = false;   //!< True if slide direction is down, up otherwise
+    bool slide_single = false; //!< True for slide1up/down
+    bool float_instr = false;  //!< True if floating-point slide instruction, false otherwise
+};
+
+//////////////////////////////////////////////////////////////////////////////////////
+/// \brief Vector slide instruction from scalar
+/// \details
+auto perm_op_slide_vx(uint8_t *vec_reg_mem,                 //!< Vector register file memory space. One dimensional
+                      VInstrInfo const &v_instr_info,       //!< Struct containing vector instruction information
+                      PermInstrInfo const &perm_instr_info, //!< Struct containing permutation instruction information
+                      uint16_t reg_vd,                      //!< Destination vector D [index]
+                      uint16_t reg_vs2,                     //!< Source vector L [index]
+                      uint8_t *scalar_reg_mem,              //!< Memory space holding scalar data (min. _xlenb bytes)
+                      uint8_t scalar_reg_len_bytes          //!< Length of scalar [bytes]
+                      ) -> VILL::vpu_return_t;
 
 /* rvv spec. 17.1. Integer Scalar Move Instructions */
 //////////////////////////////////////////////////////////////////////////////////////

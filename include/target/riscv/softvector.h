@@ -1412,34 +1412,34 @@ extern "C"
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief vslide1up.vx vd, vs2, rs1, vm        # vd[0]=x[rs1], vd[i+1] = vs2[i]
     /// \return 0 if no exception triggered, else 1
-    uint8_t vslide1up(void *pV, //!<[inout] Vector register field as local memory
-                      void *pR, //!<[in] Integer/General Purpose register field
-                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    uint8_t vslide1up_vx(void *pV, //!<[inout] Vector register field as local memory
+                         void *pR, //!<[in] Integer/General Purpose register field
+                         uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief vfslide1up.vf vd, vs2, fs1, vm        # vd[0]=f[rs1], vd[i+1] = vs2[i]
     /// \return 0 if no exception triggered, else 1
-    uint8_t vfslide1up(void *pV, //!<[inout] Vector register field as local memory
-                       void *pF, //!<[inout] Floating point register field
-                       uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                       uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    uint8_t vfslide1up_vf(void *pV, //!<[inout] Vector register field as local memory
+                          void *pF, //!<[inout] Floating point register field
+                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief vslide1down.vx  vd, vs2, rs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=x[rs1]
     /// \return 0 if no exception triggered, else 1
-    uint8_t vslide1down(void *pV, //!<[inout] Vector register field as local memory
-                        void *pR, //!<[in] Integer/General Purpose register field
-                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    uint8_t vslide1down_vx(void *pV, //!<[inout] Vector register field as local memory
+                           void *pR, //!<[in] Integer/General Purpose register field
+                           uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                           uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief vfslide1down.vf vd, vs2, fs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=f[rs1]
     /// \return 0 if no exception triggered, else 1
-    uint8_t vfslide1down(void *pV, //!<[inout] Vector register field as local memory
-                         void *pF, //!<[inout] Floating point register field
-                         uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                         uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    uint8_t vfslide1down_vf(void *pV, //!<[inout] Vector register field as local memory
+                            void *pF, //!<[inout] Floating point register field
+                            uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
     /* End 16. */
 
     /* 13. Vector Floating-Point Instructions */
