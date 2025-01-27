@@ -49,6 +49,14 @@ auto perm_op_slide_vx(uint8_t *vec_reg_mem,                 //!< Vector register
                       uint8_t scalar_reg_len_bytes          //!< Length of scalar [bytes]
                       ) -> VILL::vpu_return_t;
 
+auto perm_op_move_float(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+                        VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
+                        uint16_t reg_v,                 //!< Destination vector D [index]
+                        uint8_t *scalar_reg_mem,        //!< Memory space holding scalar data (min. _xlenb bytes)
+                        uint8_t flen,                   //!< Length of scalar [bit]
+                        bool vec_is_dest                //!< True if destination is a vector
+                        ) -> VILL::vpu_return_t;
+
 /* rvv spec. 17.1. Integer Scalar Move Instructions */
 //////////////////////////////////////////////////////////////////////////////////////
 /// \brief Move first element (0) of a vector register A to scalar register X := SEW>XLEN ? A[0] : sext(A[0])

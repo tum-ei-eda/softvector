@@ -29,6 +29,7 @@
 #include "arithmetic/integer.hpp"
 #include "arithmetic/floatingpoint.hpp"
 #include "arithmetic/fixedpoint.hpp"
+#include "arithmetic/softfloat-extension.hpp"
 #include "misc/mask.hpp"
 #include "misc/permutation.hpp"
 #include "misc/reduction.hpp"
@@ -1862,42 +1863,6 @@ extern "C"
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
         VPERM::mv_sx(VectorRegField, _vt._sew / 8, pVL, pVLEN / 8, pVd, ScalarReg, pVSTART, pXLEN / 8);
-
-        return (0);
-    }
-
-    std::uint8_t vfmv_fs(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pRd, std::uint8_t pVs2,
-                         std::uint16_t pVLEN, std::uint16_t pVL, std::uint8_t pXLEN)
-    {
-        VTYPE::VTYPE _vt(pVTYPE);
-        std::uint8_t *ScalarReg;
-        std::uint8_t *VectorRegField;
-
-        VectorRegField = static_cast<std::uint8_t *>(pV);
-        if (pXLEN <= 32)
-            ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRd * 4]);
-        else
-            ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRd * 8]);
-
-        VPERM::fmv_fs(VectorRegField, _vt._sew / 8, pVL, pVLEN / 8, pVs2, ScalarReg, pXLEN / 8);
-
-        return (0);
-    }
-
-    std::uint8_t vfmv_sf(void *pV, void *pF, std::uint16_t pVTYPE, std::uint8_t pVd, std::uint8_t pRs1,
-                         std::uint16_t pVSTART, std::uint16_t pVLEN, std::uint16_t pVL, std::uint8_t pXLEN)
-    {
-        VTYPE::VTYPE _vt(pVTYPE);
-        std::uint8_t *ScalarReg;
-        std::uint8_t *VectorRegField;
-
-        VectorRegField = static_cast<std::uint8_t *>(pV);
-        if (pXLEN <= 32)
-            ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRs1 * 4]);
-        else
-            ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRs1 * 8]);
-
-        VPERM::fmv_sf(VectorRegField, _vt._sew / 8, pVL, pVLEN / 8, pVd, ScalarReg, pVSTART, pXLEN / 8);
 
         return (0);
     }
@@ -7302,8 +7267,72 @@ extern "C"
     /* 16. Vector Permutation Instructions */
     /* 16.1. Integer Scalar Move Instructions */
     /* End 16.1. */
+
     /* 16.2. Floating-Point Scalar Move Instructions */
+    uint8_t vfmv_f_s(void *pV, void *pF, uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                     uint16_t pVL, uint8_t pFLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+        std::uint8_t *VectorRegField;
+        std::uint8_t *ScalarReg;
+
+        VectorRegField = static_cast<std::uint8_t *>(pV);
+        if (pFLEN <= 32)
+        {
+            ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRd * 4]);
+        }
+        else
+        {
+            ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRd * 8]);
+        }
+
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART };
+
+        VPERM::perm_op_move_float(VectorRegField, v_instr_info, pVs2, ScalarReg, pFLEN, false);
+
+        return 0;
+    }
+
+    uint8_t vfmv_s_f(void *pV, void *pF, uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN,
+                     uint16_t pVL, uint8_t pFLEN)
+    {
+        VTYPE::VTYPE _vt(pVTYPE);
+
+        if (pVL == 0)
+        {
+            return 0;
+        }
+
+        std::uint8_t *VectorRegField;
+        std::uint8_t *ScalarReg;
+        VectorRegField = static_cast<std::uint8_t *>(pV);
+        if (pFLEN <= 32)
+        {
+            ScalarReg = &((static_cast<std::uint8_t *>(pF))[pRs1 * 4]);
+        }
+        else
+        {
+            ScalarReg = &(static_cast<std::uint8_t *>(pF)[pRs1 * 8]);
+        }
+
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART };
+
+        VPERM::perm_op_move_float(VectorRegField, v_instr_info, pVd, ScalarReg, pFLEN, true);
+
+        return 0;
+    }
     /* End 16.2. */
+
     /* 16.3. Vector Slide Instructions */
     /* End 16.3. */
     /* 16.4. Vector Register Gather Instructions */

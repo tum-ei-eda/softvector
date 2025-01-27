@@ -34,6 +34,10 @@
 auto iterate_vector_slide_one(SVector const &vs2, std::uint64_t scalar, SVector &vd, SVRegister const &vm, bool mask,
                               std::size_t start_index, bool slide_down) -> void;
 
+auto convert_float_from_freg(std::uint64_t raw_value, std::size_t sew, std::size_t flen) -> std::uint64_t;
+
+auto convert_float_from_vec(std::uint64_t raw_value, std::size_t sew, std::size_t flen) -> std::uint64_t;
+
 // Private function definitions
 
 auto iterate_vector_slide_one(SVector const &vs2, std::uint64_t scalar, SVector &vd, SVRegister const &vm, bool mask,
@@ -63,6 +67,59 @@ auto iterate_vector_slide_one(SVector const &vs2, std::uint64_t scalar, SVector 
             vd[i_element + vd_offset] = vs2[i_element + vs2_offset];
         }
     }
+}
+
+inline auto convert_float_from_freg(std::uint64_t raw_value, std::size_t sew, std::size_t flen) -> std::uint64_t
+{
+    std::uint64_t converted_value = 0;
+    if (flen > sew)
+    {
+        converted_value = (sew == 16) ? check_and_unbox_f16(f64(raw_value)).v : check_and_unbox_f32(f64(raw_value)).v;
+    }
+    else
+    {
+        switch (sew)
+        {
+        case 16:
+            converted_value = f16(raw_value).v;
+            break;
+        case 32:
+            converted_value = f32(raw_value).v;
+            break;
+        case 64:
+            converted_value = f64(raw_value).v;
+            break;
+        default:
+            // Illegal
+            exit(EXIT_FAILURE);
+            break;
+        }
+    }
+    return converted_value;
+}
+
+inline auto convert_float_from_vec(std::uint64_t raw_value, std::size_t sew, std::size_t flen) -> std::uint64_t
+{
+    std::uint64_t converted_value = 0;
+
+    switch (sew)
+    {
+    case 16:
+        converted_value = (flen == 32) ? f16_to_f32(f16(raw_value)).v : box_f16(f16(raw_value)).v;
+        break;
+    case 32:
+        converted_value = (flen == 32) ? raw_value : box_f32(f32(raw_value)).v;
+        break;
+    case 64:
+        converted_value = raw_value;
+        break;
+    default:
+        // Illegal
+        exit(EXIT_FAILURE);
+        break;
+    }
+
+    return converted_value;
 }
 
 // Public function definitions
@@ -133,6 +190,48 @@ auto VPERM::perm_op_slide_vx(std::uint8_t *vec_reg_mem, VInstrInfo const &v_inst
                              perm_instr_info.slide_down);
 
     return VILL::vpu_return_t::NO_EXCEPT;
+}
+
+auto VPERM::perm_op_move_float(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info, uint16_t reg_v,
+                               uint8_t *scalar_reg_mem, uint8_t flen, bool vec_is_dest) -> VILL::vpu_return_t
+{
+
+    RVVRegField V(v_instr_info.vector_register_length, 1, v_instr_info.sew,
+                  SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+
+    if (!V.vec_reg_is_aligned(reg_v))
+    {
+        return VILL::VPU_RETURN::VFMV_VEC_ILL;
+    }
+
+    V.init();
+
+    RVVector &vec = V.get_vec(reg_v);
+
+    if (vec_is_dest)
+    {
+        // Take raw value from F registers, convert, move into vector
+        std::uint64_t raw_value = (flen > 32) ? *(reinterpret_cast<std::uint64_t *>(scalar_reg_mem))
+                                              : *(reinterpret_cast<std::uint32_t *>(scalar_reg_mem));
+
+        auto converted_value = convert_float_from_freg(raw_value, v_instr_info.sew, flen);
+        vec[0] = converted_value;
+        return VILL::vpu_return_t::NO_EXCEPT;
+    }
+    else
+    {
+        std::uint64_t raw_value = vec[0].to_u64();
+        auto converted_value = convert_float_from_vec(raw_value, v_instr_info.sew, flen);
+        if (flen == 32)
+        {
+            std::memcpy(scalar_reg_mem, &converted_value, 4);
+        }
+        else
+        {
+            std::memcpy(scalar_reg_mem, &converted_value, 8);
+        }
+        return VILL::vpu_return_t::NO_EXCEPT;
+    }
 }
 
 VILL::vpu_return_t VPERM::mv_xs(std::uint8_t *vec_reg_mem, std::uint16_t sew_bytes, std::uint16_t vec_len,

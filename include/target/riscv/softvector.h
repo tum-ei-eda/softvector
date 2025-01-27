@@ -1865,8 +1865,25 @@ extern "C"
     /* 16. Vector Permutation Instructions */
     /* 16.1. Integer Scalar Move Instructions */
     /* End 16.1. */
+
     /* 16.2. Floating-Point Scalar Move Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move first element of vs2 into floating-point register
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_f_s(void *pV, //!<[inout] Vector register field as local memory
+                     void *pF, //!<[inout] Floating point register field
+                     uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                     uint8_t pFLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move floating-point scalar into first element of vd
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_s_f(void *pV, //!<[inout] Vector register field as local memory
+                     void *pF, //!<[inout] Floating point register field
+                     uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                     uint8_t pFLEN);
     /* End 16.2. */
+
     /* 16.3. Vector Slide Instructions */
     /* End 16.3. */
     /* 16.4. Vector Register Gather Instructions */
