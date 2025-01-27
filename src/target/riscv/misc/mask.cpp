@@ -87,6 +87,10 @@ auto iterate_register_sxf(const SVRegister &vs2, SVRegister &vd, const SVRegiste
             {
                 vd.set_bit(i_element);
             }
+            else
+            {
+                vd.reset_bit(i_element);
+            }
         }
     }
 }
