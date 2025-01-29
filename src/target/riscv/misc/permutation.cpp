@@ -22,6 +22,7 @@
 #include <cstring>
 #include <cstdint>
 #include <cstddef>
+#include <cstdlib>
 
 #include "misc/permutation.hpp"
 #include "base/base.hpp"
