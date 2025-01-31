@@ -21,6 +21,8 @@
 
 #include "vpu/softvector-types.hpp"
 #include <cassert>
+#include <cstdint>
+#include <cstddef>
 
 namespace Deprecated
 {
@@ -1359,6 +1361,7 @@ SVector &SVector::m_vrgather(const SVector &opL, const SVector &rhs, const SVReg
             (*this)[i_element] = i_rhs >= vlmax ? 0 : opL[i_rhs].to_i64();
         }
     }
+    return (*this);
 }
 
 SVector &SVector::m_vrgather(const SVector &opL, const uint64_t rhs, const SVRegister &vm, bool mask, size_t vlmax,
@@ -1372,12 +1375,13 @@ SVector &SVector::m_vrgather(const SVector &opL, const uint64_t rhs, const SVReg
             (*this)[i_element] = rhs >= vlmax ? 0 : opL[rhs].to_i64();
         }
     }
+    return (*this);
 }
 
 SVector &SVector::m_vcompress(const SVector &opL, const SVRegister &vm, size_t start_index)
 {
     size_t i_dest = 0;
-    for (size_t i_element = start_index; i_element < length_; ++i_element)
+    for (size_t i_element = start_index; i_element < this->length_; ++i_element)
     {
         if (vm.get_bit(i_element))
         {
@@ -1385,6 +1389,7 @@ SVector &SVector::m_vcompress(const SVector &opL, const SVRegister &vm, size_t s
             i_dest++;
         }
     }
+    return (*this);
 }
 
 // 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions
@@ -2074,8 +2079,8 @@ SVector &SVector::m_scaling_srl(const SVector &opL, const SVector &rhs, const SV
         if (!mask || vm.get_bit(i_element))
         {
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            (*this)[i_element] =
-                Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            (*this)[i_element] = Deprecated::roundoff_unsigned(opL[i_element].to_u64(),
+                                                               rhs[i_element].to_u64() & bitmask, rounding_mode);
         }
     }
     return (*this);
@@ -2135,7 +2140,8 @@ SVector &SVector::m_narrowing_clipu(const SVector &opL, const SVector &rhs, cons
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            auto result = Deprecated::roundoff_unsigned(opL[i_element].to_u64(), rhs[i_element].to_u64() & bitmask,
+                                                        rounding_mode);
             if (result > (*this)[i_element].get_max_unsigned())
             {
                 // Overflow
@@ -2177,7 +2183,8 @@ SVector &SVector::m_narrowing_clip(const SVector &opL, const SVector &rhs, const
         {
             // opL: 2*SEW
             auto bitmask = opL[i_element].width_in_bits_ - 1;
-            auto result = Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
+            auto result =
+                Deprecated::roundoff_signed(opL[i_element].to_i64(), rhs[i_element].to_u64() & bitmask, rounding_mode);
             if (result > (*this)[i_element].get_max_signed())
             {
                 // Overflow

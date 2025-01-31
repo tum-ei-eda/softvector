@@ -1921,9 +1921,8 @@ extern "C"
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief VCOMPRESS vector - mask register
     /// \return 0 if no exception triggered, else 1
-    uint8_t vrgather_vm(void *pV, //!<[inout] Vector register field as local memory
-                        uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
-                        uint16_t pVL);
+    uint8_t vcompress_vm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL);
     /* End 16.5. */
 
     /* 16.6. Whole Vector Register Move */
