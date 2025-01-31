@@ -6,17 +6,17 @@
 
 // Private function declarations
 auto iterate_register_logical(const SVRegister &vs2, const SVRegister &vs1, SVRegister &vd, MaskFunction func,
-                              size_t length, size_t start_index = 0) -> void;
+                              size_t length, size_t start_index) -> void;
 
 auto iterate_register_vcpop(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length,
-                            size_t start_index = 0) -> uint64_t;
+                            size_t start_index) -> uint64_t;
 
 auto iterate_register_vfirst(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length,
-                             size_t start_index = 0) -> uint64_t;
+                             size_t start_index) -> uint64_t;
 
 // Set before/including/only first
 auto iterate_register_sxf(const SVRegister &vs2, SVRegister &vd, const SVRegister &vm, bool mask, bool including_first,
-                          bool only_first, size_t length, size_t start_index = 0) -> uint64_t;
+                          bool only_first, size_t length, size_t start_index) -> void;
 
 auto check_vector_register_overlap(const RVVector &vec, const SVRegister &reg) -> bool;
 
@@ -30,8 +30,8 @@ auto iterate_register_logical(const SVRegister &vs2, const SVRegister &vs1, SVRe
     }
 }
 
-auto iterate_register_vcpop(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length, size_t start_index)
-    -> uint64_t
+auto iterate_register_vcpop(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length,
+                            size_t start_index) -> uint64_t
 {
     uint64_t rd_value = 0;
     for (size_t i_element = start_index; i_element < length; ++i_element)
@@ -44,8 +44,8 @@ auto iterate_register_vcpop(const SVRegister &vs2, const SVRegister &vm, bool ma
     return rd_value;
 }
 
-auto iterate_register_vfirst(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length, size_t start_index)
-    -> uint64_t
+auto iterate_register_vfirst(const SVRegister &vs2, const SVRegister &vm, bool mask, size_t length,
+                             size_t start_index) -> uint64_t
 {
     uint64_t rd_value = -1;
     for (size_t i_element = start_index; i_element < length; ++i_element)
@@ -63,7 +63,7 @@ auto iterate_register_vfirst(const SVRegister &vs2, const SVRegister &vm, bool m
 }
 
 auto iterate_register_sxf(const SVRegister &vs2, SVRegister &vd, const SVRegister &vm, bool mask, bool including_first,
-                          bool only_first, size_t length, size_t start_index) -> uint64_t
+                          bool only_first, size_t length, size_t start_index) -> void
 {
     auto first_found = false;
     for (size_t i_element = start_index; i_element < length; ++i_element)
@@ -151,7 +151,7 @@ auto VMASK::mask_op_to_scalar(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t 
     V.init();
     SVRegister &vs2 = V.get_vecreg(src_vec_reg_lhs);
 
-    uint64_t result;
+    uint64_t result = 0;
     if (is_vcpop)
     {
         result = iterate_register_vcpop(vs2, V.get_mask_reg(), !mask_f, vec_len, vec_elem_start);
@@ -168,8 +168,8 @@ auto VMASK::mask_op_to_scalar(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t 
 
 auto VMASK::mask_op_sxf(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes,
                         uint16_t vec_len, uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint16_t src_vec_reg_lhs,
-                        uint16_t vec_elem_start, bool mask_f, bool including_first, bool only_first)
-    -> VILL::vpu_return_t
+                        uint16_t vec_elem_start, bool mask_f, bool including_first,
+                        bool only_first) -> VILL::vpu_return_t
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
@@ -253,8 +253,8 @@ auto VMASK::mask_viota(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_de
 }
 
 auto VMASK::mask_vid(uint8_t *vec_reg_mem, uint64_t emul_num, uint64_t emul_denom, uint16_t sew_bytes, uint16_t vec_len,
-                     uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint16_t vec_elem_start, bool mask_f)
-    -> VILL::vpu_return_t
+                     uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint16_t vec_elem_start,
+                     bool mask_f) -> VILL::vpu_return_t
 {
     RVVRegField V(vec_reg_len_bytes * 8, vec_len, sew_bytes * 8, SVMul(emul_num, emul_denom), vec_reg_mem);
 
