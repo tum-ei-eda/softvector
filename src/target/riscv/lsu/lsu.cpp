@@ -80,20 +80,14 @@ VILL::vpu_return_t VLSU::store_eew(std::function<void(size_t, uint8_t *, size_t)
     return (VILL::VPU_RETURN::NO_EXCEPT);
 }
 
-auto VLSU::load_indices(
-    std::function<void(size_t, uint8_t *, size_t)> func_read_mem, //!< Function for memory read access
-    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional [0..32*VLEN-1] byte array
-    VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
-    uint16_t reg_vd,                //!< Destination vector [index]
-    uint16_t reg_vs2,               //!< Index source vector [index]
-    uint64_t src_mem_start,         //!< Source memory start address
-    uint16_t eew                    //!< Effective element width [bits]
-    ) -> VILL::vpu_return_t
+auto VLSU::load_indices(std::function<void(size_t, uint8_t *, size_t)> func_read_mem, uint8_t *vec_reg_mem,
+                        VInstrInfo const &v_instr_info, uint16_t reg_vd, uint16_t reg_vs2, uint64_t src_mem_start,
+                        uint16_t eew) -> VILL::vpu_return_t
 {
     RVVRegField V_dest(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                        SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    auto const emul_num = eew * v_instr_info.lmul_denom;
+    auto const emul_num = eew * v_instr_info.lmul_num;
     auto const emul_denom = v_instr_info.sew * v_instr_info.lmul_denom;
 
     RVVRegField V_indices(v_instr_info.vector_register_length, v_instr_info.vector_length, eew,
@@ -120,7 +114,7 @@ auto VLSU::load_indices(
     for (size_t i = 0; i < v_instr_info.vector_length; ++i)
     {
         // TODO: Overflow possible? Checking?
-        auto index_offset = vs2[i].to_i64();
+        auto index_offset = vs2[i].to_u64();
         size_t mem_offset = src_mem_start + index_offset;
         if (i >= v_instr_info.start_element && (!v_instr_info.masked || V_dest.get_mask_reg().get_bit(i)))
         {
@@ -131,15 +125,9 @@ auto VLSU::load_indices(
     return VILL::VPU_RETURN::NO_EXCEPT;
 }
 
-auto VLSU::store_indices(
-    std::function<void(size_t, uint8_t *, size_t)> func_write_mem, //!< Function for memory read access
-    uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional [0..32*VLEN-1] byte array
-    VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
-    uint16_t reg_vs3,               //!< Destination vector [index]
-    uint16_t reg_vs2,               //!< Index source vector [index]
-    uint64_t dst_mem_start,         //!< Source memory start address
-    uint16_t eew                    //!< Effective element width [bits]
-    ) -> VILL::vpu_return_t
+auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_write_mem, uint8_t *vec_reg_mem,
+                         VInstrInfo const &v_instr_info, uint16_t reg_vs3, uint16_t reg_vs2, uint64_t dst_mem_start,
+                         uint16_t eew) -> VILL::vpu_return_t
 {
     RVVRegField V_src(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                       SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
@@ -171,7 +159,7 @@ auto VLSU::store_indices(
     for (size_t i = 0; i < v_instr_info.vector_length; ++i)
     {
         // TODO: Overflow possible? Checking?
-        size_t memOffset = dst_mem_start + vs2[i].to_i64();
+        size_t memOffset = dst_mem_start + vs2[i].to_u64();
         if (i >= v_instr_info.start_element && (!v_instr_info.masked || V_src.get_mask_reg().get_bit(i)))
         {
             func_write_mem(memOffset, vs3[i].mem_, sew_bytes);
