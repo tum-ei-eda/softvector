@@ -9,7 +9,7 @@
 
 // Private function declarations
 
-inline auto iterate_vector(const SVector &vs2, std::uint64_t scalar, SVector &vd, const SVRegister &vm, bool mask,
+inline auto iterate_vector(const SVector &vs2, const SVector &vs1, SVector &vd, const SVRegister &vm, bool mask,
                            VARITH_FIXP::FixpointFunction func, std::size_t start_index, bool signed_op, std::size_t sew,
                            std::uint8_t rounding_mode) -> bool;
 
