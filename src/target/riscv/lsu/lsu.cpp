@@ -19,10 +19,13 @@
 /// \date 06/23/2020
 //////////////////////////////////////////////////////////////////////////////////////
 
-#include "lsu/lsu.hpp"
+#include <vector>
+#include <algorithm>
+
 #include "base/base.hpp"
-#include "vpu/softvector-types.hpp"
 #include "base/softvector-platform-types.hpp"
+#include "vpu/softvector-types.hpp"
+#include "lsu/lsu.hpp"
 
 VILL::vpu_return_t VLSU::load_eew(std::function<void(size_t, uint8_t *, size_t)> func_read_mem, uint8_t *vec_reg_mem,
                                   uint64_t emul_num, uint64_t emul_denom, uint16_t eew_bytes, uint16_t vec_len,
@@ -127,20 +130,24 @@ auto VLSU::load_indices(std::function<void(size_t, uint8_t *, size_t)> func_read
 
 auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_write_mem, uint8_t *vec_reg_mem,
                          VInstrInfo const &v_instr_info, uint16_t reg_vs3, uint16_t reg_vs2, uint64_t dst_mem_start,
-                         uint16_t eew) -> VILL::vpu_return_t
+                         uint16_t eew, uint8_t nf) -> VILL::vpu_return_t
 {
     RVVRegField V_src(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                       SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    auto const emul_num = eew * v_instr_info.lmul_denom;
+    auto const emul_num = eew * v_instr_info.lmul_num;
     auto const emul_denom = v_instr_info.sew * v_instr_info.lmul_denom;
 
     RVVRegField V_indices(v_instr_info.vector_register_length, v_instr_info.vector_length, eew,
                           SVMul(emul_num, emul_denom), vec_reg_mem);
 
-    if (!V_src.vec_reg_is_aligned(reg_vs3))
+    for (size_t i = 0; i < nf; i++)
     {
-        return (VILL::VPU_RETURN::SRC3_VEC_ILL);
+        auto reg = reg_vs3 + std::max(i, i * (v_instr_info.lmul_num / v_instr_info.lmul_denom));
+        if (!V_src.vec_reg_is_aligned(reg))
+        {
+            return (VILL::VPU_RETURN::SRC3_VEC_ILL);
+        }
     }
     if (!V_indices.vec_reg_is_aligned(reg_vs2))
     {
@@ -150,7 +157,15 @@ auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_wri
     V_src.init();
     V_indices.init();
 
-    RVVector &vs3 = V_src.get_vec(reg_vs3);
+    auto vectors = std::vector<std::reference_wrapper<RVVector>>();
+    for (size_t i = 0; i < nf; i++)
+    {
+        auto reg = reg_vs3 + std::max(i, i * (v_instr_info.lmul_num / v_instr_info.lmul_denom));
+        RVVector &v = V_src.get_vec(reg);
+        vectors.push_back(v);
+    }
+
+    // RVVector &vs3 = V_src.get_vec(reg_vs3);
     RVVector &vs2 = V_indices.get_vec(reg_vs2);
 
     auto const eew_bytes = eew >> 3;
@@ -158,11 +173,14 @@ auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_wri
 
     for (size_t i = 0; i < v_instr_info.vector_length; ++i)
     {
-        // TODO: Overflow possible? Checking?
-        size_t memOffset = dst_mem_start + vs2[i].to_u64();
         if (i >= v_instr_info.start_element && (!v_instr_info.masked || V_src.get_mask_reg().get_bit(i)))
         {
-            func_write_mem(memOffset, vs3[i].mem_, sew_bytes);
+            size_t mem_offset = dst_mem_start + vs2[i].to_u64();
+            for (size_t field = 0; field < nf; field++)
+            {
+                func_write_mem(mem_offset, vectors[field].get()[i].mem_, sew_bytes);
+                mem_offset += sew_bytes;
+            }
         }
     }
 
