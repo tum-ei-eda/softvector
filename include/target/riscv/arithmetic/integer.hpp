@@ -221,7 +221,7 @@ inline IntFunction div = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd,
         return;
     }
     // Overflow case
-    if (lhs == ((std::uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    if (lhs == ((std::uint64_t)1 << (vd.width_in_bits_ - 1)) && rhs == static_cast<uint64_t>(-1))
     {
         vd = lhs;
     }
@@ -246,7 +246,7 @@ inline IntFunction rem = [](std::uint64_t lhs, std::uint64_t rhs, SVElement &vd,
         return;
     }
     // Overflow case
-    if (lhs == ((std::uint64_t)1 << vd.width_in_bits_ - 1) && rhs == -1)
+    if (lhs == ((std::uint64_t)1 << (vd.width_in_bits_ - 1)) && rhs == static_cast<uint64_t>(-1))
     {
         vd = 0;
     }

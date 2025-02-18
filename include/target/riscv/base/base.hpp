@@ -223,12 +223,12 @@ struct VInstrInfo
     bool wide_vs1 = false;                //!< True if this vector uses width 2*SEW
 };
 
-inline constexpr auto xlen_32_bytes = 4;
+constexpr auto xlen_32_bytes = 4;
 
 // Masks for 5 bit immediate
-inline constexpr uint64_t imm_msb_mask = 0x10_u64;
-inline constexpr uint64_t imm_width_mask = 0x1F_u64;
-inline constexpr uint64_t imm_ext_mask = ~imm_width_mask;
+constexpr uint64_t imm_msb_mask = 0x10_u64;
+constexpr uint64_t imm_width_mask = 0x1F_u64;
+constexpr uint64_t imm_ext_mask = ~imm_width_mask;
 
 inline auto sign_extend_immediate(std::uint8_t imm5) -> uint64_t
 {

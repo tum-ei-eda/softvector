@@ -667,7 +667,7 @@ VILL::vpu_return_t VPERM::vcompress_vm(std::uint8_t *vec_reg_mem, std::uint64_t 
     RVVector &vs2 = V.get_vec(src_vec_reg_lhs);
     RVVector &vd = V.get_vec(dst_vec_reg);
 
-    std::size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
+    // std::size_t vlmax = ((lmul_num * vec_reg_len_bytes) / sew_bytes) / lmul_denom;
     vd.m_vcompress(vs2, vs1, vec_elem_start);
 
     return (VILL::VPU_RETURN::NO_EXCEPT);

@@ -148,7 +148,7 @@ inline FixpointFunction ssubu = [](uint64_t lhs, uint64_t rhs, SVElement &vd, si
     if (res > lhs)
     {
         // Overflow
-        res = 1_i64 << sew - 1;
+        res = 1_i64 << (sew - 1);
         sat = true;
     }
     vd = res;

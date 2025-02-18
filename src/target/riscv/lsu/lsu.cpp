@@ -111,7 +111,7 @@ auto VLSU::load_indices(std::function<void(size_t, uint8_t *, size_t)> func_read
     RVVector &vd = V_dest.get_vec(reg_vd);
     RVVector &vs2 = V_indices.get_vec(reg_vs2);
 
-    auto const eew_bytes = eew >> 3;
+    // auto const eew_bytes = eew >> 3;
     auto const sew_bytes = v_instr_info.sew >> 3;
 
     for (size_t i = 0; i < v_instr_info.vector_length; ++i)
@@ -168,7 +168,7 @@ auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_wri
     // RVVector &vs3 = V_src.get_vec(reg_vs3);
     RVVector &vs2 = V_indices.get_vec(reg_vs2);
 
-    auto const eew_bytes = eew >> 3;
+    // auto const eew_bytes = eew >> 3;
     auto const sew_bytes = v_instr_info.sew >> 3;
 
     for (size_t i = 0; i < v_instr_info.vector_length; ++i)
