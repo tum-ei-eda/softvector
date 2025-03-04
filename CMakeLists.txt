@@ -34,18 +34,15 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 	${TARGET_SRCS}
 )
 
-# Set NO_ETISS to 1 to build using own softfloat library
-IF(NOT NO_ETISS)
-	SET(NO_ETISS 0)
-ENDIF()
-IF(NO_ETISS EQUAL 1)
+# Set NO_ETISS to build using own softfloat library
+SET(NO_ETISS OFF CACHE BOOL "Use softvector softfloat instead of ETISS softfloat.")
+IF(NO_ETISS)
 	MESSAGE("Using softvector softfloat")
 	ADD_SUBDIRECTORY(lib)
 ELSE()
 	target_compile_definitions(${PROJECT_NAME} PRIVATE ETISS_SOFTFLOAT)
 	MESSAGE("Using ETISS softfloat")
 ENDIF()
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} softfloat)
 
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	include/target/${TARGET_PLATFORM_NAME}

@@ -1,4 +1,3 @@
-IF(NO_ETISS EQUAL 1)
-    message("Using softvector-internal softfloat library")
+IF(NO_ETISS)
     ADD_SUBDIRECTORY(softfloat)
 ENDIF()
