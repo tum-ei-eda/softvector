@@ -39,10 +39,16 @@ SET(NO_ETISS OFF CACHE BOOL "Use softvector softfloat instead of ETISS softfloat
 IF(NO_ETISS)
 	MESSAGE("Using softvector softfloat")
 	ADD_SUBDIRECTORY(lib)
+	TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC 
+	lib/softfloat/RISCV
+	lib/softfloat/include/softfloat
+	)
 ELSE()
 	target_compile_definitions(${PROJECT_NAME} PRIVATE ETISS_SOFTFLOAT)
 	MESSAGE("Using ETISS softfloat")
 ENDIF()
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC softfloat)
 
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	include/target/${TARGET_PLATFORM_NAME}
