@@ -36,7 +36,7 @@ jobs:
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTARGET_NAME=$TARGET_NAME -DTEST_BUILD=$TEST_BUILD -DCMAKE_INSTALL_PREFIX=../install -DNO_ETISS=1
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTARGET_NAME=$TARGET_NAME -DTEST_BUILD=$TEST_BUILD -DCMAKE_INSTALL_PREFIX=../install -DNO_ETISS
 
       - name: Build
         shell: bash
