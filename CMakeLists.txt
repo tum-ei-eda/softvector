@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.15)
 PROJECT(softvector)
 
-SET(CMAKE_CXX_STANDARD 17)
+SET(CMAKE_CXX_STANDARD 20)
 SET(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 IF(NOT TARGET_NAME)
@@ -25,13 +25,30 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 	src/target/${TARGET_PLATFORM_NAME}/base/base.cpp
 	src/target/${TARGET_PLATFORM_NAME}/lsu/lsu.cpp
 	src/target/${TARGET_PLATFORM_NAME}/arithmetic/integer.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/arithmetic/fixedpoint.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/arithmetic/floatingpoint.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/misc/mask.cpp
+	src/target/${TARGET_PLATFORM_NAME}/arithmetic/fixedpoint.cpp
+	src/target/${TARGET_PLATFORM_NAME}/arithmetic/floatingpoint.cpp
+	src/target/${TARGET_PLATFORM_NAME}/arithmetic/softfloat-extension.cpp
+	src/target/${TARGET_PLATFORM_NAME}/misc/mask.cpp
 	src/target/${TARGET_PLATFORM_NAME}/misc/permutation.cpp
-	#src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
+	src/target/${TARGET_PLATFORM_NAME}/misc/reduction.cpp
 	${TARGET_SRCS}
 )
+
+# Set NO_ETISS to build using own softfloat library
+SET(NO_ETISS OFF CACHE BOOL "Use softvector softfloat instead of ETISS softfloat.")
+IF(NO_ETISS)
+	MESSAGE("Using softvector softfloat")
+	ADD_SUBDIRECTORY(lib)
+	TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC 
+	lib/softfloat/RISCV
+	lib/softfloat/include/softfloat
+	)
+ELSE()
+	target_compile_definitions(${PROJECT_NAME} PRIVATE ETISS_SOFTFLOAT)
+	MESSAGE("Using ETISS softfloat")
+ENDIF()
+
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} PUBLIC softfloat)
 
 TARGET_INCLUDE_DIRECTORIES(${PROJECT_NAME} PUBLIC
 	include/target/${TARGET_PLATFORM_NAME}

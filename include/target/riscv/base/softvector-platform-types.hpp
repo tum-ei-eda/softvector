@@ -27,6 +27,7 @@
 #include <array>
 
 #include "vpu/softvector-types.hpp"
+#include "base.hpp"
 
 #define SVMaskReg SVRegister
 
@@ -157,7 +158,7 @@ class RVVRegField
     /// \brief Check wether passed register number is aligned with the current vector register field configuration.
     /// \param reg_n Register number
     /// \returns True unless not aligned.
-    bool vec_reg_is_aligned(const size_t reg_n)
+    bool vec_reg_is_aligned(const size_t reg_n) const
     {
         if (!multiplicity_.is_frac())
         {
@@ -188,5 +189,42 @@ class RVVRegField
     /// \brief Get the SVRegister responsible for masking operations
     SVRegister &get_mask_reg(void) { return (regs_[0]); }
 };
+
+// Check Register Alignment
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, std::uint16_t reg_vs1, bool wide_vd, bool wide_vs2)
+    -> VILL::vpu_return_t
+{
+
+    if (!V.vec_reg_is_aligned(reg_vs1))
+    {
+        return (VILL::VPU_RETURN::SRC1_VEC_ILL);
+    }
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
+
+inline auto check_alignment(const RVVRegField &V, const RVVRegField &V_wide, std::uint16_t reg_vd,
+                            std::uint16_t reg_vs2, bool wide_vd, bool wide_vs2) -> VILL::vpu_return_t
+{
+    if ((!wide_vs2 && !V.vec_reg_is_aligned(reg_vs2)) || (wide_vs2 && !V_wide.vec_reg_is_aligned(reg_vs2)))
+    {
+        return (VILL::VPU_RETURN::SRC2_VEC_ILL);
+    }
+    if ((!wide_vd && !V.vec_reg_is_aligned(reg_vd)) || (wide_vd && !V_wide.vec_reg_is_aligned(reg_vd)))
+    {
+        return (VILL::VPU_RETURN::DST_VEC_ILL);
+    }
+
+    return VILL::VPU_RETURN::NO_EXCEPT;
+}
 
 #endif /* __SOFTVECOR_TYPES_H__ */

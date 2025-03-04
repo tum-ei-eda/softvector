@@ -1,0 +1,3 @@
+IF(NO_ETISS)
+    ADD_SUBDIRECTORY(softfloat)
+ENDIF()

@@ -332,8 +332,71 @@ extern "C"
     uint8_t vext_vf(void *pV, //!<[inout] Vector register field as local memory
                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t extension_encoding,
                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
-    /* End 11.3. */
+    /* End 11.3.*/
 
+    /* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Sum with carry vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vadc_vvm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Sum with carry vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vadc_vxm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Sum with carry vector-immediate
+    /// \return 0 if no exception triggered
+    uint8_t vadc_vim(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Produce carry-out in mask register format vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vmadc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Produce carry-out in mask register format vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vmadc_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Produce carry-out in mask register format vector-immediate
+    /// \return 0 if no exception triggered
+    uint8_t vmadc_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Difference with borrow vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vsbc_vvm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Difference with borrow vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vsbc_vxm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Produce borrow-out in mask register format vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vmsbc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Produce borrow-out in mask register format vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vmsbc_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 11.4. */
+
+    /* 11.5. Vector Bitwise Logical Instructions */
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief AND vector-vector
     /// \return 0 if no exception triggered, else 1
@@ -399,7 +462,9 @@ extern "C"
                     void *pR, //!<[in] Integer/General Purpose register field
                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 11.5. */
 
+    /* 11.6. Vector Single-Width Shift Instructions */
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief SLL vector-vector
     /// \return 0 if no exception triggered, else 1
@@ -465,7 +530,55 @@ extern "C"
                     void *pR, //!<[in] Integer/General Purpose register field
                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 11.6. */
 
+    /* 11.7. Vector Narrowing Integer Right Shift Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRL vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsrl_wv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRL vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsrl_wi(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRL vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsrl_wx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRA vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsra_wv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRA vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsra_wi(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Narrowing SRA vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vnsra_wx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 11.7. */
+
+    /* 11.8. Vector Integer Compare Instructions */
     //////////////////////////////////////////////////////////////////////////////////////
     /// \brief MSEQ vector-vector
     /// \return 0 if no exception triggered, else 1
@@ -627,99 +740,69 @@ extern "C"
     uint8_t vmsgt_vi(void *pV, //!<[inout] Vector register field as local memory
                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
                      uint16_t pVLEN, uint16_t pVL);
+    /* End 11.8. */
 
-    /* PERMUTATION */
+    /* 11.9. Vector Integer Min/Max Instructions */
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Move first element (0) of a vector register A to scalar register X := SEW>XLEN ? A[0] : sext(A[0])
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vmv_xs(void *pV, //!<[in] Vector register field as local memory
-                   void *pR, //!<[inout] Integer/General Purpose register field
-                   uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Move scalar register to first element (0) of a vector register A[0] := SEW<XLEN ? X : sext(X)
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vmv_sx(void *pV, //!<[inout] Vector register field as local memory
-                   void *pR, //!<[in] Integer/General Purpose register field
-                   uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
-                   uint8_t pXLEN);
+    /// \brief Signed MAX vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vmax_vv(void *pV, //!<[inout] Vector register field as local memory
+                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Move first element (0) of a vector register A to scalar fp register F := SEW>XLEN ? A[0] : sext(A[0])
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vfmv_fs(void *pV, //!<[in] Vector register field as local memory
-                    void *pF, //!<[inout] Floating point register field
-                    uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /// \brief Signed MAX vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vmax_vx(void *pV, //!<[inout] Vector register field as local memory
+                    void *pR, //!<[in] Integer/General Purpose register field
+                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Move scalar fp register to first element (0) of a vector register A[0] := SEW<XLEN ? F : sext(F)
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vfmv_sf(void *pV, //!<[in] Vector register field as local memory
-                    void *pF, //!<[inout] Floating point register field
-                    uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
-                    uint8_t pXLEN);
+    /// \brief Unsigned MAX vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vmaxu_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslideup.vx vd, vs2, rs1, vm        # vd[i+rs1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslideup_vx(void *pV, //!<[inout] Vector register field as local memory
-                        void *pR, //!<[in] Integer/General Purpose register field
-                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /// \brief Unsigned MAX vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vmaxu_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslideup.vi vd, vs2, uimm[4:0], vm        # vd[i+rs1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslideup_vi(void *pV, //!<[inout] Vector register field as local memory
-                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                        uint16_t pVLEN, uint16_t pVL);
+    /// \brief Signed MIN vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vmin_vv(void *pV, //!<[inout] Vector register field as local memory
+                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslidedown.vx vd, vs2, rs1, vm        # vd[i+rs1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslidedown_vx(void *pV, //!<[inout] Vector register field as local memory
-                          void *pR, //!<[in] Integer/General Purpose register field
-                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                          uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /// \brief Signed MIN vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vmin_vx(void *pV, //!<[inout] Vector register field as local memory
+                    void *pR, //!<[in] Integer/General Purpose register field
+                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslidedown.vi vd, vs2, uimm[4:0], vm        # vd[i+rs1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslidedown_vi(void *pV, //!<[inout] Vector register field as local memory
-                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                          uint16_t pVLEN, uint16_t pVL);
+    /// \brief Unsigned MIN vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vminu_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
 
     //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslide1up.vx vd, vs2, rs1, vm        # vd[0]=x[rs1], vd[i+1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslide1up(void *pV, //!<[inout] Vector register field as local memory
-                      void *pR, //!<[in] Integer/General Purpose register field
-                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vfslide1up.vf vd, vs2, fs1, vm        # vd[0]=f[rs1], vd[i+1] = vs2[i]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vfslide1up(void *pV, //!<[inout] Vector register field as local memory
-                       void *pF, //!<[inout] Floating point register field
-                       uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                       uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vslide1down.vx  vd, vs2, rs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=x[rs1]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vslide1down(void *pV, //!<[inout] Vector register field as local memory
-                        void *pR, //!<[in] Integer/General Purpose register field
-                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief vfslide1down.vf vd, vs2, fs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=f[rs1]
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vfslide1down(void *pV, //!<[inout] Vector register field as local memory
-                         void *pF, //!<[inout] Floating point register field
-                         uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                         uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /// \brief Unsigned MIN vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vminu_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 11.9. */
 
     /* 11.10. Vector Single-Width Integer Multiply Instructions */
     /////////////////////////////////////////////////////////////////////////////////////
@@ -888,174 +971,6 @@ extern "C"
                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
     /* End 11.12. */
 
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Signed MAX vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vmax_vv(void *pV, //!<[inout] Vector register field as local memory
-                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                    uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Signed MAX vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vmax_vx(void *pV, //!<[inout] Vector register field as local memory
-                    void *pR, //!<[in] Integer/General Purpose register field
-                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Unsigned MAX vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vmaxu_vv(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Unsigned MAX vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vmaxu_vx(void *pV, //!<[inout] Vector register field as local memory
-                     void *pR, //!<[in] Integer/General Purpose register field
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Signed MIN vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vmin_vv(void *pV, //!<[inout] Vector register field as local memory
-                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                    uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Signed MIN vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vmin_vx(void *pV, //!<[inout] Vector register field as local memory
-                    void *pR, //!<[in] Integer/General Purpose register field
-                    uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Unsigned MIN vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vminu_vv(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Unsigned MIN vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vminu_vx(void *pV, //!<[inout] Vector register field as local memory
-                     void *pR, //!<[in] Integer/General Purpose register field
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    /* 11.4. Vector Integer Add-with-Carry / Subtract-with-Borrow Instructions */
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Sum with carry vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vadc_vvm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Sum with carry vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vadc_vxm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Sum with carry vector-immediate
-    /// \return 0 if no exception triggered
-    uint8_t vadc_vim(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Produce carry-out in mask register format vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vmadc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Produce carry-out in mask register format vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vmadc_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Produce carry-out in mask register format vector-immediate
-    /// \return 0 if no exception triggered
-    uint8_t vmadc_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Difference with borrow vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vsbc_vvm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Difference with borrow vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vsbc_vxm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Produce borrow-out in mask register format vector-vector
-    /// \return 0 if no exception triggered
-    uint8_t vmsbc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Produce borrow-out in mask register format vector-scalar
-    /// \return 0 if no exception triggered
-    uint8_t vmsbc_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
-                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-    /* End 11.4. */
-
-    /* 11.7. Vector Narrowing Integer Right Shift Instructions */
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRL vector-vector
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsrl_wv(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRL vector-immediate
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsrl_wi(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRL vector-scalar
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsrl_wx(void *pV, //!<[inout] Vector register field as local memory
-                     void *pR, //!<[in] Integer/General Purpose register field
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRA vector-vector
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsra_wv(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRA vector-immediate
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsra_wi(void *pV, //!<[inout] Vector register field as local memory
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    /// \brief Narrowing SRA vector-scalar
-    /// \return 0 if no exception triggered, else 1
-    uint8_t vnsra_wx(void *pV, //!<[inout] Vector register field as local memory
-                     void *pR, //!<[in] Integer/General Purpose register field
-                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
-                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
-    /* End 11.7. */
-
     /* 11.13. Vector Single-Width Integer Multiply-Add Instructions */
     /////////////////////////////////////////////////////////////////////////////////////
     /// \brief MACC vector-vector
@@ -1071,6 +986,21 @@ extern "C"
                      void *pR, //!<[in] Integer/General Purpose register field
                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    /// \brief NMSAC vector-vector
+    /// \return 0 if no exception triggered
+    uint8_t vnmsac_vv(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    /////////////////////////////////////////////////////////////////////////////////////
+    /// \brief NMSAC vector-scalar
+    /// \return 0 if no exception triggered
+    uint8_t vnmsac_vx(void *pV, //!<[inout] Vector register field as local memory
+                      void *pR, //!<[in] Integer/General Purpose register field
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
 
     /////////////////////////////////////////////////////////////////////////////////////
     /// \brief NMSAC vector-vector
@@ -1214,6 +1144,793 @@ extern "C"
                    uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
                    uint8_t pXLEN);
     /* End 11.16. */
+    /* End 11. */
+
+    /* 12. Vector Fixed-Point Arithmetic Instructions */
+    /* 12.1. Vector Single-Width Saturating Add and Subtract */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating unsigned ADD vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsaddu_vv(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating unsigned ADD vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsaddu_vi(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating unsigned ADD vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsaddu_vx(void *pV, //!<[inout] Vector register field as local memory
+                      void *pR, //!<[in] Integer/General Purpose register field
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    /// \brief Saturating signed ADD vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsadd_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating signed ADD vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsadd_vi(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating signed ADD vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vsadd_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    /// \brief Saturating unsigned SUB vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vssubu_vv(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating unsigned SUB vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vssubu_vx(void *pV, //!<[inout] Vector register field as local memory
+                      void *pR, //!<[in] Integer/General Purpose register field
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    /// \brief Saturating signed SUB vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vssub_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Saturating signed SUB vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vssub_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 12.1. */
+
+    /* 12.2. Vector Single-Width Averaging Add and Subtract */
+    /// \brief Averaging unsigned ADD vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vaaddu_vv(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Averaging unsigned ADD vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vaaddu_vx(void *pV, //!<[inout] Vector register field as local memory
+                      void *pR, //!<[in] Integer/General Purpose register field
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    /// \brief Averaging signed ADD vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vaadd_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Averaging signed ADD vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vaadd_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    /// \brief Averaging unsigned SUB vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vasubu_vv(void *pV, //!<[inout] Vector register field as local memory
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Averaging unsigned SUB vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vasubu_vx(void *pV, //!<[inout] Vector register field as local memory
+                      void *pR, //!<[in] Integer/General Purpose register field
+                      uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    /// \brief Averaging signed SUB vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vasub_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Averaging signed SUB vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vasub_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+    /* End 12.2. */
+
+    /* 12.3. Vector Single-Width Fractional Multiply with Rounding and Saturation */
+    /// \brief Signed fractional MUL with rounding and saturation vector-vector
+    /// \return 0 if not saturated, else 1
+    uint8_t vsmul_vv(void *pV, //!<[inout] Vector register field as local memory
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Signed fractional MUL with rounding and saturation vector-scalar
+    /// \return 0 if not saturated, else 1
+    uint8_t vsmul_vx(void *pV, //!<[inout] Vector register field as local memory
+                     void *pR, //!<[in] Integer/General Purpose register field
+                     uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+    /* End 12.3. */
+
+    /* 12.4. Vector Single-Width Scaling Shift Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling logical right shift vector-vector
+    uint8_t vssrl_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling logical right shift vector-immediate
+    uint8_t vssrl_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling logical right shift vector-scalar
+    uint8_t vssrl_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling arithmetic right shift vector-vector
+    uint8_t vssra_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling arithmetic right shift vector-immediate
+    uint8_t vssra_vi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Scaling arithmetic right shift vector-scalar
+    uint8_t vssra_vx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    /* End 12.4. */
+
+    /* 12.5. Vector Narrowing Fixed-Point Clip Instructions */
+    uint8_t vnclipu_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vnclipu_wi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vnclipu_wx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+
+    uint8_t vnclip_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vnclip_wi(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vnclip_wx(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN, uint8_t pRm);
+    /* End 12.5. */
+    /* End 12. */
+
+    /* 16. Vector Permutation Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move first element (0) of a vector register A to scalar register X := SEW>XLEN ? A[0] : sext(A[0])
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vmv_xs(void *pV, //!<[in] Vector register field as local memory
+                   void *pR, //!<[inout] Integer/General Purpose register field
+                   uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move scalar register to first element (0) of a vector register A[0] := SEW<XLEN ? X : sext(X)
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vmv_sx(void *pV, //!<[inout] Vector register field as local memory
+                   void *pR, //!<[in] Integer/General Purpose register field
+                   uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                   uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move first element (0) of a vector register A to scalar fp register F := SEW>XLEN ? A[0] : sext(A[0])
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_fs(void *pV, //!<[in] Vector register field as local memory
+                    void *pF, //!<[inout] Floating point register field
+                    uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move scalar fp register to first element (0) of a vector register A[0] := SEW<XLEN ? F : sext(F)
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_sf(void *pV, //!<[in] Vector register field as local memory
+                    void *pF, //!<[inout] Floating point register field
+                    uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                    uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslideup.vx vd, vs2, rs1, vm        # vd[i+rs1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslideup_vx(void *pV, //!<[inout] Vector register field as local memory
+                        void *pR, //!<[in] Integer/General Purpose register field
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslideup.vi vd, vs2, uimm[4:0], vm        # vd[i+rs1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslideup_vi(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslidedown.vx vd, vs2, rs1, vm        # vd[i+rs1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslidedown_vx(void *pV, //!<[inout] Vector register field as local memory
+                          void *pR, //!<[in] Integer/General Purpose register field
+                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslidedown.vi vd, vs2, uimm[4:0], vm        # vd[i+rs1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslidedown_vi(void *pV, //!<[inout] Vector register field as local memory
+                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslide1up.vx vd, vs2, rs1, vm        # vd[0]=x[rs1], vd[i+1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslide1up_vx(void *pV, //!<[inout] Vector register field as local memory
+                         void *pR, //!<[in] Integer/General Purpose register field
+                         uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vfslide1up.vf vd, vs2, fs1, vm        # vd[0]=f[rs1], vd[i+1] = vs2[i]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfslide1up_vf(void *pV, //!<[inout] Vector register field as local memory
+                          void *pF, //!<[inout] Floating point register field
+                          uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vslide1down.vx  vd, vs2, rs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=x[rs1]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vslide1down_vx(void *pV, //!<[inout] Vector register field as local memory
+                           void *pR, //!<[in] Integer/General Purpose register field
+                           uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                           uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief vfslide1down.vf vd, vs2, fs1, vm      # vd[i] = vs2[i+1], vd[vl-1]=f[rs1]
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfslide1down_vf(void *pV, //!<[inout] Vector register field as local memory
+                            void *pF, //!<[inout] Floating point register field
+                            uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
+    /* End 16. */
+
+    /* 13. Vector Floating-Point Instructions */
+    /* 13.2. Vector Single-Width Floating-Point Add/Subtract Instructions */
+    uint8_t vfadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfrsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.2. */
+
+    /* 13.3. Vector Widening Floating-Point Add/Subtract Instructions */
+    uint8_t vfwadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwadd_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwadd_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwsub_wv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwsub_wf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.3. */
+
+    /* 13.4. Vector Single-Width Floating-Point Multiply/Divide Instructions */
+    uint8_t vfmul_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfdiv_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfrdiv_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.4. */
+
+    /* 13.5. Vector Widening Floating-Point Multiply */
+    uint8_t vfwmul_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwmul_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.5. */
+
+    /* 13.6. Vector Single-Width Floating-Point Fused Multiply-Add Instructions */
+    uint8_t vfmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfnmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfnmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfmadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfnmadd_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfnmadd_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfmsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfnmsub_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfnmsub_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.6. */
+
+    /* 13.7. Vector Widening Floating-Point Fused Multiply-Add Instructions */
+    uint8_t vfwmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwnmacc_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwnmacc_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfwnmsac_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwnmsac_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.7. */
+
+    /* 13.8. Vector Floating-Point Square-Root Instruction */
+    uint8_t vfsqrt_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.8. */
+
+    /* 13.9. Vector Floating-Point Reciprocal Square-Root Estimate Instruction */
+    uint8_t vfrsqrt7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                       uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.9. */
+
+    /* 13.10. Vector Floating-Point Reciprocal Estimate Instruction */
+    uint8_t vfrec7_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.10.*/
+
+    /* 13.11. Vector Floating-Point MIN/MAX Instructions */
+    uint8_t vfmin_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmin_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfmax_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfmax_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.11.*/
+
+    /* 13.12. Vector Floating-Point Sign-Injection Instructions */
+    uint8_t vfsgnj_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfsgnj_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                      uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfsgnjn_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfsgnjn_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vfsgnjx_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfsgnjx_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.12.*/
+
+    /* 13.13. Vector Floating-Point Compare Instructions */
+    uint8_t vmfeq_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vmfeq_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vmfne_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vmfne_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vmflt_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vmflt_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vmfle_vv(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vmfle_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vmfgt_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+
+    uint8_t vmfge_vf(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1,
+                     uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN, uint8_t pRm);
+    /* End 13.13.*/
+
+    /* 13.14. Vector Floating-Point Classify Instruction */
+    uint8_t vfclass_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.14.*/
+
+    /* 13.15. Vector Floating-Point Merge Instruction */
+    uint8_t vfmerge_vfm(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pFLEN);
+    /* End 13.15.*/
+
+    /* 13.16. Vector Floating-Point Move Instruction */
+    uint8_t vfmv_v_f(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN,
+                     uint16_t pVL, uint8_t pFLEN);
+    /* End 13.16.*/
+
+    /* 13.17. Single-Width Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.17.*/
+
+    /* 13.18. Widening Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfwcvt_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_rtz_xu_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_rtz_x_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_xu_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_x_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwcvt_f_f_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.18.*/
+
+    /* 13.19. Narrowing Floating-Point/Integer Type-Convert Instructions */
+    uint8_t vfncvt_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rtz_xu_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                              uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rtz_x_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_xu_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                          uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_x_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfncvt_rod_f_f_w(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART,
+                             uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 13.19.*/
+
+    /* 14. Vector Reduction Operations */
+    /* 14.1. Vector Single-Width Integer Reduction Instructions */
+    uint8_t vredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmaxu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredminu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredand_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vredxor_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                       uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    /* End 14.1. */
+    /* 14.2. Vector Widening Integer Reduction Instructions */
+    uint8_t vwredsumu_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vwredsum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+    /* End 14.2. */
+    /* 14.3. Vector Single-Width Floating-Point Reduction Instructions */
+    uint8_t vfredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                         uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredmax_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfredmin_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                        uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 14.3. */
+    /* 14.4. Vector Widening Floating-Point Reduction Instructions */
+    uint8_t vfwredosum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+
+    uint8_t vfwredusum_vs(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2,
+                          uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL, uint8_t pRm);
+    /* End 14.4. */
+    /* End 14. */
+
+    /* 15. Vector Mask Instructions */
+    /* 15.1. Vector Mask-Register Logical Instructions */
+    uint8_t vmand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmnand_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmandn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmxor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmorn_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL);
+
+    uint8_t vmxnor_mm(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                      uint16_t pVLEN, uint16_t pVL);
+    /* End 15.1. */
+    /* 15.2. Vector count population in mask vcpop.m */
+    uint8_t vcpop_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                    uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 15.2. */
+    /* 15.3. vfirst find-first-set mask bit */
+    uint8_t vfirst_m(void *pV, void *pR, uint16_t pVTYPE, uint8_t pVm, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART,
+                     uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 15.3. */
+    /* 15.4. vmsbf.m set-before-first mask bit */
+    uint8_t vmsbf_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL);
+    /* End 15.4. */
+    /* 15.5. vmsif.m set-including-first mask bit */
+    uint8_t vmsif_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL);
+    /* End 15.5. */
+    /* 15.6. vmsof.m set-only-first mask bit */
+    uint8_t vmsof_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL);
+    /* End 15.6. */
+    /* 15.8. Vector Iota Instruction */
+    uint8_t viota_m(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN,
+                    uint16_t pVL);
+    /* End 15.8. */
+    /* 15.9. Vector Element Index Instruction */
+    uint8_t vid_v(void *pV, uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL);
+    /* End 15.9. */
+    /* End 15. */
+    /* 16. Vector Permutation Instructions */
+    /* 16.1. Integer Scalar Move Instructions */
+    /* End 16.1. */
+
+    /* 16.2. Floating-Point Scalar Move Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move first element of vs2 into floating-point register
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_f_s(void *pV, //!<[inout] Vector register field as local memory
+                     void *pF, //!<[inout] Floating point register field
+                     uint16_t pVTYPE, uint8_t pRd, uint8_t pVs2, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                     uint8_t pFLEN);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief Move floating-point scalar into first element of vd
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vfmv_s_f(void *pV, //!<[inout] Vector register field as local memory
+                     void *pF, //!<[inout] Floating point register field
+                     uint16_t pVTYPE, uint8_t pVd, uint8_t pRs1, uint16_t pVSTART, uint16_t pVLEN, uint16_t pVL,
+                     uint8_t pFLEN);
+    /* End 16.2. */
+
+    /* 16.3. Vector Slide Instructions */
+    /* End 16.3. */
+    /* 16.4. Vector Register Gather Instructions */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vv(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHEREI16 vector-vector
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgatherei16_vv(void *pV, //!<[inout] Vector register field as local memory
+                            uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                            uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-immediate
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vi(void *pV, //!<[inout] Vector register field as local memory
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pVimm, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL);
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VRGATHER vector-scalar
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vrgather_vx(void *pV, //!<[inout] Vector register field as local memory
+                        void *pR, //!<[in] Integer/General Purpose register field
+                        uint16_t pVTYPE, uint8_t pVm, uint8_t pVd, uint8_t pVs2, uint8_t pRs1, uint16_t pVSTART,
+                        uint16_t pVLEN, uint16_t pVL, uint8_t pXLEN);
+    /* End 16.4. */
+
+    /* 16.5. Vector Compress Instruction */
+    //////////////////////////////////////////////////////////////////////////////////////
+    /// \brief VCOMPRESS vector - mask register
+    /// \return 0 if no exception triggered, else 1
+    uint8_t vcompress_vm(void *pV, uint16_t pVTYPE, uint8_t pVd, uint8_t pVs1, uint8_t pVs2, uint16_t pVSTART,
+                         uint16_t pVLEN, uint16_t pVL);
+    /* End 16.5. */
+
+    /* 16.6. Whole Vector Register Move */
+    uint8_t vmvr_v(void *pV, //!<[inout] Vector register field as local memory
+                   uint16_t pVTYPE, uint8_t pVd, uint8_t pVs2, uint8_t simm5, uint16_t pVSTART, uint16_t pVLEN,
+                   uint16_t pVL);
+    /* End 16.6. */
+    /* End 16. */
 
 #ifdef __cplusplus
 } // extern "C"
