@@ -1,0 +1,3 @@
+[submodule "lib/softfloat"]
+	path = lib/softfloat
+	url = git@github.com:danielschloms/softvector_softfloat.git
