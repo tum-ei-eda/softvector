@@ -27,6 +27,8 @@
 #include "vpu/softvector-types.hpp"
 #include "lsu/lsu.hpp"
 
+// TODO: Read/Write exceptions are currently ignored
+
 VILL::vpu_return_t VLSU::load_eew(std::function<void(size_t, uint8_t *, size_t)> func_read_mem, uint8_t *vec_reg_mem,
                                   uint64_t emul_num, uint64_t emul_denom, uint16_t eew_bytes, uint16_t vec_len,
                                   uint16_t vec_reg_len_bytes, uint16_t dst_vec_reg, uint64_t src_mem_start,
@@ -157,6 +159,9 @@ auto VLSU::store_indices(std::function<void(size_t, uint8_t *, size_t)> func_wri
     V_src.init();
     V_indices.init();
 
+    // This is done to match the store order in the testing repository.
+    // However, the speficiation states that stores can occur in any order, 
+    // so the tests should reflect that in the future.
     auto vectors = std::vector<std::reference_wrapper<RVVector>>();
     for (size_t i = 0; i < nf; i++)
     {
