@@ -61,10 +61,12 @@ auto VREDUC::red_op_int(uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info, ui
     RVVRegField V(v_instr_info.vector_register_length, v_instr_info.vector_length, v_instr_info.sew,
                   SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
+    // Reduction operation: don't increase EMUL for wide field!
     RVVRegField V_wide(v_instr_info.vector_register_length, v_instr_info.vector_length, 2 * v_instr_info.sew,
-                       SVMul(2 * v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
+                       SVMul(v_instr_info.lmul_num, v_instr_info.lmul_denom), vec_reg_mem);
 
-    auto alignment_exception = check_alignment(V, V_wide, reg_vd, reg_vs1, v_instr_info.wide_vd, v_instr_info.wide_vd);
+    auto alignment_exception =
+        check_alignment(V, V_wide, reg_vd, reg_vs2, reg_vs1, v_instr_info.wide_vd, v_instr_info.wide_vs2);
     if (alignment_exception != VILL::vpu_return_t::NO_EXCEPT)
     {
         return alignment_exception;

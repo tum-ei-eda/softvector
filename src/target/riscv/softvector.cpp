@@ -6850,7 +6850,7 @@ extern "C"
                                  .start_element = pVSTART,
                                  .masked = !pVm,
                                  .wide_vd = true,
-                                 .wide_vs2 = true };
+                                 .wide_vs2 = false };
 
         VREDUC::red_op_int(VectorRegField, v_instr_info, pVd, pVs1, pVs2, VARITH_INT::add);
 
@@ -6874,7 +6874,7 @@ extern "C"
                                  .masked = !pVm,
                                  .signed_op = true,
                                  .wide_vd = true,
-                                 .wide_vs2 = true };
+                                 .wide_vs2 = false };
 
         VREDUC::red_op_int(VectorRegField, v_instr_info, pVd, pVs1, pVs2, VARITH_INT::add);
 
