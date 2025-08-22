@@ -20,14 +20,22 @@ void iterate_vector_float(SVector const &vs2, std::uint64_t vs1_first, SVector &
 void iterate_vector_int(SVector const &vs2, std::uint64_t vs1_first, SVector &vd, SVRegister const &vm, bool mask,
                         VARITH_INT::IntFunction func, bool signed_op, std::size_t start_index)
 {
-    vd[0] = vs1_first;
+    auto first = true;
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
             std::uint64_t lhs = signed_op ? vs2[i_element].to_i64() : vs2[i_element].to_u64();
-            // TODO: Not very optimized
-            std::uint64_t rhs = signed_op ? vd[0].to_i64() : vd[0].to_u64();
+            std::uint64_t rhs = 0;
+            if (first)
+            {
+                rhs = vs1_first;
+                first = false;
+            }
+            else
+            {
+                rhs = signed_op ? vd[0].to_i64() : vd[0].to_u64();
+            }
             func(lhs, rhs, vd[0], false);
         }
     }
@@ -36,15 +44,23 @@ void iterate_vector_int(SVector const &vs2, std::uint64_t vs1_first, SVector &vd
 void iterate_vector_float(SVector const &vs2, std::uint64_t vs1_first, SVector &vd, SVRegister const &vm, bool mask,
                           VARITH_FLOAT::FloatFunction func, std::size_t sew, std::size_t start_index, bool widening)
 {
-    vd[0] = vs1_first;
+    auto first = true;
     for (size_t i_element = start_index; i_element < vd.length_; ++i_element)
     {
         if (!mask || vm.get_bit(i_element))
         {
 
             std::uint64_t lhs = vs2[i_element].to_u64();
-            // TODO: Not very optimized
-            std::uint64_t rhs = vd[0].to_u64();
+            std::uint64_t rhs = 0;
+            if (first)
+            {
+                rhs = vs1_first;
+                first = false;
+            }
+            else
+            {
+                rhs = vd[0].to_u64();
+            }
             func(lhs, rhs, vd[0], sew << widening);
         }
     }
