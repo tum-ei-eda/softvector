@@ -80,8 +80,8 @@ auto VREDUC::red_op_int(uint8_t *vec_reg_mem, const VInstrInfo &v_instr_info, ui
         V_wide.init();
     }
 
-    std::uint64_t vs1_first =
-        v_instr_info.wide_vd ? V_wide.get_vec(reg_vs1)[0].to_u64() : V.get_vec(reg_vs1)[0].to_u64();
+    std::uint64_t vs1_first = v_instr_info.signed_op ? V.get_vec(reg_vs1)[0].to_i64() : V.get_vec(reg_vs1)[0].to_u64();
+
     RVVector &vs2 = V.get_vec(reg_vs2);
     RVVector &vd = v_instr_info.wide_vd ? V_wide.get_vec(reg_vd) : V.get_vec(reg_vd);
 
@@ -118,8 +118,6 @@ auto VREDUC::red_op_float(uint8_t *vec_reg_mem, VInstrInfo const &v_instr_info,
         V_wide.init();
     }
 
-    // std::uint64_t vs1_first =
-    //     v_instr_info.wide_vd ? V_wide.get_vec(reg_vs1)[0].to_u64() : V.get_vec(reg_vs1)[0].to_u64();
     std::uint64_t vs1_first = V.get_vec(reg_vs1)[0].to_u64();
 
     RVVector &vs2 = V.get_vec(reg_vs2);
