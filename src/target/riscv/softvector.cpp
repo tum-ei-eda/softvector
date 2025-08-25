@@ -49,15 +49,30 @@ extern "C"
         return VTYPE::encode(sew, z_lmul, n_lmul, ta, ma);
     }
 
-    std::uint8_t vtype_extractSEW(std::uint16_t pVTYPE) { return VTYPE::extractSEW(pVTYPE); }
+    std::uint8_t vtype_extractSEW(std::uint16_t pVTYPE)
+    {
+        return VTYPE::extractSEW(pVTYPE);
+    }
 
-    std::uint8_t vtype_extractLMUL(std::uint16_t pVTYPE) { return VTYPE::extractLMUL(pVTYPE); }
+    std::uint8_t vtype_extractLMUL(std::uint16_t pVTYPE)
+    {
+        return VTYPE::extractLMUL(pVTYPE);
+    }
 
-    std::uint8_t vtype_extractTA(std::uint16_t pVTYPE) { return VTYPE::extractTA(pVTYPE); }
+    std::uint8_t vtype_extractTA(std::uint16_t pVTYPE)
+    {
+        return VTYPE::extractTA(pVTYPE);
+    }
 
-    std::uint8_t vtype_extractMA(std::uint16_t pVTYPE) { return VTYPE::extractMA(pVTYPE); }
+    std::uint8_t vtype_extractMA(std::uint16_t pVTYPE)
+    {
+        return VTYPE::extractMA(pVTYPE);
+    }
 
-    std::uint16_t vcfg_concatEEW(std::uint8_t mew, std::uint8_t width) { return (VTYPE::concatEEW(mew, width)); }
+    std::uint16_t vcfg_concatEEW(std::uint8_t mew, std::uint8_t width)
+    {
+        return (VTYPE::concatEEW(mew, width));
+    }
 
     std::uint8_t vload_encoded_unitstride(void *pV, std::uint8_t *pM, std::uint16_t pVTYPE, std::uint8_t pVm,
                                           std::uint16_t pEEW, std::uint8_t pVd, std::uint16_t pVSTART,
@@ -75,10 +90,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_readMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    buff[i] = pM[addr + i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                buff[i] = pM[addr + i];
+        };
 
         VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
                        pVm, pEEW / 8);
@@ -104,10 +120,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_readMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    buff[i] = pM[addr + i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                buff[i] = pM[addr + i];
+        };
 
         VLSU::load_eew(f_readMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
                        pVm, pSTRIDE);
@@ -135,10 +152,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_readMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    buff[i] = pM[addr + i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                buff[i] = pM[addr + i];
+        };
 
         std::uint16_t _vstart = pVSTART;
         std::uint64_t _moffset = pMSTART;
@@ -175,10 +193,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_readMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    buff[i] = pM[addr + i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                buff[i] = pM[addr + i];
+        };
 
         std::uint16_t _vstart = pVSTART;
         std::uint64_t _moffset = pMSTART;
@@ -210,10 +229,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_writeMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    pM[addr + i] = buff[i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                pM[addr + i] = buff[i];
+        };
 
         VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
                         pVm, pEEW / 8);
@@ -237,10 +257,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_writeMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    pM[addr + i] = buff[i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                pM[addr + i] = buff[i];
+        };
         VLSU::store_eew(f_writeMem, VectorRegField, _z_emul, _n_emul, pEEW / 8, pVL, pVLEN / 8, pVd, pMSTART, pVSTART,
                         pVm, pStride);
 
@@ -268,10 +289,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_writeMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    pM[addr + i] = buff[i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                pM[addr + i] = buff[i];
+        };
 
         std::uint16_t _vstart = pVSTART;
         std::uint64_t _moffset = pMSTART;
@@ -308,10 +330,11 @@ extern "C"
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
         std::function<void(std::size_t, std::uint8_t *, std::size_t)> f_writeMem =
-            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len) {
-                for (std::size_t i = 0; i < len; ++i)
-                    pM[addr + i] = buff[i];
-            };
+            [pM](std::size_t addr, std::uint8_t *buff, std::size_t len)
+        {
+            for (std::size_t i = 0; i < len; ++i)
+                pM[addr + i] = buff[i];
+        };
 
         std::uint16_t _vstart = pVSTART;
         std::uint64_t _moffset = pMSTART;
@@ -348,7 +371,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::add);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::add);
         return (0);
     }
 
@@ -371,7 +395,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm, VARITH_INT::add);
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::add);
 
         return (0);
     }
@@ -402,7 +427,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::add);
+                              VARITH_INT::deprecated::add);
 
         return (0);
     }
@@ -426,7 +451,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::sub);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::sub);
 
         return (0);
     }
@@ -456,7 +482,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::sub);
+                              VARITH_INT::deprecated::sub);
 
         // VARITH_INT::int_instr_info_t int_instr_info; VARITH_INT::int_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul,
         // _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
@@ -492,7 +518,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::rsub);
+                              VARITH_INT::deprecated::rsub);
 
         return (0);
     }
@@ -516,7 +542,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm, VARITH_INT::rsub);
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::rsub);
 
         return (0);
     }
@@ -625,7 +652,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::add);
+                              VARITH_INT::deprecated::add);
 
         // VARITH_INT::wop_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
         // ScalarReg,
@@ -757,7 +784,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::add);
+                              VARITH_INT::deprecated::add);
 
         // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
         // ScalarReg,
@@ -793,7 +820,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::add);
+                              VARITH_INT::deprecated::add);
 
         // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
         // ScalarReg,
@@ -849,7 +876,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::sub);
+                              VARITH_INT::deprecated::sub);
 
         // VARITH_INT::wop_wx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
         // ScalarReg,
@@ -895,7 +922,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::logical_and);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::logical_and);
 
         return (0);
     }
@@ -919,7 +947,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm, VARITH_INT::logical_and);
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::logical_and);
 
         return (0);
     }
@@ -949,7 +978,7 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::logical_and);
+                              VARITH_INT::deprecated::logical_and);
 
         // VARITH_INT::int_instr_info_t int_instr_info; VARITH_INT::int_op_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul,
         // _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2,
@@ -978,7 +1007,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::logical_or);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::logical_or);
 
         return (0);
     }
@@ -991,8 +1021,19 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VARITH_INT::or_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
-                          pVSTART, pVm);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
+
+        auto int_instr_info = VARITH_INT::IntInstrInfo{};
+
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::logical_or);
 
         return (0);
     }
@@ -1011,8 +1052,19 @@ extern "C"
         else
             ScalarReg = &(static_cast<std::uint8_t *>(pR)[pRs1 * 8]);
 
-        VARITH_INT::or_vx(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, ScalarReg,
-                          pVSTART, pVm, pXLEN / 8);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = false };
+
+        auto int_instr_info = VARITH_INT::IntInstrInfo{};
+
+        VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
+                              VARITH_INT::deprecated::logical_or);
 
         return (0);
     }
@@ -1036,7 +1088,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::logical_xor);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::logical_xor);
 
         return (0);
     }
@@ -1049,8 +1102,19 @@ extern "C"
 
         VectorRegField = static_cast<std::uint8_t *>(pV);
 
-        VARITH_INT::xor_vi(VectorRegField, _vt._z_lmul, _vt._n_lmul, _vt._sew / 8, pVL, pVLEN / 8, pVd, pVs2, pVimm,
-                           pVSTART, pVm);
+        VInstrInfo v_instr_info{ .lmul_num = _vt._z_lmul,
+                                 .lmul_denom = _vt._n_lmul,
+                                 .sew = _vt._sew,
+                                 .vector_length = pVL,
+                                 .vector_register_length = pVLEN,
+                                 .start_element = pVSTART,
+                                 .masked = !pVm,
+                                 .signed_op = true };
+
+        auto int_instr_info = VARITH_INT::IntInstrInfo{};
+
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::logical_xor);
 
         return (0);
     }
@@ -1081,7 +1145,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::logical_xor);
+                              VARITH_INT::deprecated::logical_xor);
 
         return (0);
     }
@@ -1108,7 +1172,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::sll);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::sll);
 
         return (0);
     }
@@ -1166,7 +1231,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::srl);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::srl);
 
         return (0);
     }
@@ -1225,7 +1291,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::sra);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::sra);
 
         return (0);
     }
@@ -1250,7 +1317,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm, VARITH_INT::sra);
+        VARITH_INT::int_op_vi(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
+                              VARITH_INT::deprecated::sra);
 
         return (0);
     }
@@ -1429,7 +1497,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::eq);
+                                          pXLEN >> 3, VARITH_INT::deprecated::eq);
 
         return (0);
     }
@@ -1488,7 +1556,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::ne);
+                                          pXLEN >> 3, VARITH_INT::deprecated::ne);
 
         return (0);
     }
@@ -1533,7 +1601,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::ltu);
+                                          pXLEN >> 3, VARITH_INT::deprecated::ltu);
 
         return (0);
     }
@@ -1578,7 +1646,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::lt);
+                                          pXLEN >> 3, VARITH_INT::deprecated::lt);
 
         return (0);
     }
@@ -1617,7 +1685,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vi_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
-                                          VARITH_INT::leu);
+                                          VARITH_INT::deprecated::leu);
 
         return (0);
     }
@@ -1648,7 +1716,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::leu);
+                                          pXLEN >> 3, VARITH_INT::deprecated::leu);
 
         return (0);
     }
@@ -1707,7 +1775,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::le);
+                                          pXLEN >> 3, VARITH_INT::deprecated::le);
 
         return (0);
     }
@@ -1752,7 +1820,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::gtu);
+                                          pXLEN >> 3, VARITH_INT::deprecated::gtu);
 
         return (0);
     }
@@ -1811,7 +1879,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::gt);
+                                          pXLEN >> 3, VARITH_INT::deprecated::gt);
 
         return (0);
     }
@@ -2071,7 +2139,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::mul);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::mul);
 
         return (0);
     }
@@ -2115,7 +2184,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::mulh);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::mulh);
 
         return (0);
     }
@@ -2159,7 +2229,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::mulhu);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::mulhu);
 
         return (0);
     }
@@ -2250,7 +2321,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN >> 3,
-                              VARITH_INT::div);
+                              VARITH_INT::deprecated::div);
 
         return (0);
     }
@@ -2274,7 +2345,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::div);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::div);
 
         return (0);
     }
@@ -2318,7 +2390,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::divu);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::divu);
 
         return (0);
     }
@@ -2349,7 +2422,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::rem);
+                              VARITH_INT::deprecated::rem);
 
         return (0);
     }
@@ -2373,7 +2446,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::rem);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::rem);
 
         return (0);
     }
@@ -2417,7 +2491,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::remu);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::remu);
 
         return (0);
     }
@@ -2444,7 +2519,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::mul);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::mul);
 
         return (0);
     }
@@ -2476,7 +2552,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::mul);
+                              VARITH_INT::deprecated::mul);
 
         return (0);
     }
@@ -2569,7 +2645,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::max);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::max);
 
         return (0);
     }
@@ -2600,7 +2677,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::max);
+                              VARITH_INT::deprecated::max);
 
         return (0);
     }
@@ -2624,7 +2701,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::maxu);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::maxu);
 
         return (0);
     }
@@ -2668,7 +2746,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::min);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::min);
 
         return (0);
     }
@@ -2699,7 +2778,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::min);
+                              VARITH_INT::deprecated::min);
 
         return (0);
     }
@@ -2723,7 +2802,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::minu);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::minu);
 
         return (0);
     }
@@ -2817,7 +2897,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vv_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
-                                          VARITH_INT::produce_carry_out);
+                                          VARITH_INT::deprecated::produce_carry_out);
 
         return (0);
     }
@@ -2848,7 +2928,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::produce_carry_out);
+                                          pXLEN >> 3, VARITH_INT::deprecated::produce_carry_out);
 
         return (0);
     }
@@ -2873,7 +2953,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vi_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, pVimm,
-                                          VARITH_INT::produce_carry_out);
+                                          VARITH_INT::deprecated::produce_carry_out);
 
         return (0);
     }
@@ -2897,7 +2977,8 @@ extern "C"
 
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
-        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2, VARITH_INT::sub);
+        VARITH_INT::int_op_vv(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
+                              VARITH_INT::deprecated::sub);
 
         return (0);
     }
@@ -2928,7 +3009,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN >> 3,
-                              VARITH_INT::sub);
+                              VARITH_INT::deprecated::sub);
 
         return (0);
     }
@@ -2953,7 +3034,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vv_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs1, pVs2,
-                                          VARITH_INT::produce_borrow_out);
+                                          VARITH_INT::deprecated::produce_borrow_out);
 
         return (0);
     }
@@ -2984,7 +3065,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mask_is_data = true };
 
         VARITH_INT::int_op_vx_to_register(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg,
-                                          pXLEN >> 3, VARITH_INT::produce_borrow_out);
+                                          pXLEN >> 3, VARITH_INT::deprecated::produce_borrow_out);
 
         return (0);
     }
@@ -3099,7 +3180,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::madd);
+                              VARITH_INT::deprecated::madd);
 
         return (0);
     }
@@ -3181,7 +3262,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::maccu);
+                              VARITH_INT::deprecated::maccu);
 
         return (0);
     }
@@ -3227,7 +3308,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{};
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::macc);
+                              VARITH_INT::deprecated::macc);
 
         return (0);
     }
@@ -3272,7 +3353,7 @@ extern "C"
         auto int_instr_info = VARITH_INT::IntInstrInfo{ .mixed_signed = true };
 
         VARITH_INT::int_op_vx(VectorRegField, v_instr_info, int_instr_info, pVd, pVs2, ScalarReg, pXLEN / 8,
-                              VARITH_INT::macc);
+                              VARITH_INT::deprecated::macc);
 
         return (0);
     }
@@ -6850,7 +6931,7 @@ extern "C"
                                  .start_element = pVSTART,
                                  .masked = !pVm,
                                  .wide_vd = true,
-                                 .wide_vs2 = false };
+                                 .wide_vs1 = true };
 
         VREDUC::red_op_int(VectorRegField, v_instr_info, pVd, pVs1, pVs2, VARITH_INT::add);
 
@@ -6874,7 +6955,7 @@ extern "C"
                                  .masked = !pVm,
                                  .signed_op = true,
                                  .wide_vd = true,
-                                 .wide_vs2 = false };
+                                 .wide_vs1 = true };
 
         VREDUC::red_op_int(VectorRegField, v_instr_info, pVd, pVs1, pVs2, VARITH_INT::add);
 
@@ -6998,7 +7079,7 @@ extern "C"
                                  .start_element = pVSTART,
                                  .masked = !pVm,
                                  .wide_vd = true,
-                                 .wide_vs2 = true };
+                                 .wide_vs1 = true };
 
         auto float_instr_info = VARITH_FLOAT::FloatInstrInfo{ .rounding_mode = pRm };
 
@@ -7024,7 +7105,7 @@ extern "C"
                                  .start_element = pVSTART,
                                  .masked = !pVm,
                                  .wide_vd = true,
-                                 .wide_vs2 = true };
+                                 .wide_vs1 = true };
 
         auto float_instr_info = VARITH_FLOAT::FloatInstrInfo{ .rounding_mode = pRm };
 

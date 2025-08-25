@@ -51,13 +51,15 @@ namespace VREDUC
 using ReductionFunction =
     std::function<void(SVElement & /* opL */, SVElement & /* vd */, bool /* is_signed */, size_t sew)>;
 
-inline ReductionFunction red_sum = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_sum = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = is_signed ? vd.to_i64() : vd.to_u64();
     res += is_signed ? vsx_element.to_i64() : vsx_element.to_u64();
     vd = res;
 };
 
-inline ReductionFunction red_max = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_max = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     if (is_signed)
     {
         auto res = vd.to_i64();
@@ -72,7 +74,8 @@ inline ReductionFunction red_max = [](SVElement &vsx_element, SVElement &vd, boo
     vd = res;
 };
 
-inline ReductionFunction red_min = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_min = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     if (is_signed)
     {
         auto res = vd.to_i64();
@@ -87,28 +90,29 @@ inline ReductionFunction red_min = [](SVElement &vsx_element, SVElement &vd, boo
     vd = res;
 };
 
-inline ReductionFunction red_logical_and = [](SVElement &vsx_element, SVElement &vd, bool is_signed,
-                                              size_t sew) -> void {
+inline ReductionFunction red_logical_and = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = is_signed ? vd.to_i64() : vd.to_u64();
     res &= is_signed ? vsx_element.to_i64() : vsx_element.to_u64();
     vd = res;
 };
 
-inline ReductionFunction red_logical_or = [](SVElement &vsx_element, SVElement &vd, bool is_signed,
-                                             size_t sew) -> void {
+inline ReductionFunction red_logical_or = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = is_signed ? vd.to_i64() : vd.to_u64();
     res |= is_signed ? vsx_element.to_i64() : vsx_element.to_u64();
     vd = res;
 };
 
-inline ReductionFunction red_logical_xor = [](SVElement &vsx_element, SVElement &vd, bool is_signed,
-                                              size_t sew) -> void {
+inline ReductionFunction red_logical_xor = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = is_signed ? vd.to_i64() : vd.to_u64();
     res ^= is_signed ? vsx_element.to_i64() : vsx_element.to_u64();
     vd = res;
 };
 
-inline ReductionFunction red_float_sum = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_float_sum = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = vd.to_u64();
     auto vsx_element_value = vsx_element.to_u64();
     switch (sew)
@@ -127,7 +131,8 @@ inline ReductionFunction red_float_sum = [](SVElement &vsx_element, SVElement &v
     }
 };
 
-inline ReductionFunction red_float_max = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_float_max = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = vd.to_u64();
     auto vsx_element_value = vsx_element.to_u64();
     switch (sew)
@@ -146,7 +151,8 @@ inline ReductionFunction red_float_max = [](SVElement &vsx_element, SVElement &v
     }
 };
 
-inline ReductionFunction red_float_min = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void {
+inline ReductionFunction red_float_min = [](SVElement &vsx_element, SVElement &vd, bool is_signed, size_t sew) -> void
+{
     auto res = vd.to_u64();
     auto vsx_element_value = vsx_element.to_u64();
     switch (sew)
@@ -166,7 +172,8 @@ inline ReductionFunction red_float_min = [](SVElement &vsx_element, SVElement &v
 };
 
 inline ReductionFunction red_widening_float_sum = [](SVElement &vsx_element, SVElement &vd, bool is_signed,
-                                                     size_t sew) -> void {
+                                                     size_t sew) -> void
+{
     auto res = vd.to_u64();
     auto vsx_element_value = vsx_element.to_u64();
     switch (sew)
@@ -182,21 +189,21 @@ inline ReductionFunction red_widening_float_sum = [](SVElement &vsx_element, SVE
     }
 };
 
-auto red_op_int(uint8_t *vec_reg_mem,           //!< Vector register file memory space. One dimensional
+auto red_op_int(std::uint8_t *vec_reg_mem,      //!< Vector register file memory space. One dimensional
                 VInstrInfo const &v_instr_info, //!< Struct containing vector instruction information
-                uint16_t reg_vd,                //!< Destination vector D [index]
-                uint16_t reg_vs1,               //!< Source vector R [index]
-                uint16_t reg_vs2,               //!< Source vector L [index]
+                std::uint16_t const reg_vd,     //!< Destination vector D [index]
+                std::uint16_t const reg_vs1,    //!< Source vector R [index]
+                std::uint16_t const reg_vs2,    //!< Source vector L [index]
                 VARITH_INT::IntFunction func    //!< Reduction function
                 ) -> VILL::vpu_return_t;
 
 auto red_op_float(
-    uint8_t *vec_reg_mem,                                 //!< Vector register file memory space. One dimensional
+    std::uint8_t *vec_reg_mem,                            //!< Vector register file memory space. One dimensional
     VInstrInfo const &v_instr_info,                       //!< Struct containing vector instruction information
     VARITH_FLOAT::FloatInstrInfo const &float_instr_info, //!< Struct containing float instruction information
-    uint16_t reg_vd,                                      //!< Destination vector D [index]
-    uint16_t reg_vs1,                                     //!< Source vector R [index]
-    uint16_t reg_vs2,                                     //!< Source vector L [index]
+    std::uint16_t const reg_vd,                           //!< Destination vector D [index]
+    std::uint16_t const reg_vs1,                          //!< Source vector R [index]
+    std::uint16_t const reg_vs2,                          //!< Source vector L [index]
     VARITH_FLOAT::FloatFunction func                      //!< Reduction function
     ) -> VILL::vpu_return_t;
 
