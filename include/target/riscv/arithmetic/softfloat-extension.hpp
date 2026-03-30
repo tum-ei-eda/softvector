@@ -12,7 +12,7 @@ Copyright (c) 2022-2023 Intitute for Complex Systems, Johannes Kepler University
 #ifdef ETISS_SOFTFLOAT
 extern "C"
 {
-#include "softfloat_orig.h"
+#include "softfloat.h"
 }
 #else
 #include "softfloat.hpp"

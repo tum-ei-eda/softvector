@@ -8,7 +8,7 @@
 #ifdef ETISS_SOFTFLOAT
 extern "C"
 {
-#include "softfloat_orig.h"
+#include "softfloat.h"
 }
 #else
 #include "softfloat.hpp"
