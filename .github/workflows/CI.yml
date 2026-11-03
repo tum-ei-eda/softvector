@@ -26,6 +26,7 @@ jobs:
         if: matrix.config.name == 'Linux'
         run: |
           sudo apt-get install libboost-system-dev
+          git submodule update --init --recursive
 
       - name: Create Build Environment
         run: |
@@ -35,7 +36,7 @@ jobs:
         shell: bash
         working-directory: ${{runner.workspace}}/build
         run: |
-          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTARGET_NAME=$TARGET_NAME -DTEST_BUILD=$TEST_BUILD -DCMAKE_INSTALL_PREFIX=../install
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTARGET_NAME=$TARGET_NAME -DTEST_BUILD=$TEST_BUILD -DCMAKE_INSTALL_PREFIX=../install -DNO_ETISS=true
 
       - name: Build
         shell: bash
